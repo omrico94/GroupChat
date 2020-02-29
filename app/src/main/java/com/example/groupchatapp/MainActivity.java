@@ -140,10 +140,10 @@ public class MainActivity extends AppCompatActivity
          {
              SendUserToFindFriendsActivity();
          }
-        if(item.getItemId()==R.id.main_Create_Group_option)
-        {
-            RequestNewGroup();
-        }
+         if(item.getItemId()==R.id.main_Create_Group_option)
+         {
+             RequestNewGroup();
+         }
 
          return true;
     }
