@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GroupsFragment extends Fragment
+public class GroupsFragment extends MyFragment
 {
     private View groupFragmentView;
     private ListView list_view;
@@ -41,6 +41,7 @@ public class GroupsFragment extends Fragment
     public GroupsFragment()
     {
         // Required empty public constructor
+        title="Groups";
     }
     @Override
     public void onCreate(Bundle savedInstanceState)
