@@ -1,14 +1,20 @@
 package com.example.groupchatapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompatSideChannelService;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,7 +25,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -27,9 +35,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +57,7 @@ public class ChatActivity extends AppCompatActivity {
     private TextView userName;//בסרטון יש כאן גם נראה לאחורנה
     private CircleImageView userImage;
     private Toolbar chatToolBar;
-    private ImageButton sendMessageButton;
+    private ImageButton sendMessageButton,sendFilesButton;
     private EditText messageInputText;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
@@ -51,6 +66,13 @@ public class ChatActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private MessageAdapter messageAdapter;
     private RecyclerView userMessagesList;
+
+    private String saveCurrentTime,saveCurrentDate,checker="" , myUrl="";
+    private Uri fileUri;
+    private StorageTask uploadTask;
+
+    private ProgressDialog loadingBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +101,58 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessage();
             }
         });
+
+
+        sendFilesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CharSequence options[]= new CharSequence[]
+                        {
+                                "Images",
+                                "PDF Files",
+                                "Ms Word Files"
+                        };
+
+                AlertDialog.Builder builder =  new AlertDialog.Builder(ChatActivity.this);
+                builder .setTitle("Select the File");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        if(i==0)
+                        {
+                            checker = "image";
+
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");
+                            startActivityForResult(intent.createChooser(intent,"Select Image"),438);
+                        }
+                        if(i==1)
+                        {
+                            checker = "pdf";
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("application/pdf");
+                            startActivityForResult(intent.createChooser(intent,"Select PDF File"),438);
+
+                        }
+                        if(i==2)
+                        {
+                            checker = "docx";
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("application/msword");
+                            startActivityForResult(intent.createChooser(intent,"Select Ms Word File"),438);
+
+                        }
+                    }
+                });
+                builder.show();
+            }
+        });
+
+
     }
 
     private void initializeControllers() {
@@ -98,15 +172,175 @@ public class ChatActivity extends AppCompatActivity {
         userImage=findViewById(R.id.custom_profile_image);
 
         sendMessageButton = findViewById(R.id.send_message_button);
-        messageInputText = findViewById(R.id.input_message);
+        sendFilesButton = findViewById(R.id.send_files_button);
 
+        messageInputText = findViewById(R.id.input_message);
+        loadingBar=new ProgressDialog(this);
         messageAdapter = new MessageAdapter(messagesList);
         userMessagesList = (RecyclerView) findViewById(R.id.private_messages_list_of_users);
         linearLayoutManager = new LinearLayoutManager(this);
         userMessagesList.setLayoutManager(linearLayoutManager);
         userMessagesList.setAdapter(messageAdapter);
+
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        saveCurrentDate = currentDate.format(calendar.getTime());
+
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calendar.getTime());
+
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==438 && resultCode==RESULT_OK&&data!=null &&data.getData()!=null)
+        {
+            loadingBar.setTitle("Sending File");
+            loadingBar.setMessage("Please wait,we are sending the file");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+
+
+            fileUri=data.getData();
+
+            if(!checker.equals("image"))
+            {
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Document Files");
+                final String messageSenderRef ="Messages/" + messageSenderId + "/" + messageReceiverId;
+                final String messageReceiverRef ="Messages/" + messageReceiverId + "/" + messageSenderId;
+
+                DatabaseReference userMessageKeyRef =
+                        rootRef.child("Messages").child(messageSenderRef).child(messageReceiverRef).push();
+                final String messagePushId = userMessageKeyRef.getKey();
+
+                final StorageReference filePath = storageReference.child(messagePushId + "." + checker);
+
+                filePath.putFile(fileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+                        if(task.isSuccessful())
+                        {
+                            final Map  messageTextBody  = new HashMap(){
+                                {
+                                    put("message", task.getResult().getDownloadUrl().toString());
+                                    put("name", fileUri.getLastPathSegment());
+                                    put("type", checker);
+                                    put("from", messageSenderId);
+                                    put("to", messageReceiverId);
+                                    put("messageId", messagePushId);
+                                    put("time", saveCurrentTime);
+                                    put("date", saveCurrentDate);
+
+                                }};
+
+                            Map  messageBodyDetails  = new HashMap(){
+                                {
+                                    put(messageSenderRef + "/" +messagePushId,messageTextBody);
+                                    put(messageReceiverRef + "/" +messagePushId,messageTextBody);
+                                }};
+
+                            rootRef.updateChildren(messageBodyDetails);
+                            loadingBar.dismiss();
+
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        loadingBar.dismiss();
+                        Toast.makeText(ChatActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        double p = (100.0 *taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        loadingBar.setMessage((int) p + " % Uploading");
+                    }
+                });
+            }
+            else if(checker.equals("image"))
+            {
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
+                final String messageSenderRef ="Messages/" + messageSenderId + "/" + messageReceiverId;
+                final String messageReceiverRef ="Messages/" + messageReceiverId + "/" + messageSenderId;
+
+                DatabaseReference userMessageKeyRef =
+                        rootRef.child("Messages").child(messageSenderRef).child(messageReceiverRef).push();
+                final String messagePushId = userMessageKeyRef.getKey();
+
+                final StorageReference filePath = storageReference.child(messagePushId + "." + "jpg");
+                uploadTask=filePath.putFile(fileUri);
+
+                uploadTask.continueWithTask(new Continuation() {
+                    @Override
+                    public Object then(@NonNull Task task) throws Exception {
+                        if(!task.isSuccessful())
+                        {
+                            throw task.getException();
+                        }
+                        return filePath.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+
+                        if(task.isSuccessful())
+                        {
+                            Uri downloadUrl = task.getResult();
+                            myUrl=downloadUrl.toString();
+
+                            final Map  messageTextBody  = new HashMap(){
+                                {
+                                    put("message", myUrl);
+                                    put("name", fileUri.getLastPathSegment());
+                                    put("type", checker);
+                                    put("from", messageSenderId);
+                                    put("to", messageReceiverId);
+                                    put("messageId", messagePushId);
+                                    put("time", saveCurrentTime);
+                                    put("date", saveCurrentDate);
+
+                                }};
+
+                            Map  messageBodyDetails  = new HashMap(){
+                                {
+                                    put(messageSenderRef + "/" +messagePushId,messageTextBody);
+                                    put(messageReceiverRef + "/" +messagePushId,messageTextBody);
+                                }};
+
+                            rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                    if(task.isSuccessful())
+                                    {
+                                        loadingBar.dismiss();
+                                        Toast.makeText(ChatActivity.this,"Message sent successfully",Toast.LENGTH_SHORT).show();
+                                    }
+                                    else
+                                    {
+                                        loadingBar.dismiss();
+                                        Toast.makeText(ChatActivity.this,"Error: message sent failed ",Toast.LENGTH_SHORT).show();
+                                    }
+                                    messageInputText.setText("");
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+            else
+            {
+                loadingBar.dismiss();
+                Toast.makeText(this, "Error, Nothing selected",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -171,6 +405,11 @@ public class ChatActivity extends AppCompatActivity {
                         put("message", messageText);
                         put("type", "text");
                         put("from", messageSenderId);
+                        put("to", messageReceiverId);
+                        put("messageId", messagePushId);
+                        put("time", saveCurrentTime);
+                        put("date", saveCurrentDate);
+
                     }};
 
                 Map  messageBodyDetails  = new HashMap(){

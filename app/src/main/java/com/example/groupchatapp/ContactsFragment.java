@@ -38,7 +38,6 @@ public class ContactsFragment extends MyFragment {
     private String currentUserId;
 
     public ContactsFragment() {
-        // Required empty public constructor
         title="Contacts";
     }
 
