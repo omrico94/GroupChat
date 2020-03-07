@@ -4,7 +4,7 @@
     android:background="@color/colorPrimary">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/custom_profile_image"
+        android:id="@+id/custom_group_image"
         android:layout_width="47dp"
         android:layout_height="47dp"
         android:layout_alignParentTop="true"
@@ -15,18 +15,16 @@
         />
 
     <TextView
-        android:id="@+id/custom_profile_name"
+        android:id="@+id/custom_group_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Display User Nmae"
+        android:text="Display Group Nmae"
         android:textColor="@android:color/background_light"
         android:textStyle="bold"
         android:textSize="18sp"
         />
-
-//כאן הוא מוסיף גם את נראה לאחורנה..
 
 
 </RelativeLayout>

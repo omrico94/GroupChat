@@ -47,16 +47,15 @@ public class FindFriendsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        FirebaseRecyclerOptions<Contacts> options=new FirebaseRecyclerOptions.Builder<Contacts>()
-                .setQuery(usersRef,Contacts.class)
+        FirebaseRecyclerOptions<Groups> options=new FirebaseRecyclerOptions.Builder<Groups>()
+                .setQuery(usersRef, Groups.class)
                 .build();
 
-        FirebaseRecyclerAdapter<Contacts,FindFriendViewHolder> adapter=new FirebaseRecyclerAdapter<Contacts, FindFriendViewHolder>(options) {
+        FirebaseRecyclerAdapter<Groups,FindFriendViewHolder> adapter=new FirebaseRecyclerAdapter<Groups, FindFriendViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, final int position, @NonNull Contacts model) {
+            protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, final int position, @NonNull Groups model) {
 
                 holder.userName.setText(model.getName());
-                holder.userStatus.setText(model.getStatus());
                 Picasso.get().load(model.getImage()).placeholder(R.drawable.profile_image).into(holder.profileImage);
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +74,7 @@ public class FindFriendsActivity extends AppCompatActivity {
             @NonNull
             @Override
             public FindFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.users_display_layout,parent,false);
+                View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.groups_display_layout,parent,false);
                 FindFriendViewHolder viewHolder = new FindFriendViewHolder(view);
                 return viewHolder;
             }
@@ -87,13 +86,12 @@ public class FindFriendsActivity extends AppCompatActivity {
 
     public static class FindFriendViewHolder extends RecyclerView.ViewHolder
     {
-        TextView userName,userStatus;
+        TextView userName;
         CircleImageView profileImage;
 
         public FindFriendViewHolder(@NonNull View itemView) {
             super(itemView);
             userName=itemView.findViewById(R.id.user_profile_name);
-            userStatus=itemView.findViewById(R.id.user_status);
             profileImage=itemView.findViewById(R.id.users_profile_image);
         }
     }

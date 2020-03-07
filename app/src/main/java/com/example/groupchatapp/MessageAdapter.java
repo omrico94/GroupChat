@@ -75,7 +75,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         String fromUserId = messages.getFrom();
         String fromMessageType = messages.getType();
 
-        usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(fromUserId);
+        usersRef = FirebaseDatabase.getInstance().getReference().child("new Groups").child(fromUserId);
 
         usersRef.addValueEventListener(new ValueEventListener() {
             @Override

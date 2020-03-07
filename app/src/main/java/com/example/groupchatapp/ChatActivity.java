@@ -6,7 +6,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompatSideChannelService;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,7 +18,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -53,9 +51,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private String messageReceiverId,messageReceiverName,messageReceiverImage,messageSenderId;
-    private TextView userName;//בסרטון יש כאן גם נראה לאחורנה
-    private CircleImageView userImage;
+    private String groupId, groupName, groupImageStr, userSenderId;
+    private TextView groupNameTextView;//בסרטון יש כאן גם נראה לאחורנה
+    private CircleImageView groupCircleImageView;
     private Toolbar chatToolBar;
     private ImageButton sendMessageButton,sendFilesButton;
     private EditText messageInputText;
@@ -80,19 +78,19 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         mAuth=FirebaseAuth.getInstance();
-        messageSenderId=mAuth.getCurrentUser().getUid();
+        userSenderId =mAuth.getCurrentUser().getUid();
         rootRef= FirebaseDatabase.getInstance().getReference();
-        messageReceiverId=getIntent().getExtras().get("visit_user_id").toString();
-        messageReceiverName=getIntent().getExtras().get("visit_user_name").toString();
-        messageReceiverImage=getIntent().getExtras().get("visit_user_image").toString();
+        groupId =getIntent().getExtras().get("group_id").toString();
+        groupName =getIntent().getExtras().get("group_name").toString();
+        groupImageStr =getIntent().getExtras().get("group_image").toString();
 
-        Toast.makeText(ChatActivity.this,messageReceiverId,Toast.LENGTH_SHORT).show();
-        Toast.makeText(ChatActivity.this,messageReceiverName,Toast.LENGTH_SHORT).show();
+        Toast.makeText(ChatActivity.this, groupId,Toast.LENGTH_SHORT).show();
+        Toast.makeText(ChatActivity.this, groupName,Toast.LENGTH_SHORT).show();
 
         initializeControllers();
 
-        userName.setText(messageReceiverName);
-        Picasso.get().load(messageReceiverImage).placeholder(R.drawable.profile_image).into(userImage);
+        groupNameTextView.setText(groupName);
+        Picasso.get().load(groupImageStr).placeholder(R.drawable.profile_image).into(groupCircleImageView);
 
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,8 +166,8 @@ public class ChatActivity extends AppCompatActivity {
         View actionBarView = layoutInflater.inflate(R.layout.custom_chat_bar,null);
         actionBar.setCustomView(actionBarView);
 
-        userName=findViewById(R.id.custom_profile_name);
-        userImage=findViewById(R.id.custom_profile_image);
+        groupNameTextView =findViewById(R.id.custom_group_name);
+        groupCircleImageView =findViewById(R.id.custom_group_image);
 
         sendMessageButton = findViewById(R.id.send_message_button);
         sendFilesButton = findViewById(R.id.send_files_button);
@@ -177,7 +175,7 @@ public class ChatActivity extends AppCompatActivity {
         messageInputText = findViewById(R.id.input_message);
         loadingBar=new ProgressDialog(this);
         messageAdapter = new MessageAdapter(messagesList);
-        userMessagesList = (RecyclerView) findViewById(R.id.private_messages_list_of_users);
+        userMessagesList =  findViewById(R.id.private_messages_list_of_users);
         linearLayoutManager = new LinearLayoutManager(this);
         userMessagesList.setLayoutManager(linearLayoutManager);
         userMessagesList.setAdapter(messageAdapter);
@@ -202,17 +200,15 @@ public class ChatActivity extends AppCompatActivity {
             loadingBar.setCanceledOnTouchOutside(false);
             loadingBar.show();
 
-
             fileUri=data.getData();
 
-            if(!checker.equals("image"))
+            if(!checker.equals("image")) // docx or pdf
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Document Files");
-                final String messageSenderRef ="Messages/" + messageSenderId + "/" + messageReceiverId;
-                final String messageReceiverRef ="Messages/" + messageReceiverId + "/" + messageSenderId;
+                final String messageSenderRef ="new Groups/"+groupId +"/Messages/" + userSenderId;
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("Messages").child(messageSenderRef).child(messageReceiverRef).push();
+                        rootRef.child("new Groups").child(groupId).child("Messages").child(messageSenderRef).push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + checker);
@@ -227,8 +223,8 @@ public class ChatActivity extends AppCompatActivity {
                                     put("message", task.getResult().getDownloadUrl().toString());
                                     put("name", fileUri.getLastPathSegment());
                                     put("type", checker);
-                                    put("from", messageSenderId);
-                                    put("to", messageReceiverId);
+                                    put("from", userSenderId);
+                                    put("to", groupId);
                                     put("messageId", messagePushId);
                                     put("time", saveCurrentTime);
                                     put("date", saveCurrentDate);
@@ -238,7 +234,6 @@ public class ChatActivity extends AppCompatActivity {
                             Map  messageBodyDetails  = new HashMap(){
                                 {
                                     put(messageSenderRef + "/" +messagePushId,messageTextBody);
-                                    put(messageReceiverRef + "/" +messagePushId,messageTextBody);
                                 }};
 
                             rootRef.updateChildren(messageBodyDetails);
@@ -265,11 +260,10 @@ public class ChatActivity extends AppCompatActivity {
             else if(checker.equals("image"))
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
-                final String messageSenderRef ="Messages/" + messageSenderId + "/" + messageReceiverId;
-                final String messageReceiverRef ="Messages/" + messageReceiverId + "/" + messageSenderId;
+                final String messageSenderRef ="new Groups/"+groupId +"/Messages/" + userSenderId;
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("Messages").child(messageSenderRef).child(messageReceiverRef).push();
+                        rootRef.child("new Groups").child(groupId).child("Messages").child(messageSenderRef).push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + "jpg");
@@ -298,8 +292,8 @@ public class ChatActivity extends AppCompatActivity {
                                     put("message", myUrl);
                                     put("name", fileUri.getLastPathSegment());
                                     put("type", checker);
-                                    put("from", messageSenderId);
-                                    put("to", messageReceiverId);
+                                    put("from", userSenderId);
+                                    put("to", groupId);
                                     put("messageId", messagePushId);
                                     put("time", saveCurrentTime);
                                     put("date", saveCurrentDate);
@@ -309,7 +303,6 @@ public class ChatActivity extends AppCompatActivity {
                             Map  messageBodyDetails  = new HashMap(){
                                 {
                                     put(messageSenderRef + "/" +messagePushId,messageTextBody);
-                                    put(messageReceiverRef + "/" +messagePushId,messageTextBody);
                                 }};
 
                             rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -346,7 +339,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        rootRef.child("Messages").child(messageSenderId).child(messageReceiverId)
+        rootRef.child("new Groups").child(groupId).child("Messages").child(userSenderId)
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
@@ -393,19 +386,19 @@ public class ChatActivity extends AppCompatActivity {
         }
         else
             {
-                final String messageSenderRef ="Messages/" + messageSenderId + "/" + messageReceiverId;
-                final String messageReceiverRef ="Messages/" + messageReceiverId + "/" + messageSenderId;
+
+                final String messageSenderRef ="new Groups/"+groupId +"/Messages/" + userSenderId;
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("Messages").child(messageSenderRef).child(messageReceiverRef).push();
+                        rootRef.child("new Groups").child(groupId).child("Messages").child(messageSenderRef).push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final Map  messageTextBody  = new HashMap(){
                     {
                         put("message", messageText);
                         put("type", "text");
-                        put("from", messageSenderId);
-                        put("to", messageReceiverId);
+                        put("from", userSenderId);
+                        put("to", groupId);
                         put("messageId", messagePushId);
                         put("time", saveCurrentTime);
                         put("date", saveCurrentDate);
@@ -415,7 +408,6 @@ public class ChatActivity extends AppCompatActivity {
                 Map  messageBodyDetails  = new HashMap(){
                     {
                         put(messageSenderRef + "/" +messagePushId,messageTextBody);
-                        put(messageReceiverRef + "/" +messagePushId,messageTextBody);
                     }};
 
                 rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener<Void>() {

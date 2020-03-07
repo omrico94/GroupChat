@@ -38,6 +38,7 @@ public class GroupsFragment extends MyFragment
     private DatabaseReference GroupRef;
 
 
+
     public GroupsFragment()
     {
         // Required empty public constructor
@@ -56,7 +57,7 @@ public class GroupsFragment extends MyFragment
 
         groupFragmentView = inflater.inflate(R.layout.fragment_groups, container, false);
 
-        GroupRef = FirebaseDatabase.getInstance().getReference().child("Groups");
+        GroupRef = FirebaseDatabase.getInstance().getReference().child("new Groups");
 
         InitializeFields();
 
@@ -97,13 +98,16 @@ public class GroupsFragment extends MyFragment
 
                 while(iterator.hasNext())
                 {
-                    set.add(((DataSnapshot)iterator.next()).getKey());
+                    if(((DataSnapshot)iterator.next()).child("code").getValue().toString().equals("11"))
+                    {
+                        set.add(((DataSnapshot)iterator.next()).child("name").getValue().toString());
+                    }
+
                 }
 
                 list_of_groups.clear();
                 list_of_groups.addAll(set);
                 arrayAdapter.notifyDataSetChanged();
-
             }
 
             @Override

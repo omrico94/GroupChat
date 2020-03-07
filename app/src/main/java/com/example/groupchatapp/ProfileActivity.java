@@ -47,7 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         userRef= FirebaseDatabase.getInstance().getReference().child("Users");
         chatRequestRef=FirebaseDatabase.getInstance().getReference().child("Chat Requests");
-        contactsRef=FirebaseDatabase.getInstance().getReference().child("Contacts");
+        contactsRef=FirebaseDatabase.getInstance().getReference().child("Groups");
         receiverUserId= getIntent().getExtras().get("visit_user_id").toString();
         Toast.makeText(this,"User id :" + receiverUserId,Toast.LENGTH_SHORT).show();
 
@@ -210,14 +210,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void acceptChatRequest() {
 
-        contactsRef.child(senderUserId).child(receiverUserId).child("Contacts").setValue("Saved")
+        contactsRef.child(senderUserId).child(receiverUserId).child("Groups").setValue("Saved")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
                         if(task.isSuccessful())
                         {
-                            contactsRef.child(receiverUserId).child(senderUserId).child("Contacts").setValue("Saved")
+                            contactsRef.child(receiverUserId).child(senderUserId).child("Groups").setValue("Saved")
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
