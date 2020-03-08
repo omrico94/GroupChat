@@ -111,9 +111,7 @@ public class MainActivity extends AppCompatActivity
     private void SendUserToSettingsActivity()
     {
         Intent settingsIntent = new Intent(MainActivity.this,SettingsActivity.class);
-        settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingsIntent);
-        finish();
     }
 
     @Override
@@ -140,13 +138,20 @@ public class MainActivity extends AppCompatActivity
 
          if(item.getItemId()==R.id.main_find_friends_option)
          {
-
+             SendUserToFindFriendsActivity();
          }
         if(item.getItemId()==R.id.main_Create_Group_option)
         {
             RequestNewGroup();
         }
+
          return true;
+    }
+
+    private void SendUserToFindFriendsActivity() {
+
+        Intent findFriendsIntent = new Intent(MainActivity.this,FindFriendsActivity.class);
+        startActivity(findFriendsIntent);
     }
 
     private void RequestNewGroup()
