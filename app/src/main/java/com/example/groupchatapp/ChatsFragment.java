@@ -77,8 +77,9 @@ private final ArrayList<DataSnapshot> groupsToDisplay = new ArrayList<DataSnapsh
 
                     Iterator iterator = dataSnapshot.getChildren().iterator();
                     while (iterator.hasNext()) {
-                        if (((DataSnapshot) iterator.next()).child("code").getValue().toString().equals("11")) {
-                            groupsToDisplay.add(((DataSnapshot) iterator.next()));
+                        DataSnapshot nextSnapshot=((DataSnapshot) iterator.next());
+                        if (nextSnapshot.child("code").getValue().toString().equals("12")) {
+                            groupsToDisplay.add(nextSnapshot);
                             groups.notifyDataSetChanged();
                         }
                     }
