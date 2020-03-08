@@ -24,9 +24,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 public class GroupChatActivity extends AppCompatActivity
 {
@@ -40,6 +42,12 @@ public class GroupChatActivity extends AppCompatActivity
     private DatabaseReference UsersRef,GroupNameRef, GroupMessageKeyRef;
 
     private String currentGroupName, currentUserID, currentUserName, currentDate, currentTime;
+
+
+
+
+
+    private final List<Messages> messagesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

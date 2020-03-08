@@ -38,8 +38,7 @@ public class ContactsFragment extends MyFragment {
     private String currentUserId;
 
     public ContactsFragment() {
-        // Required empty public constructor
-        title="Contacts";
+        title="Groups";
     }
 
 
@@ -52,9 +51,8 @@ public class ContactsFragment extends MyFragment {
         myContactList=contactsView.findViewById(R.id.contacts_list);
         myContactList.setLayoutManager(new LinearLayoutManager(getContext()));
         mAuth=FirebaseAuth.getInstance();
-        currentUserId=mAuth.getCurrentUser().getUid();
-        contactsRef=FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserId);
-        usersRef=FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
+        contactsRef=FirebaseDatabase.getInstance().getReference().child("new Groups");
+        usersRef=FirebaseDatabase.getInstance().getReference().child("new Groups");
 
         return  contactsView;
 
@@ -64,13 +62,13 @@ public class ContactsFragment extends MyFragment {
     public void onStart() {
         super.onStart();
 
-        FirebaseRecyclerOptions options =  new FirebaseRecyclerOptions.Builder<Contacts>()
-                .setQuery(contactsRef,Contacts.class)
+        FirebaseRecyclerOptions options =  new FirebaseRecyclerOptions.Builder<Groups>()
+                .setQuery(contactsRef, Groups.class)
                 .build();
 
-        FirebaseRecyclerAdapter<Contacts,ContactsViewHolder> adapter = new FirebaseRecyclerAdapter<Contacts, ContactsViewHolder>(options) {
+        FirebaseRecyclerAdapter<Groups,ContactsViewHolder> adapter = new FirebaseRecyclerAdapter<Groups, ContactsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final ContactsViewHolder contactsViewHolder, int position, @NonNull Contacts contacts) {
+            protected void onBindViewHolder(@NonNull final ContactsViewHolder contactsViewHolder, int position, @NonNull Groups contacts) {
 
                 String usersId = getRef(position).getKey();
                 usersRef.child(usersId).addValueEventListener(new ValueEventListener() {
@@ -78,14 +76,12 @@ public class ContactsFragment extends MyFragment {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         String userName = dataSnapshot.child("name").getValue().toString();
-                        String userStatus = dataSnapshot.child("status").getValue().toString();
                         contactsViewHolder.userName.setText(userName);
-                        contactsViewHolder.userStatus.setText(userStatus);
 
                         if(dataSnapshot.hasChild("image"))
                         {
                             String profileImage = dataSnapshot.child("image").getValue().toString();
-                            Picasso.get().load(profileImage).placeholder(R.drawable.profile_image).into(contactsViewHolder.profileImage);
+                            Picasso.get().load(profileImage).placeholder(R.drawable.profile_image).into(contactsViewHolder.groupImage);
                         }
                     }
 
@@ -101,7 +97,7 @@ public class ContactsFragment extends MyFragment {
             @Override
             public ContactsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-                View view =  LayoutInflater.from(parent.getContext()).inflate(R.layout.users_display_layout,parent,false);
+                View view =  LayoutInflater.from(parent.getContext()).inflate(R.layout.groups_display_layout,parent,false);
                 ContactsViewHolder viewHolder = new ContactsViewHolder(view);
                 return viewHolder;
             }
@@ -114,15 +110,14 @@ public class ContactsFragment extends MyFragment {
 
     public static class ContactsViewHolder extends RecyclerView.ViewHolder
     {
-        TextView userName,userStatus;
-        CircleImageView profileImage;
+        TextView userName;
+        CircleImageView groupImage;
 
         public ContactsViewHolder(@NonNull View itemView) {
             super(itemView);
 
             userName=itemView.findViewById(R.id.user_profile_name);
-            userStatus=itemView.findViewById(R.id.user_status);
-            profileImage=itemView.findViewById(R.id.users_profile_image);
+            groupImage =itemView.findViewById(R.id.users_profile_image);
 
         }
     }

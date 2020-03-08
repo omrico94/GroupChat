@@ -1,6 +1,7 @@
 package com.example.groupchatapp;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -24,6 +25,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
@@ -34,9 +40,9 @@ public class ChatsFragment extends MyFragment {
 
 private View privateChatsView;
 private RecyclerView chatsList;
-private DatabaseReference chatsRef,usersRef;
-private FirebaseAuth mAuth;
-private String currentUserId;
+private DatabaseReference chatsRef;
+private RecyclerViewAdapter groups;
+private final ArrayList<DataSnapshot> groupsToDisplay = new ArrayList<DataSnapshot>();
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -48,12 +54,12 @@ private String currentUserId;
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         privateChatsView=inflater.inflate(R.layout.fragment_chats,container,false);
+
         chatsList=privateChatsView.findViewById(R.id.chats_list);
+        groups = new RecyclerViewAdapter(groupsToDisplay,getContext());
         chatsList.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAuth=FirebaseAuth.getInstance();
-        currentUserId=mAuth.getCurrentUser().getUid();
-        chatsRef= FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserId);
-        usersRef= FirebaseDatabase.getInstance().getReference().child("Users");
+        chatsRef= FirebaseDatabase.getInstance().getReference().child("new Groups");
+        chatsList.setAdapter(groups);
 
         return  privateChatsView;
     }
@@ -61,83 +67,90 @@ private String currentUserId;
     @Override
     public void onStart() {
         super.onStart();
-//זה קטע קוד שחוזר מלא פעמים.. צריך לעשות פונקציה
-        FirebaseRecyclerOptions<Contacts> options =
-                new FirebaseRecyclerOptions.Builder<Contacts>()
-                .setQuery(chatsRef,Contacts.class)
-                .build();
 
-        FirebaseRecyclerAdapter<Contacts,ChatsViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, ChatsViewHolder>(options) {
-                    @Override
-                    protected void onBindViewHolder(@NonNull final ChatsViewHolder chatsViewHolder, int position, @NonNull Contacts contacts) {
 
-                        final String usersId=getRef(position).getKey();
-                        final String[] retImage={"default_image"};
-                        usersRef.child(usersId).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                if(dataSnapshot.exists())
-                                {
-                                    if(dataSnapshot.hasChild("image"))
-                                    {
-                                        retImage[0] = dataSnapshot.child("image").getValue().toString();
-                                        Picasso.get().load(retImage[0]).placeholder(R.drawable.profile_image).into(chatsViewHolder.profileImage);
+            chatsRef.addValueEventListener(new ValueEventListener()
+            {
+                @Override
+                public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                                    }
-
-                                    final String retName = dataSnapshot.child("name").getValue().toString();
-                                    final String retStatus = dataSnapshot.child("status").getValue().toString();
-                                    chatsViewHolder.userName.setText(retName);
-                                    //ב status הוא מגדיר את נראה לאחורנה.. אין לזה משמעות בקבוצה ולכן הגדרתי את הסטוטוס
-                                    chatsViewHolder.userStatus.setText(retStatus);
-
-                                    chatsViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-
-                                            Intent chatIntent = new Intent(getContext(),ChatActivity.class);
-                                            chatIntent.putExtra("visit_user_id",usersId);
-                                            chatIntent.putExtra("visit_user_name",retName);
-                                            chatIntent.putExtra("visit_user_image",retImage);
-                                            startActivity(chatIntent);
-                                        }
-                                    });
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-
+                    Iterator iterator = dataSnapshot.getChildren().iterator();
+                    while (iterator.hasNext()) {
+                        if (((DataSnapshot) iterator.next()).child("code").getValue().toString().equals("11")) {
+                            groupsToDisplay.add(((DataSnapshot) iterator.next()));
+                            groups.notifyDataSetChanged();
+                        }
                     }
+                }
 
-                    @NonNull
-                    @Override
-                    public ChatsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                @Override
+                public void onCancelled(DatabaseError databaseError)
+                {
 
-                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.users_display_layout,parent,false);
-                        return new ChatsViewHolder(view);
-                    }
-                };
-        chatsList.setAdapter(adapter);
-        adapter.startListening();
+                }
+            });
+
+        }
+
+    private static class RecyclerViewAdapter extends RecyclerView.Adapter<ChatsViewHolder> {
+        private ArrayList<DataSnapshot> mGroups;
+        private Context mContext;
+
+        public RecyclerViewAdapter(ArrayList<DataSnapshot> mGroups, Context mContext) {
+            this.mGroups = mGroups;
+            this.mContext = mContext;
+        }
+
+        @NonNull
+        @Override
+        public ChatsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.groups_display_layout, parent, false);
+            return new ChatsViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull final ChatsViewHolder holder, int position) {
+
+            final String groupId = mGroups.get(position).getKey();
+            final String[] retImage = {"default_image"};
+            if (mGroups.get(position).hasChild("image")) {
+                retImage[0] = mGroups.get(position).child("image").getValue().toString();
+                Picasso.get().load(retImage[0]).placeholder(R.drawable.profile_image).into(holder.profileImage);
+            }
+
+            final String retName = mGroups.get(position).child("name").getValue().toString();
+            holder.userName.setText(retName);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Intent chatIntent = new Intent(mContext, ChatActivity.class);
+                    chatIntent.putExtra("group_id", groupId);
+                    chatIntent.putExtra("group_name", retName);
+                    chatIntent.putExtra("group_image", retImage);
+                    mContext.startActivity(chatIntent);
+                }
+            });
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return mGroups.size();
+        }
     }
 
     private static class ChatsViewHolder extends RecyclerView.ViewHolder
     {
         CircleImageView profileImage;
-        TextView userStatus,userName;
+        TextView userName;
 
         public ChatsViewHolder(@NonNull View itemView) {
             super(itemView);
 
             userName=itemView.findViewById(R.id.user_profile_name);
-            userStatus=itemView.findViewById(R.id.user_status);
             profileImage=itemView.findViewById(R.id.users_profile_image);
         }
     }

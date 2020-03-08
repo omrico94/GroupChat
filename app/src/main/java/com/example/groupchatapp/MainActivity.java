@@ -140,12 +140,18 @@ public class MainActivity extends AppCompatActivity
          {
              SendUserToFindFriendsActivity();
          }
-        if(item.getItemId()==R.id.main_Create_Group_option)
-        {
-            RequestNewGroup();
-        }
+         if(item.getItemId()==R.id.main_Create_Group_option)
+         {
+             SendUserToCreateGroupActivity();
+             //RequestNewGroup();
+         }
 
          return true;
+    }
+
+    private void SendUserToCreateGroupActivity() {
+        Intent createGroupIntent = new Intent(MainActivity.this,CreateGroupActivity.class);
+        startActivity(createGroupIntent);
     }
 
     private void SendUserToFindFriendsActivity() {
