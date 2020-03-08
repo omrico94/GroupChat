@@ -174,7 +174,7 @@ public class ChatActivity extends AppCompatActivity {
 
         messageInputText = findViewById(R.id.input_message);
         loadingBar=new ProgressDialog(this);
-        messageAdapter = new MessageAdapter(messagesList);
+        messageAdapter = new MessageAdapter(messagesList,groupId);
         userMessagesList =  findViewById(R.id.private_messages_list_of_users);
         linearLayoutManager = new LinearLayoutManager(this);
         userMessagesList.setLayoutManager(linearLayoutManager);
@@ -205,10 +205,10 @@ public class ChatActivity extends AppCompatActivity {
             if(!checker.equals("image")) // docx or pdf
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Document Files");
-                final String messageSenderRef ="new Groups/"+groupId +"/Messages/" + userSenderId;
+                final String messageSenderRef ="new Groups/"+groupId +"/Messages/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("new Groups").child(groupId).child("Messages").child(messageSenderRef).push();
+                        rootRef.child("new Groups").child(groupId).child("Messages").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + checker);
@@ -224,8 +224,6 @@ public class ChatActivity extends AppCompatActivity {
                                     put("name", fileUri.getLastPathSegment());
                                     put("type", checker);
                                     put("from", userSenderId);
-                                    put("to", groupId);
-                                    put("messageId", messagePushId);
                                     put("time", saveCurrentTime);
                                     put("date", saveCurrentDate);
 
@@ -233,7 +231,7 @@ public class ChatActivity extends AppCompatActivity {
 
                             Map  messageBodyDetails  = new HashMap(){
                                 {
-                                    put(messageSenderRef + "/" +messagePushId,messageTextBody);
+                                    put(messageSenderRef+messagePushId,messageTextBody);
                                 }};
 
                             rootRef.updateChildren(messageBodyDetails);
@@ -260,10 +258,10 @@ public class ChatActivity extends AppCompatActivity {
             else if(checker.equals("image"))
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
-                final String messageSenderRef ="new Groups/"+groupId +"/Messages/" + userSenderId;
+                final String messageSenderRef ="new Groups/"+groupId +"/Messages/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("new Groups").child(groupId).child("Messages").child(messageSenderRef).push();
+                        rootRef.child("new Groups").child(groupId).child("Messages").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + "jpg");
@@ -293,8 +291,6 @@ public class ChatActivity extends AppCompatActivity {
                                     put("name", fileUri.getLastPathSegment());
                                     put("type", checker);
                                     put("from", userSenderId);
-                                    put("to", groupId);
-                                    put("messageId", messagePushId);
                                     put("time", saveCurrentTime);
                                     put("date", saveCurrentDate);
 
@@ -302,7 +298,7 @@ public class ChatActivity extends AppCompatActivity {
 
                             Map  messageBodyDetails  = new HashMap(){
                                 {
-                                    put(messageSenderRef + "/" +messagePushId,messageTextBody);
+                                    put(messageSenderRef+messagePushId,messageTextBody);
                                 }};
 
                             rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -339,7 +335,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        rootRef.child("new Groups").child(groupId).child("Messages").child(userSenderId)
+        rootRef.child("new Groups").child(groupId).child("Messages")
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
@@ -387,10 +383,10 @@ public class ChatActivity extends AppCompatActivity {
         else
             {
 
-                final String messageSenderRef ="new Groups/"+groupId +"/Messages/" + userSenderId;
+                final String messageSenderRef ="new Groups/"+groupId +"/Messages/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("new Groups").child(groupId).child("Messages").child(messageSenderRef).push();
+                        rootRef.child("new Groups").child(groupId).child("Messages").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final Map  messageTextBody  = new HashMap(){
@@ -398,8 +394,6 @@ public class ChatActivity extends AppCompatActivity {
                         put("message", messageText);
                         put("type", "text");
                         put("from", userSenderId);
-                        put("to", groupId);
-                        put("messageId", messagePushId);
                         put("time", saveCurrentTime);
                         put("date", saveCurrentDate);
 
@@ -407,7 +401,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 Map  messageBodyDetails  = new HashMap(){
                     {
-                        put(messageSenderRef + "/" +messagePushId,messageTextBody);
+                        put(messageSenderRef+messagePushId,messageTextBody);
                     }};
 
                 rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener<Void>() {

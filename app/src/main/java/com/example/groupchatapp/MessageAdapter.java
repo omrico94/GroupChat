@@ -26,13 +26,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder>
 {
-    private List<Messages> userMessagesList;
+    private List<Messages> groupMessagesList;
     private FirebaseAuth mAuth;
-    private DatabaseReference usersRef;
+    private DatabaseReference groupRef,usersRef;
+    private String currentGroup;
 
-    public MessageAdapter(List<Messages> userMessagesList)
+    public MessageAdapter(List<Messages> groupMessagesList, String currentGroup)
     {
-        this.userMessagesList = userMessagesList;
+        this.groupMessagesList = groupMessagesList;
+        this.currentGroup=currentGroup;
     }
 
 
@@ -50,7 +52,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             receiverProfileImage =  itemView.findViewById(R.id.message_profile_image);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
             messageSenderPicture = itemView.findViewById(R.id.message_sender_image_view);
-
+            groupRef = FirebaseDatabase.getInstance().getReference().child("new Groups").child(currentGroup);
+            usersRef=FirebaseDatabase.getInstance().getReference().child("Users");
         }
 
     }
@@ -69,24 +72,22 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull final MessageViewHolder messageViewHolder, final int position)
     {
-        String messageSenderID = mAuth.getCurrentUser().getUid();
-        Messages messages = userMessagesList.get(position);
-
+        String currentUserId = mAuth.getCurrentUser().getUid();
+        Messages messages = groupMessagesList.get(position);
         String fromUserId = messages.getFrom();
         String fromMessageType = messages.getType();
 
-        usersRef = FirebaseDatabase.getInstance().getReference().child("new Groups").child(fromUserId);
 
-        usersRef.addValueEventListener(new ValueEventListener() {
+        usersRef.child(fromUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                if (dataSnapshot.hasChild("image"))
-                {
-                    String receiverImage = dataSnapshot.child("image").getValue().toString();
+                        if (dataSnapshot.hasChild("image"))
+                        {
+                            String receiverImage = dataSnapshot.child("image").getValue().toString();
 
-                    Picasso.get().load(receiverImage).placeholder(R.drawable.profile_image).into(messageViewHolder.receiverProfileImage);
-                }
+                            Picasso.get().load(receiverImage).placeholder(R.drawable.profile_image).into(messageViewHolder.receiverProfileImage);
+                        }
             }
 
             @Override
@@ -101,78 +102,78 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         messageViewHolder.messageSenderPicture.setVisibility(View.GONE);
         messageViewHolder.messageReceiverPicture.setVisibility(View.GONE);
 
-        if (fromMessageType.equals("text"))
-        {
-            if (fromUserId.equals(messageSenderID))
-            {
-                messageViewHolder.senderMessageText.setVisibility(View.VISIBLE);
+     if (fromMessageType.equals("text"))
+     {
+         if (fromUserId.equals(currentUserId))
+         {
+             messageViewHolder.senderMessageText.setVisibility(View.VISIBLE);
 
-                messageViewHolder.senderMessageText.setBackgroundResource(R.drawable.sender_messages_layout);
-                messageViewHolder.senderMessageText.setTextColor(Color.BLACK);
-                messageViewHolder.senderMessageText.setText(messages.getMessage() + "\n\n" + messages.getTime() + " - " + messages.getDate());
-            }
-            else
-            {
-                messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
-                messageViewHolder.receiverMessageText.setVisibility(View.VISIBLE);
+             messageViewHolder.senderMessageText.setBackgroundResource(R.drawable.sender_messages_layout);
+             messageViewHolder.senderMessageText.setTextColor(Color.BLACK);
+             messageViewHolder.senderMessageText.setText(messages.getMessage() + "\n\n" + messages.getTime() + " - " + messages.getDate());
+         }
+         else
+         {
+             messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
+             messageViewHolder.receiverMessageText.setVisibility(View.VISIBLE);
 
-                messageViewHolder.receiverMessageText.setBackgroundResource(R.drawable.receiver_messages_layout);
-                messageViewHolder.receiverMessageText.setTextColor(Color.BLACK);
-                messageViewHolder.receiverMessageText.setText(messages.getMessage() + "\n\n" + messages.getTime() + " - " + messages.getDate());
-            }
-        }
-        else if(fromMessageType.equals("image"))
-        {
-            if(fromUserId.equals(messageSenderID))
-            {
-                messageViewHolder.messageSenderPicture.setVisibility(View.VISIBLE);
-                Picasso.get().load(messages.getMessage()).into(messageViewHolder.messageSenderPicture);
-            }
-            else
-            {
-                messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
-                messageViewHolder.messageReceiverPicture.setVisibility(View.VISIBLE);
-                Picasso.get().load(messages.getMessage()).into(messageViewHolder.messageReceiverPicture);
-            }
-        }
-        else if(fromMessageType.equals("pdf") || fromMessageType.equals("docx"))
-        {
-            if(fromUserId.equals(messageSenderID))
-            {
-                messageViewHolder.messageSenderPicture.setVisibility(View.VISIBLE);
-                //Picasso.get().load()
+             messageViewHolder.receiverMessageText.setBackgroundResource(R.drawable.receiver_messages_layout);
+             messageViewHolder.receiverMessageText.setTextColor(Color.BLACK);
+             messageViewHolder.receiverMessageText.setText(messages.getMessage() + "\n\n" + messages.getTime() + " - " + messages.getDate());
+         }
+     }
+     else if(fromMessageType.equals("image"))
+     {
+         if(fromUserId.equals(currentUserId))
+         {
+             messageViewHolder.messageSenderPicture.setVisibility(View.VISIBLE);
+             Picasso.get().load(messages.getMessage()).into(messageViewHolder.messageSenderPicture);
+         }
+         else
+         {
+             messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
+             messageViewHolder.messageReceiverPicture.setVisibility(View.VISIBLE);
+             Picasso.get().load(messages.getMessage()).into(messageViewHolder.messageReceiverPicture);
+         }
+     }
+     else if(fromMessageType.equals("pdf") || fromMessageType.equals("docx"))
+     {
+         if(fromUserId.equals(currentUserId))
+         {
+             messageViewHolder.messageSenderPicture.setVisibility(View.VISIBLE);
+             //Picasso.get().load()
 
-                messageViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+             messageViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                 @Override
+                 public void onClick(View view) {
 
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(userMessagesList.get(position).getMessage()));
-                        messageViewHolder.itemView.getContext().startActivity(intent);
-                    }
-                });
-            }
-            else
-            {
-                messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
-                messageViewHolder.messageReceiverPicture.setVisibility(View.VISIBLE);
-                messageViewHolder.messageReceiverPicture.setBackgroundResource(R.drawable.file);
+                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(groupMessagesList.get(position).getMessage()));
+                     messageViewHolder.itemView.getContext().startActivity(intent);
+                 }
+             });
+         }
+         else
+         {
+             messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
+             messageViewHolder.messageReceiverPicture.setVisibility(View.VISIBLE);
+             messageViewHolder.messageReceiverPicture.setBackgroundResource(R.drawable.file);
 
-                messageViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+             messageViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                 @Override
+                 public void onClick(View view) {
 
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(userMessagesList.get(position).getMessage()));
-                        messageViewHolder.itemView.getContext().startActivity(intent);
-                    }
-                });
-            }
-        }
-    }
+                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(groupMessagesList.get(position).getMessage()));
+                     messageViewHolder.itemView.getContext().startActivity(intent);
+                 }
+             });
+         }
+     }
+  }
 
 
     @Override
     public int getItemCount()
     {
-        return userMessagesList.size();
+        return groupMessagesList.size();
     }
 }
