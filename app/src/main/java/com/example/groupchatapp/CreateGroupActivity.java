@@ -104,6 +104,9 @@ public class CreateGroupActivity extends AppCompatActivity {
             profileMap.put("gid",setGroupName);
             profileMap.put("name",setGroupName);
             profileMap.put("code",setGroupCode);
+            profileMap.put("latitude",getIntent().getExtras().get("latitude").toString());
+            profileMap.put("longitude",getIntent().getExtras().get("longitude").toString());
+
 
             RootRef.child("new Groups").child(setGroupName).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
