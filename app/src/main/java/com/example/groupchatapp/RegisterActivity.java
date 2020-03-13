@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.groupchatlogic.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -22,14 +23,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+
 public class RegisterActivity extends AppCompatActivity
 {
     private Button CreateAccountButton;
     private EditText UserEmail,UserPassword;
     private TextView AlreadyHaveAnAccountLink;
-    private FirebaseAuth mAuth;
     private ProgressDialog loadingBar;
-    private DatabaseReference RootRef;
+
+    private LoginManager Manager = LoginManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -37,12 +39,11 @@ public class RegisterActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        mAuth=FirebaseAuth.getInstance();
-        RootRef= FirebaseDatabase.getInstance().getReference();
         initializeFields();
 
 
-        AlreadyHaveAnAccountLink.setOnClickListener(new View.OnClickListener() {
+        AlreadyHaveAnAccountLink.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view)
             {
@@ -80,34 +81,25 @@ public class RegisterActivity extends AppCompatActivity
             loadingBar.setCanceledOnTouchOutside(true);
             loadingBar.show();
 
-            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task)
-                {
+            Manager.CreateNewAccount(email,password);
 
-                    if(task.isSuccessful())
-                    {
-                        final String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                        final String currentUserID = mAuth.getCurrentUser().getUid();
-                        RootRef.child("Users").child(currentUserID).setValue("");
-                        RootRef.child("Users").child(currentUserID).child("device_token").setValue(deviceToken);
+            if(Manager.Exception != null)
+            {
+                String message = Manager.Exception;
+                Toast.makeText(RegisterActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
+                loadingBar.dismiss();
 
-                        SendUserToMainActivity();
-                        Toast.makeText(RegisterActivity.this,"Account created seccesfully",Toast.LENGTH_SHORT).show();
-                        loadingBar.dismiss();
-                    }
-                    else
-                    {
-                        String message=task.getException().toString();
-                        Toast.makeText(RegisterActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
-                        loadingBar.dismiss();
-                    }
-                }
+            }
+            else {
 
-            });
+                SendUserToMainActivity();
+                Toast.makeText(RegisterActivity.this,"Account created successfully",Toast.LENGTH_SHORT).show();
+                loadingBar.dismiss();
+            }
         }
+    }
 
-     }
+
 
     private void  initializeFields()
     {

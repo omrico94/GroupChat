@@ -14,25 +14,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.example.groupchatlogic.LoginManager;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private FirebaseUser currentUser;
-    private FirebaseAuth mAuth;
+
+
     private Button LoginButton,PhoneLoginButton;
     private EditText UserEmail,UserPassword;
     private TextView NeedNewAccountLink,ForgetPasswordLink;
     private ProgressDialog loadingBar;
-    private DatabaseReference userRef;
 
+    private LoginManager Manager = LoginManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -40,9 +33,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mAuth=FirebaseAuth.getInstance();
-        currentUser=mAuth.getCurrentUser();
-        userRef= FirebaseDatabase.getInstance().getReference().child("Users");
         initializeFields();
 
 
@@ -76,43 +66,28 @@ public class LoginActivity extends AppCompatActivity {
         {
             Toast.makeText(this,"Please enter password", Toast.LENGTH_SHORT).show();
         }
-        else
-        {
+        else {
             loadingBar.setTitle("Sign in");
             loadingBar.setMessage("Please wait");
             loadingBar.setCanceledOnTouchOutside(true);
             loadingBar.show();
 
-            mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(task.isSuccessful())
-                    {
-                        final String currentUserId=mAuth.getCurrentUser().getUid();
-                        final String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                        userRef.child(currentUserId).child("device_token").setValue(deviceToken)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
+            Manager.AllowUserToLogin(email, password);
 
-                                        if(task.isSuccessful())
-                                        {
-                                            SendUserToMainActivity();
-                                            Toast.makeText(LoginActivity.this,"Logged in successful",Toast.LENGTH_SHORT).show();
-                                            loadingBar.dismiss();
-                                        }
-                                    }
-                                });
-                    }
-                    else
-                    {
-                        String message=task.getException().toString();
-                        Toast.makeText(LoginActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
-                        loadingBar.dismiss();
-                    }
-                }
-            });
+            if (Manager.Exception == null)
+            {
+                SendUserToMainActivity();
+                Toast.makeText(LoginActivity.this, "Logged in successful", Toast.LENGTH_SHORT).show();
+                loadingBar.dismiss();
+            }
+            else {
+                String message =Manager.Exception;
+                Toast.makeText(LoginActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
+                loadingBar.dismiss();
+            }
+
         }
+
     }
 
     private void  initializeFields()
@@ -123,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
         UserPassword = findViewById(R.id.login_password);
         NeedNewAccountLink = findViewById(R.id.need_new_account_link);
         ForgetPasswordLink = findViewById(R.id.forget_password_link);
-        loadingBar=new ProgressDialog(this);
+        loadingBar = new ProgressDialog(this);
     }
 
     @Override
@@ -131,11 +106,12 @@ public class LoginActivity extends AppCompatActivity {
     {
         super.onStart();
 
-        if(currentUser != null)
+        if(Manager.IsCurrentUserExist())
         {
             SendUserToMainActivity();
         }
     }
+
     private void SendUserToMainActivity()
     {
         Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
