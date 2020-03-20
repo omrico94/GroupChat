@@ -1,8 +1,7 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,16 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.groupchatlogic.LoginManager;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 
 public class RegisterActivity extends AppCompatActivity
@@ -67,12 +57,10 @@ public class RegisterActivity extends AppCompatActivity
         if(TextUtils.isEmpty(email))
         {
             Toast.makeText(this,"Please enter email", Toast.LENGTH_SHORT).show();
-
         }
         if(TextUtils.isEmpty(password))
         {
             Toast.makeText(this,"Please enter password", Toast.LENGTH_SHORT).show();
-
         }
         else
         {
@@ -81,25 +69,23 @@ public class RegisterActivity extends AppCompatActivity
             loadingBar.setCanceledOnTouchOutside(true);
             loadingBar.show();
 
-            Manager.CreateNewAccount(email,password);
-
-            if(Manager.Exception != null)
+            try
             {
-                String message = Manager.Exception;
-                Toast.makeText(RegisterActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
-                loadingBar.dismiss();
-
-            }
-            else {
-
-                SendUserToMainActivity();
+                Manager.CreateNewAccountWithEmailAndPassword(email, password);
+                SendUserToSettingsActivity();
                 Toast.makeText(RegisterActivity.this,"Account created successfully",Toast.LENGTH_SHORT).show();
+            }
+            catch (Exception e)
+            {
+                String message = e.getMessage();
+                Toast.makeText(RegisterActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
+            }
+            finally
+            {
                 loadingBar.dismiss();
             }
         }
     }
-
-
 
     private void  initializeFields()
     {
@@ -116,11 +102,9 @@ public class RegisterActivity extends AppCompatActivity
         startActivity(loginIntent);
     }
 
-    private void SendUserToMainActivity()
+    private void SendUserToSettingsActivity()
     {
-        Intent mainIntent = new Intent(RegisterActivity.this,MainActivity.class);
-        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(mainIntent);
-        finish();
+        Intent settingsIntent = new Intent(RegisterActivity.this,SettingsActivity.class);
+        startActivity(settingsIntent);
     }
 }

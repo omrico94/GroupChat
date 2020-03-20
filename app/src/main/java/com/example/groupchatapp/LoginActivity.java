@@ -1,8 +1,6 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,22 +8,20 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.groupchatlogic.LoginManager;
 
-public class LoginActivity extends AppCompatActivity {
 
-
+public class LoginActivity extends AppCompatActivity
+{
 
     private Button LoginButton,PhoneLoginButton;
     private EditText UserEmail,UserPassword;
     private TextView NeedNewAccountLink,ForgetPasswordLink;
     private ProgressDialog loadingBar;
 
-    private LoginManager Manager = LoginManager.getInstance();
+    private LoginManager mLoginManager = LoginManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -72,22 +68,22 @@ public class LoginActivity extends AppCompatActivity {
             loadingBar.setCanceledOnTouchOutside(true);
             loadingBar.show();
 
-            Manager.AllowUserToLogin(email, password);
-
-            if (Manager.Exception == null)
+            try
             {
+                mLoginManager.VerifyUserExistence(email, password);
                 SendUserToMainActivity();
                 Toast.makeText(LoginActivity.this, "Logged in successful", Toast.LENGTH_SHORT).show();
-                loadingBar.dismiss();
             }
-            else {
-                String message =Manager.Exception;
+            catch (Exception e)
+            {
+                String message = e.toString();
                 Toast.makeText(LoginActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
+            }
+            finally
+            {
                 loadingBar.dismiss();
             }
-
         }
-
     }
 
     private void  initializeFields()
@@ -106,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
     {
         super.onStart();
 
-        if(Manager.IsCurrentUserExist())
+        if(mLoginManager.IsCurrentUserExist())
         {
             SendUserToMainActivity();
         }

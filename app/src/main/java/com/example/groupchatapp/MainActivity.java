@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 
+import com.example.groupchatlogic.LoginManager;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -45,10 +46,9 @@ public class MainActivity extends AppCompatActivity
     private TabLayout myTabLayout;
     private TabsAccessorAdapter myTabsAccessorAdapter;
 
-    private FirebaseUser currentUser;
-    private FirebaseAuth mAuth;
     private DatabaseReference RootRef;
 
+    private LoginManager Manager;
     private double m_latitude,m_longitude;
 
     @Override
@@ -57,18 +57,16 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAuth=FirebaseAuth.getInstance();
-        currentUser=mAuth.getCurrentUser();
+        Manager = LoginManager.getInstance();
+
         RootRef= FirebaseDatabase.getInstance().getReference();
         mToolbar = findViewById(R.id.main_page_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("GroupChat");
 
-
         myViewPager = findViewById(R.id.main_tabs_pager);
         myTabsAccessorAdapter = new TabsAccessorAdapter(getSupportFragmentManager());
         myViewPager.setAdapter(myTabsAccessorAdapter);
-
 
         myTabLayout = findViewById(R.id.main_tabs);
         myTabLayout.setupWithViewPager(myViewPager);
@@ -78,15 +76,11 @@ public class MainActivity extends AppCompatActivity
     {
         super.onStart();
 
-        if(currentUser == null)
+        if(!Manager.IsCurrentUserExist())
         {
           SendUserToLoginActivity();
         }
 
-        else
-        {
-           VerifyUserExistence();
-        }
 
        if (ContextCompat.checkSelfPermission(
                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
@@ -98,28 +92,7 @@ public class MainActivity extends AppCompatActivity
        }
     }
 
-    private void VerifyUserExistence() {
 
-        String currentUserID=mAuth.getCurrentUser().getUid();
-        RootRef.child("Users").child(currentUserID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("name").exists())
-                {
-                    Toast.makeText(MainActivity.this,"Welcome",Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    SendUserToSettingsActivity();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
     private void SendUserToLoginActivity()
     {
@@ -147,7 +120,7 @@ public class MainActivity extends AppCompatActivity
          super.onOptionsItemSelected(item);
          if(item.getItemId()==R.id.main_logout_option)
          {
-             mAuth.signOut();
+             Manager.SignOut();
              SendUserToLoginActivity();
          }
 

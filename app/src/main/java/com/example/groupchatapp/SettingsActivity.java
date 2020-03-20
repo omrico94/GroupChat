@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.groupchatlogic.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,21 +41,20 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText userName,userStatus;
     private CircleImageView userProfileImage;
     private String currentUserID;
-    private FirebaseAuth mAuth;
+
     private DatabaseReference RootRef;
     private StorageReference UserProfileImageRef;
     private ProgressDialog loadingBar;
     private Toolbar settingsToolBar;
     private static final int galleryPic=1;
 
+    private LoginManager mLoginManager = LoginManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
-        mAuth=FirebaseAuth.getInstance();
-        currentUserID=mAuth.getCurrentUser().getUid();
+        currentUserID = mLoginManager.GetCurrentUserID();
         RootRef= FirebaseDatabase.getInstance().getReference();
         UserProfileImageRef = FirebaseStorage.getInstance().getReference().child("Profile images");
 
