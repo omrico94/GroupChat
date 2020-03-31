@@ -1,9 +1,7 @@
 package com.example.groupchatapp;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -24,9 +22,9 @@ public class LoggedInUser {
     private DatabaseReference userRef;
      private FirebaseUser m_FireBaseCurrentUser;
      private FirebaseAuth mAuth;
-    private LiveData<User> m_CurrentUser;
+    private MutableLiveData<User> m_CurrentUser;
 
-    public LiveData<User> getCurrentUser(){
+    public MutableLiveData<User> getCurrentUser(){
 
         if (!isFireBaseUserExsist()) {
             throw new NullPointerException("User is not LoggedIn");
@@ -55,7 +53,8 @@ public class LoggedInUser {
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                m_CurrentUser = dataSnapshot.child(m_FireBaseCurrentUser.getUid()).getValue(User.class);
+                m_CurrentUser = new MutableLiveData<>();
+                m_CurrentUser.setValue(dataSnapshot.child(m_FireBaseCurrentUser.getUid()).getValue(User.class));
                 isLoggedIn = true;
             }
 

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.location.LocationCallback;
@@ -74,17 +75,32 @@ public class MainActivity extends AppCompatActivity
         UsersRef= FirebaseDatabase.getInstance().getReference().child("Users");
         m_LoggedInUser=LoggedInUser.getInstance();
 
-        UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                m_CurrentUser=dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue(User.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+        m_LoggedInUser.getCurrentUser().observe(this,Observer<User>{
+            
         });
+
+
+     //   m_LoggedInUser.getCurrentUser().observe(this, Observer<User>
+    //           {currentUser ->
+    //   if (m_CurrentUser.getUid() == null) {
+    //       SendUserToLoginActivity();
+    //   } else if (m_CurrentUser.getName() == null) {
+    //       SendUserToSettingsActivity();
+    //   }
+    //   });
+
+
+      //  UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+      //      @Override
+      //      public void onDataChange(DataSnapshot dataSnapshot) {
+      //          m_CurrentUser=dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue(User.class);
+      //      }
+//
+      //      @Override
+      //      public void onCancelled(DatabaseError databaseError) {
+//
+      //      }
+      //  });
 
     }
     @Override
