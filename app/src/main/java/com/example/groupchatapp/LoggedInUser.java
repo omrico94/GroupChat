@@ -1,6 +1,9 @@
 package com.example.groupchatapp;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,9 +24,9 @@ public class LoggedInUser {
     private DatabaseReference userRef;
      private FirebaseUser m_FireBaseCurrentUser;
      private FirebaseAuth mAuth;
-    private User m_CurrentUser;
+    private LiveData<User> m_CurrentUser;
 
-    public User getCurrentUser(){
+    public LiveData<User> getCurrentUser(){
 
         if (!isFireBaseUserExsist()) {
             throw new NullPointerException("User is not LoggedIn");
@@ -43,7 +46,7 @@ public class LoggedInUser {
     //////////////////לבדוק...
     private LoggedInUser() {
 
-        m_CurrentUser=new User();
+        
         m_FireBaseCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();

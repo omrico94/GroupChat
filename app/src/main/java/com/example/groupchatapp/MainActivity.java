@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
 
     private LoggedInUser m_LoggedInUser;
 
-    private User m_CurrentUser;
+//    private User m_CurrentUser;
 
 
     @Override
