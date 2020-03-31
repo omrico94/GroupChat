@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity
         UsersRef= FirebaseDatabase.getInstance().getReference().child("Users");
         m_LoggedInUser=LoggedInUser.getInstance();
 
-        
+
 
      //   m_LoggedInUser.getCurrentUser().observe(this, Observer<User>
     //           {currentUser ->
