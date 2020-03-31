@@ -46,7 +46,7 @@ public class LoggedInUser {
     //////////////////לבדוק...
     private LoggedInUser() {
 
-        
+
         m_FireBaseCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();
