@@ -1,11 +1,7 @@
 package com.example.groupchatapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.telephony.mbms.MbmsErrors;
 import android.text.TextUtils;
-import android.view.Display;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -13,8 +9,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.*;
-import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -47,7 +44,7 @@ public class GroupChatActivity extends AppCompatActivity
 
 
 
-    private final List<Messages> messagesList = new ArrayList<>();
+    private final List<Message> messagesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -62,7 +59,7 @@ public class GroupChatActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
         UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        GroupNameRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(currentGroupName);
+        GroupNameRef = FirebaseDatabase.getInstance().getReference().child("Group").child(currentGroupName);
 
 
         InitializeFields();

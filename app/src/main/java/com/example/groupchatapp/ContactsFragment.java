@@ -2,16 +2,15 @@ package com.example.groupchatapp;
 
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -38,7 +37,7 @@ public class ContactsFragment extends MyFragment {
     private String currentUserId;
 
     public ContactsFragment() {
-        title="Groups";
+        title="Group";
     }
 
 
@@ -51,8 +50,8 @@ public class ContactsFragment extends MyFragment {
         myContactList=contactsView.findViewById(R.id.contacts_list);
         myContactList.setLayoutManager(new LinearLayoutManager(getContext()));
         mAuth=FirebaseAuth.getInstance();
-        contactsRef=FirebaseDatabase.getInstance().getReference().child("new Groups");
-        usersRef=FirebaseDatabase.getInstance().getReference().child("new Groups");
+        contactsRef=FirebaseDatabase.getInstance().getReference().child("new Group");
+        usersRef=FirebaseDatabase.getInstance().getReference().child("new Group");
 
         return  contactsView;
 
@@ -62,13 +61,13 @@ public class ContactsFragment extends MyFragment {
     public void onStart() {
         super.onStart();
 
-        FirebaseRecyclerOptions options =  new FirebaseRecyclerOptions.Builder<Groups>()
-                .setQuery(contactsRef, Groups.class)
+        FirebaseRecyclerOptions options =  new FirebaseRecyclerOptions.Builder<Group>()
+                .setQuery(contactsRef, Group.class)
                 .build();
 
-        FirebaseRecyclerAdapter<Groups,ContactsViewHolder> adapter = new FirebaseRecyclerAdapter<Groups, ContactsViewHolder>(options) {
+        FirebaseRecyclerAdapter<Group,ContactsViewHolder> adapter = new FirebaseRecyclerAdapter<Group, ContactsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final ContactsViewHolder contactsViewHolder, int position, @NonNull Groups contacts) {
+            protected void onBindViewHolder(@NonNull final ContactsViewHolder contactsViewHolder, int position, @NonNull Group contacts) {
 
                 String usersId = getRef(position).getKey();
                 usersRef.child(usersId).addValueEventListener(new ValueEventListener() {

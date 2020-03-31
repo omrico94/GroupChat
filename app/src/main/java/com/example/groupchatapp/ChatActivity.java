@@ -1,14 +1,5 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,6 +13,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -60,7 +60,7 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
 
-    private final List<Messages> messagesList = new ArrayList<>();
+    private final List<Message> messagesList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessageAdapter messageAdapter;
     private RecyclerView userMessagesList;
@@ -205,10 +205,10 @@ public class ChatActivity extends AppCompatActivity {
             if(!checker.equals("image")) // docx or pdf
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Document Files");
-                final String messageSenderRef ="new Groups/"+groupId +"/Messages/";
+                final String messageSenderRef ="new Group/"+groupId +"/Message/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("new Groups").child(groupId).child("Messages").push();
+                        rootRef.child("new Group").child(groupId).child("Message").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + checker);
@@ -258,10 +258,10 @@ public class ChatActivity extends AppCompatActivity {
             else if(checker.equals("image"))
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
-                final String messageSenderRef ="new Groups/"+groupId +"/Messages/";
+                final String messageSenderRef ="new Group/"+groupId +"/Message/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("new Groups").child(groupId).child("Messages").push();
+                        rootRef.child("new Group").child(groupId).child("Message").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + "jpg");
@@ -335,12 +335,12 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        rootRef.child("new Groups").child(groupId).child("Messages")
+        rootRef.child("new Group").child(groupId).child("Message")
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
                     {
-                        Messages messages = dataSnapshot.getValue(Messages.class);
+                        Message messages = dataSnapshot.getValue(Message.class);
 
                         messagesList.add(messages);
 
@@ -383,10 +383,10 @@ public class ChatActivity extends AppCompatActivity {
         else
             {
 
-                final String messageSenderRef ="new Groups/"+groupId +"/Messages/";
+                final String messageSenderRef ="new Group/"+groupId +"/Message/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("new Groups").child(groupId).child("Messages").push();
+                        rootRef.child("new Group").child(groupId).child("Message").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final Map  messageTextBody  = new HashMap(){

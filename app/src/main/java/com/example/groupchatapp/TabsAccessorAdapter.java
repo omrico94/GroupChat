@@ -15,7 +15,7 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter
         super(fm);
     }
     private List<Fragment> fragments = new ArrayList<Fragment>(){{
-        add(new ChatsFragment());
+        add(new MyGroupsFragment());
  //       add(new GroupsFragment());
    //     add(new ContactsFragment());
     }};

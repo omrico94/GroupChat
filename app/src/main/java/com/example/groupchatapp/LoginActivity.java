@@ -1,8 +1,5 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +7,11 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -42,6 +41,10 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth=FirebaseAuth.getInstance();
         currentUser=mAuth.getCurrentUser();
+        if(currentUser!=null)
+        {
+            SendUserToMainActivity();
+        }
         userRef= FirebaseDatabase.getInstance().getReference().child("Users");
         initializeFields();
 
@@ -90,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                     {
                         final String currentUserId=mAuth.getCurrentUser().getUid();
                         final String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                        userRef.child(currentUserId).child("device_token").setValue(deviceToken)
+                        userRef.child(currentUserId).child("token").setValue(deviceToken)
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {

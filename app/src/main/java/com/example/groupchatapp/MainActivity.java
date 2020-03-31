@@ -1,36 +1,27 @@
 package com.example.groupchatapp;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Looper;
-import android.provider.DocumentsContract;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
-
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,11 +36,17 @@ public class MainActivity extends AppCompatActivity
     private TabLayout myTabLayout;
     private TabsAccessorAdapter myTabsAccessorAdapter;
 
-    private FirebaseUser currentUser;
+
     private FirebaseAuth mAuth;
-    private DatabaseReference RootRef;
+
+    private DatabaseReference UsersRef;
 
     private double m_latitude,m_longitude;
+
+    private LoggedInUser m_LoggedInUser;
+
+    private User m_CurrentUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -57,9 +54,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         mAuth=FirebaseAuth.getInstance();
-        currentUser=mAuth.getCurrentUser();
-        RootRef= FirebaseDatabase.getInstance().getReference();
+
         mToolbar = findViewById(R.id.main_page_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("GroupChat");
@@ -72,22 +69,56 @@ public class MainActivity extends AppCompatActivity
 
         myTabLayout = findViewById(R.id.main_tabs);
         myTabLayout.setupWithViewPager(myViewPager);
+
+
+        UsersRef= FirebaseDatabase.getInstance().getReference().child("Users");
+        m_LoggedInUser=LoggedInUser.getInstance();
+
+        UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                m_CurrentUser=dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
     @Override
     protected  void onStart()
     {
         super.onStart();
 
-        if(currentUser == null)
-        {
-          SendUserToLoginActivity();
-        }
+      if(m_CurrentUser.getUid() == null)
+      {
+        SendUserToLoginActivity();
+      }
+      else if(m_CurrentUser.getName()==null)
+      {
+          SendUserToSettingsActivity();
+      }
+  //    else if(m_LoggedInUser.getCurrentUser().getName()==null)
+  //    {
+  //        SendUserToSettingsActivity();
+  //    }
 
-        else
-        {
-           VerifyUserExistence();
-        }
+   //   UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+   //       @Override
+   //       public void onDataChange(DataSnapshot dataSnapshot) {
+   //           m_CurrentUser=dataSnapshot.child(currentUser.getUid()).getValue(User.class); //לבדוק מה מתקבל
+   //       }
+//
+   //       @Override
+   //       public void onCancelled(DatabaseError databaseError) {
+//
+   //       }
+   //   });
 
+
+        //להכניס לפונקציה - רון
        if (ContextCompat.checkSelfPermission(
                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
        ) != PackageManager.PERMISSION_GRANTED) {
@@ -98,29 +129,6 @@ public class MainActivity extends AppCompatActivity
        }
     }
 
-    private void VerifyUserExistence() {
-
-        String currentUserID=mAuth.getCurrentUser().getUid();
-        RootRef.child("Users").child(currentUserID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("name").exists())
-                {
-                    Toast.makeText(MainActivity.this,"Welcome",Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    SendUserToSettingsActivity();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     private void SendUserToLoginActivity()
     {
         Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
@@ -128,6 +136,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(loginIntent);
         finish();
     }
+
     private void SendUserToSettingsActivity()
     {
         Intent settingsIntent = new Intent(MainActivity.this,SettingsActivity.class);
@@ -163,7 +172,6 @@ public class MainActivity extends AppCompatActivity
          if(item.getItemId()==R.id.main_Create_Group_option)
          {
              SendUserToCreateGroupActivity();
-             //RequestNewGroup();
          }
 
          return true;
@@ -182,59 +190,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(findFriendsIntent);
     }
 
-    private void RequestNewGroup()
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.AlertDialog);
-        builder.setTitle("Enter Group Name :");
-
-        final EditText groupNameField = new EditText(MainActivity.this);
-        groupNameField.setHint("e.g Hayarkon Park");
-        builder.setView(groupNameField);
-
-        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                String groupName = groupNameField.getText().toString();
-
-                if(TextUtils.isEmpty(groupName))
-                {
-                    Toast.makeText(MainActivity.this,"Please write group name",Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                        CreateNewGroup(groupName);
-                }
-
-            }
-        });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
-
-    private void CreateNewGroup(final String groupName)
-    {
-        RootRef.child("Groups").child(groupName).setValue("").addOnCompleteListener(new OnCompleteListener<Void>()
-        {
-            @Override
-            public void onComplete(@NonNull Task<Void> task)
-            {
-                if(task.isSuccessful())
-                {
-                    Toast.makeText(MainActivity.this,groupName + "Group is created successfully",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -272,5 +227,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 }, Looper.getMainLooper());
     }
+
 }
 

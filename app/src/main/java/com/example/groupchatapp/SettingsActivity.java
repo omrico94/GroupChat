@@ -1,10 +1,5 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -47,12 +47,15 @@ public class SettingsActivity extends AppCompatActivity {
     private Toolbar settingsToolBar;
     private static final int galleryPic=1;
 
+    private LoggedInUser m_LoggedInUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        m_LoggedInUser=LoggedInUser.getInstance();
         mAuth=FirebaseAuth.getInstance();
         currentUserID=mAuth.getCurrentUser().getUid();
         RootRef= FirebaseDatabase.getInstance().getReference();
@@ -104,19 +107,18 @@ public class SettingsActivity extends AppCompatActivity {
             profileMap.put("uid",currentUserID);
             profileMap.put("name",setUserName);
             profileMap.put("status",setStatus);
-            RootRef.child("Users").child(currentUserID).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if(task.isSuccessful())
-                    {
-                        SendUserToMainActivity();
-                        Toast.makeText(SettingsActivity.this,"Profile updated seccessfully",Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        String message =task.getException().toString();
-                        Toast.makeText(SettingsActivity.this,"Error:" +message,Toast.LENGTH_SHORT).show();
-                    }
+            RootRef.child("Users").child(currentUserID).updateChildren(profileMap).addOnCompleteListener(task -> {
+                if(task.isSuccessful())
+                {
+          //          m_LoggedInUser.getCurrentUser().setName(setUserName);
+          //          m_LoggedInUser.getCurrentUser().setStatus(setStatus);
+                    SendUserToMainActivity();
+                    Toast.makeText(SettingsActivity.this,"Profile updated seccessfully",Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    String message =task.getException().toString();
+                    Toast.makeText(SettingsActivity.this,"Error:" +message,Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -134,7 +136,7 @@ public class SettingsActivity extends AppCompatActivity {
                 {
                     String retrieveUserName = dataSnapshot.child("name").getValue().toString();
                     String retrieveStatus = dataSnapshot.child("status").getValue().toString();
-                    String retrieveProfileImage = dataSnapshot.child("image").getValue().toString();
+                    String retrieveProfileImage = dataSnapshot.child("photoUrl").getValue().toString();
 
                     userName.setText(retrieveUserName);
                     userStatus.setText(retrieveStatus);
@@ -223,7 +225,7 @@ public class SettingsActivity extends AppCompatActivity {
                         {
                             Toast.makeText(SettingsActivity.this,"Profile image uploaded successfully",Toast.LENGTH_SHORT).show();
                             final String downloadUrl = task.getResult().getDownloadUrl().toString();
-                            RootRef.child("Users").child(currentUserID).child("image")
+                            RootRef.child("Users").child(currentUserID).child("photoUrl")
                                     .setValue(downloadUrl)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override

@@ -1,15 +1,13 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Notification;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -47,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         userRef= FirebaseDatabase.getInstance().getReference().child("Users");
         chatRequestRef=FirebaseDatabase.getInstance().getReference().child("Chat Requests");
-        contactsRef=FirebaseDatabase.getInstance().getReference().child("Groups");
+        contactsRef=FirebaseDatabase.getInstance().getReference().child("Group");
         receiverUserId= getIntent().getExtras().get("visit_user_id").toString();
         Toast.makeText(this,"User id :" + receiverUserId,Toast.LENGTH_SHORT).show();
 
@@ -210,14 +208,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void acceptChatRequest() {
 
-        contactsRef.child(senderUserId).child(receiverUserId).child("Groups").setValue("Saved")
+        contactsRef.child(senderUserId).child(receiverUserId).child("Group").setValue("Saved")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
                         if(task.isSuccessful())
                         {
-                            contactsRef.child(receiverUserId).child(senderUserId).child("Groups").setValue("Saved")
+                            contactsRef.child(receiverUserId).child(senderUserId).child("Group").setValue("Saved")
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
