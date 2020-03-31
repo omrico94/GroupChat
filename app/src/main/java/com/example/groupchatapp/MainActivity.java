@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.location.LocationCallback;
@@ -28,6 +27,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Observer;
 
 
 public class MainActivity extends AppCompatActivity
@@ -75,10 +76,7 @@ public class MainActivity extends AppCompatActivity
         UsersRef= FirebaseDatabase.getInstance().getReference().child("Users");
         m_LoggedInUser=LoggedInUser.getInstance();
 
-        m_LoggedInUser.getCurrentUser().observe(this,Observer<User>{
-            
-        });
-
+        
 
      //   m_LoggedInUser.getCurrentUser().observe(this, Observer<User>
     //           {currentUser ->
