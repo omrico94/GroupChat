@@ -3,48 +3,50 @@ package com.example.groupchatapp;
 //אולי בהמשך נשנה את שם המחלקה לקבוצה
 public class Group {
 
-    public String m_Name, m_PhotoUrl, m_GroupId,m_Description;
-    public int m_Longitude, m_Latitude, m_NumberOfUsers;
+    private String name, photoUrl, gid, description;
+
+    private String longitude, latitude, numberOfUsers;
 
     public Group() {
     }
 
-    public Group(String name,String description, String photoUrl, String grpoupId, int longitude, int latitude, int numberOfUsers) {
-        this.m_Name = name;
-        this.m_PhotoUrl = photoUrl;
-        this.m_GroupId = grpoupId;
-        this.m_Longitude = longitude;
-        this.m_Latitude = latitude;
-        this.m_Description=description;
-        this.m_NumberOfUsers = numberOfUsers;
+    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, String numberOfUsers) {
+        this.name = name;
+        this.photoUrl = photoUrl;
+        this.gid = groupId;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.description =description;
+        this.numberOfUsers = numberOfUsers;
     }
 
-    public String getDescription() {
-        return m_Description;
-    }
 
     public String getName() {
-        return m_Name;
+        return name;
     }
 
     public String getPhotoUrl() {
-        return m_PhotoUrl;
+        return photoUrl;
     }
 
-    public String getGroupId() {
-        return m_GroupId;
+    public String getGid() {
+        return gid;
     }
 
-    public int getLongitude() {
-        return m_Longitude;
+    public String getDescription() {
+        return description;
     }
 
-    public int getLatitude() {
-        return m_Latitude;
+    public String getLongitude() {
+        return longitude;
     }
 
-    public int getNumberOfUsers() {
-        return m_NumberOfUsers;
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public String getNumberOfUsers() {
+        return numberOfUsers;
     }
 }
 

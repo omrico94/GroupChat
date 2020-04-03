@@ -7,10 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -61,47 +61,57 @@ public class MyGroupsFragment extends MyFragment {
     public void onStart() {
         super.onStart();
 
-        m_UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+       //m_UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+       //    @Override
+       //    public void onDataChange(DataSnapshot dataSnapshot) {
+       //        m_CurrentUser = dataSnapshot.child(FirebaseAuth.getInstance().getLoggedInUser().getUid()).getValue(User.class);
+       //    }
+
+       //    @Override
+       //    public void onCancelled(DatabaseError databaseError) {
+
+       //    }
+       //});
+        final androidx.lifecycle.Observer<User> currentUserObserver = new Observer<User>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                m_CurrentUser=dataSnapshot.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).getValue(User.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(final DataSnapshot dataSnapshot) {
-                groupsToDisplay.clear();
-                //להכניס סינון אם רוצים. להסתכל על FirebaseRecyclerOptions
-                //ברור שכרגע זה לא יעיל.. שווה לחשוב על משהו אחר
-                for (String gid : m_CurrentUser.getGroupsId()) {
-                    groupsToDisplay.add(dataSnapshot.child(gid).getValue(Group.class));
-                }
-                m_GroupsAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-           //     Iterator iterator = dataSnapshot.getChildren().iterator();
-           //     while (iterator.hasNext()) {
-           //         DataSnapshot nextSnapshot = ((DataSnapshot) iterator.next());
-           //         if (nextSnapshot.child("code").getValue().toString().equals("12")) {
-           //             groupsToDisplay.add(nextSnapshot);
-           //             m_GroupsAdapter.notifyDataSetChanged();
-           //         }
-           //     }
-            }
+            public void onChanged(User currentUser) {
 
 
+                m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
+                        if(currentUser!=null)
+                        {groupsToDisplay.clear();
+                        //להכניס סינון אם רוצים. להסתכל על FirebaseRecyclerOptions
+                        //ברור שכרגע זה לא יעיל.. שווה לחשוב על משהו אחר
+                        for (String gid : currentUser.getGroupsId()) {
+                            groupsToDisplay.add(dataSnapshot.child(gid).getValue(Group.class));
+                        }
+
+                        m_GroupsAdapter.notifyDataSetChanged();
+                    }}
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
 
+            }};
+
+        LoginManager.getInstance().getLoggedInUser().observe(this, currentUserObserver);
 
 
-}
+            //     Iterator iterator = dataSnapshot.getChildren().iterator();
+            //     while (iterator.hasNext()) {
+            //         DataSnapshot nextSnapshot = ((DataSnapshot) iterator.next());
+            //         if (nextSnapshot.child("code").getValue().toString().equals("12")) {
+            //             groupsToDisplay.add(nextSnapshot);
+            //             m_GroupsAdapter.notifyDataSetChanged();
+            //         }
+            //     }
+        }
+
+
+    }

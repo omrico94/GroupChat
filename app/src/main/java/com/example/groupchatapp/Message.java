@@ -2,7 +2,7 @@ package com.example.groupchatapp;
 
 public class Message
 {
-    private String m_From, m_Message, m_Type, m_Time, m_Date, m_Name,m_Id;
+    private String from, message, type, time, date, name, mid;
 
     public Message()
     {
@@ -10,44 +10,44 @@ public class Message
     }
 
     public Message(String id, String from, String message, String type, String time, String date, String name) {
-        this.m_From = from;
-        this.m_Message = message;
-        this.m_Type = type;
-        this.m_Id=id;
-        this.m_Time = time;
-        this.m_Date = date;
-        this.m_Name = name;
+        this.from = from;
+        this.message = message;
+        this.type = type;
+        this.mid =id;
+        this.time = time;
+        this.date = date;
+        this.name = name;
     }
 
     public String getId() {
-        return m_Id;
+        return mid;
     }
 
     public String getFrom() {
-        return m_From;
+        return from;
     }
 
     public String getMessage() {
-        return m_Message;
+        return message;
     }
 
     public void setMessage(String message) {
-        this.m_Message = message;
+        this.message = message;
     }
 
     public String getType() {
-        return m_Type;
+        return type;
     }
 
     public String getTime() {
-        return m_Time;
+        return time;
     }
 
     public String getDate() {
-        return m_Date;
+        return date;
     }
 
     public String getName() {
-        return m_Name;
+        return name;
     }
 }

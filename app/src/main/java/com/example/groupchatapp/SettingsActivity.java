@@ -47,7 +47,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Toolbar settingsToolBar;
     private static final int galleryPic=1;
 
-    private LoggedInUser m_LoggedInUser;
+    private LoginManager m_LoginManager;
 
 
     @Override
@@ -55,9 +55,8 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        m_LoggedInUser=LoggedInUser.getInstance();
-        mAuth=FirebaseAuth.getInstance();
-        currentUserID=mAuth.getCurrentUser().getUid();
+        m_LoginManager = LoginManager.getInstance();
+        currentUserID=m_LoginManager.getFireBaseCurrentUser().getUid();
         RootRef= FirebaseDatabase.getInstance().getReference();
         UserProfileImageRef = FirebaseStorage.getInstance().getReference().child("Profile images");
 
@@ -110,8 +109,6 @@ public class SettingsActivity extends AppCompatActivity {
             RootRef.child("Users").child(currentUserID).updateChildren(profileMap).addOnCompleteListener(task -> {
                 if(task.isSuccessful())
                 {
-          //          m_LoggedInUser.getCurrentUser().setName(setUserName);
-          //          m_LoggedInUser.getCurrentUser().setStatus(setStatus);
                     SendUserToMainActivity();
                     Toast.makeText(SettingsActivity.this,"Profile updated seccessfully",Toast.LENGTH_SHORT).show();
                 }
@@ -132,7 +129,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                if((dataSnapshot.exists()) && (dataSnapshot.hasChild("name")) && (dataSnapshot.hasChild("image")))
+                if((dataSnapshot.exists()) && (dataSnapshot.hasChild("name")) && (dataSnapshot.hasChild("photoUrl")))
                 {
                     String retrieveUserName = dataSnapshot.child("name").getValue().toString();
                     String retrieveStatus = dataSnapshot.child("status").getValue().toString();

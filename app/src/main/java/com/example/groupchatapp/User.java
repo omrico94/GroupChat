@@ -50,6 +50,7 @@ import java.util.ArrayList;
         }
 
         public void addNewGroup(String gid) {
+
             groupsId.add(gid);
         }
 

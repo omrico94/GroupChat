@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.location.LocationCallback;
@@ -22,13 +23,8 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.Observer;
 
 
 public class MainActivity extends AppCompatActivity
@@ -45,9 +41,8 @@ public class MainActivity extends AppCompatActivity
 
     private double m_latitude,m_longitude;
 
-    private LoggedInUser m_LoggedInUser;
+    private LoginManager m_LoginManager;
 
-//    private User m_CurrentUser;
 
 
     @Override
@@ -74,11 +69,35 @@ public class MainActivity extends AppCompatActivity
 
 
         UsersRef= FirebaseDatabase.getInstance().getReference().child("Users");
-        m_LoggedInUser=LoggedInUser.getInstance();
+        m_LoginManager = LoginManager.getInstance();
+
+        if(!m_LoginManager.IsLoggedIn())
+        {
+            m_LoginManager.Login();
+        }
 
 
 
-     //   m_LoggedInUser.getCurrentUser().observe(this, Observer<User>
+        final androidx.lifecycle.Observer<User> currentUserObserver = new Observer<User>() {
+            @Override
+            public void onChanged(User currentUser) {
+
+                if(currentUser == null)
+                {
+                    SendUserToLoginActivity();
+                }
+                else if(currentUser.getName()==null)
+                {
+                    SendUserToSettingsActivity();
+                }
+
+            }
+
+        };
+
+        m_LoginManager.getLoggedInUser().observe(this, currentUserObserver);
+
+     //   m_LoginManager.getLoggedInUser().observe(this, Observer<User>
     //           {currentUser ->
     //   if (m_CurrentUser.getUid() == null) {
     //       SendUserToLoginActivity();
@@ -91,7 +110,7 @@ public class MainActivity extends AppCompatActivity
       //  UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
       //      @Override
       //      public void onDataChange(DataSnapshot dataSnapshot) {
-      //          m_CurrentUser=dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue(User.class);
+      //          m_CurrentUser=dataSnapshot.child(mAuth.getLoggedInUser().getUid()).getValue(User.class);
       //      }
 //
       //      @Override
@@ -106,41 +125,15 @@ public class MainActivity extends AppCompatActivity
     {
         super.onStart();
 
-      if(m_CurrentUser.getUid() == null)
-      {
-        SendUserToLoginActivity();
-      }
-      else if(m_CurrentUser.getName()==null)
-      {
-          SendUserToSettingsActivity();
-      }
-  //    else if(m_LoggedInUser.getCurrentUser().getName()==null)
-  //    {
-  //        SendUserToSettingsActivity();
-  //    }
-
-   //   UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-   //       @Override
-   //       public void onDataChange(DataSnapshot dataSnapshot) {
-   //           m_CurrentUser=dataSnapshot.child(currentUser.getUid()).getValue(User.class); //לבדוק מה מתקבל
-   //       }
-//
-   //       @Override
-   //       public void onCancelled(DatabaseError databaseError) {
-//
-   //       }
-   //   });
-
-
-        //להכניס לפונקציה - רון
-       if (ContextCompat.checkSelfPermission(
-               getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
-       ) != PackageManager.PERMISSION_GRANTED) {
-           ActivityCompat.requestPermissions(
-                   MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
-       } else {
-           getCurrentLocation();
-       }
+            //להכניס לפונקציה - רון
+            if (ContextCompat.checkSelfPermission(
+                    getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            } else {
+                getCurrentLocation();
+            }
     }
 
     private void SendUserToLoginActivity()
@@ -170,8 +163,7 @@ public class MainActivity extends AppCompatActivity
          super.onOptionsItemSelected(item);
          if(item.getItemId()==R.id.main_logout_option)
          {
-             mAuth.signOut();
-             SendUserToLoginActivity();
+                m_LoginManager.Logout();
          }
 
          if(item.getItemId()==R.id.main_settings_option)
@@ -242,5 +234,11 @@ public class MainActivity extends AppCompatActivity
                 }, Looper.getMainLooper());
     }
 
+
+ //   @Override
+ //   protected void onStop() {
+ //       super.onStop();
+ //       UsersRef.child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").setValue(m_LoginManager.getLoggedInUser().getValue().getGroupsId());
+ //   }
 }
 

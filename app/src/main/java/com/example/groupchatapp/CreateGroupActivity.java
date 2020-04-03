@@ -40,7 +40,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     private Toolbar createGroupToolBar;
     private static final int galleryPic=1;
     private String uniqueID;
-    private LoggedInUser m_LoggedInUser;
+    private LoginManager m_LoginManager;
 
 
     @Override
@@ -74,7 +74,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             }
         });
 
-        m_LoggedInUser=LoggedInUser.getInstance();
+        m_LoginManager = LoginManager.getInstance();
     }
 
     private void UpdateSettings() {
@@ -99,17 +99,22 @@ public class CreateGroupActivity extends AppCompatActivity {
             HashMap<String,Object> profileMap=new HashMap<>();
             profileMap.put("gid",groupId);
             profileMap.put("name",setGroupName);
-            profileMap.put("code",setGroupDescription);
+            profileMap.put("description",setGroupDescription);
             profileMap.put("latitude",getIntent().getExtras().get("latitude").toString());
             profileMap.put("longitude",getIntent().getExtras().get("longitude").toString());
+            profileMap.put("numberOfUsers","1");
 
 
-            RootRef.child("Groups").child(setGroupName).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+            RootRef.child("Groups").child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful())
                     {
-                        m_LoggedInUser.getCurrentUser().addNewGroup(groupId);
+                        m_LoginManager.getLoggedInUser().getValue().addNewGroup(groupId);
+                        RootRef.child("Users").
+                                child(m_LoginManager.getLoggedInUser().getValue().getUid()).
+                                child("groupsId").setValue(m_LoginManager.getLoggedInUser().getValue().getGroupsId());
                         SendUserToMainActivity();
                         Toast.makeText(CreateGroupActivity.this,"Group created successfully",Toast.LENGTH_SHORT).show();
                     }

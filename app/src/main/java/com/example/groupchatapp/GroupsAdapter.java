@@ -36,9 +36,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupsView
     @Override
     public void onBindViewHolder(@NonNull final GroupsViewHolder holder, int position) {
 
-        final String groupId = mGroups.get(position).getGroupId();
+        final String groupId = mGroups.get(position).getGid();
         final String[] retImage = {"default_image"};
-        if (!mGroups.get(position).getPhotoUrl().isEmpty()) {
+        if (mGroups.get(position).getPhotoUrl()!=null) {
             retImage[0] = mGroups.get(position).getPhotoUrl();
             Picasso.get().load(retImage[0]).placeholder(R.drawable.profile_image).into(holder.groupPhoto);
         }
