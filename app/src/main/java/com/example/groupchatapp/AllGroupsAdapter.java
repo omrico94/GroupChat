@@ -16,25 +16,25 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
- class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupsViewHolder> {
+public class AllGroupsAdapter extends RecyclerView.Adapter<AllGroupsAdapter.AllGroupsViewHolder> {
 
     private ArrayList<Group> mGroups;
     private Context mContext;
 
-    public GroupsAdapter(ArrayList<Group> mGroups, Context mContext) {
+    public AllGroupsAdapter(ArrayList<Group> mGroups, Context mContext) {
         this.mGroups = mGroups;
         this.mContext = mContext;//אם זה רק משומש ב mygroups אז אפשר בלי זה
     }
 
     @NonNull
     @Override
-    public GroupsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AllGroupsAdapter.AllGroupsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.groups_display_layout, parent, false);
-        return new GroupsViewHolder(view);
+        return new AllGroupsAdapter.AllGroupsViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final GroupsViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final AllGroupsAdapter.AllGroupsViewHolder holder, int position) {
 
         final String groupId = mGroups.get(position).getGid();
         final String[] retImage = {"default_image"};
@@ -46,15 +46,18 @@ import de.hdodenhof.circleimageview.CircleImageView;
         final String retName = mGroups.get(position).getName();
         holder.groupName.setText(retName);
 
+        final String numberOfUsers = mGroups.get(position).getNumberOfUsers();
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Intent chatIntent = new Intent(mContext, ChatActivity.class);
-                chatIntent.putExtra("group_id", groupId);
-                chatIntent.putExtra("group_name", retName);
-                chatIntent.putExtra("group_image", retImage);
-                mContext.startActivity(chatIntent);
+                Intent joinGroupIntent = new Intent(mContext, JoinToGroupActivity.class);
+                joinGroupIntent.putExtra("group_id", groupId);
+                joinGroupIntent.putExtra("group_name", retName);
+                joinGroupIntent.putExtra("group_image", retImage);
+                joinGroupIntent.putExtra("group_number_of_users",numberOfUsers );
+
+                mContext.startActivity(joinGroupIntent);
             }
         });
 
@@ -65,11 +68,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
         return mGroups.size();
     }
 
-    public class GroupsViewHolder extends RecyclerView.ViewHolder {
+    public class AllGroupsViewHolder extends RecyclerView.ViewHolder {
         CircleImageView groupPhoto;
         TextView groupName;
 
-        public GroupsViewHolder(@NonNull View itemView) {
+        public AllGroupsViewHolder(@NonNull View itemView) {
             super(itemView);
 
             groupName = itemView.findViewById(R.id.user_profile_name);
@@ -77,6 +80,4 @@ import de.hdodenhof.circleimageview.CircleImageView;
         }
     }
 
-
 }
-
