@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +27,7 @@ public class AllGroupsFragment extends MyFragment {
     private RecyclerView m_GroupList;
     private DatabaseReference m_GroupsRef, m_UsersRef;
     private AllGroupsAdapter m_GroupsAdapter;
-    private final ArrayList<Group> groupsToDisplay = new ArrayList<Group>();
+    private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
 
 
 
@@ -59,15 +58,12 @@ public class AllGroupsFragment extends MyFragment {
     public void onStart() {
         super.onStart();
 
-        final androidx.lifecycle.Observer<User> currentUserObserver = new Observer<User>() {
-            @Override
-            public void onChanged(final User currentUser) {
+        final androidx.lifecycle.Observer<User> currentUserObserver =
+                currentUser -> m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
-
-                m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
-                        if(currentUser!=null) {
+                        if (currentUser != null) {
 
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
@@ -83,13 +79,9 @@ public class AllGroupsFragment extends MyFragment {
 
                     }
                 });
-            }
-        };
 
         LoginManager.getInstance().getLoggedInUser().observe(this, currentUserObserver);
         //אם משנים דאטה בייס בקבוצות צריך להוסיף עוד קינון
-
-
     }
 }
 
