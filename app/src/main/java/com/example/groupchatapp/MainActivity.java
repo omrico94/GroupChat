@@ -1,15 +1,20 @@
 package com.example.groupchatapp;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -42,8 +47,6 @@ public class MainActivity extends AppCompatActivity
     private double m_latitude,m_longitude;
 
     private LoginManager m_LoginManager;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -97,6 +100,7 @@ public class MainActivity extends AppCompatActivity
 
         m_LoginManager.getLoggedInUser().observe(this, currentUserObserver);
 
+        CheckPermissionLocation();
      //   m_LoginManager.getLoggedInUser().observe(this, Observer<User>
     //           {currentUser ->
     //   if (m_CurrentUser.getUid() == null) {
@@ -119,21 +123,50 @@ public class MainActivity extends AppCompatActivity
       //      }
       //  });
 
+
+
+
     }
+
     @Override
     protected  void onStart()
     {
         super.onStart();
 
-            //להכניס לפונקציה - רון
-            if (ContextCompat.checkSelfPermission(
-                    getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                        MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            } else {
-                getCurrentLocation();
-            }
+        EnableLocationIfNeeded();
+        getCurrentLocation();
+    }
+
+    private void CheckPermissionLocation() {
+        if (ContextCompat.checkSelfPermission(
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+        }
+    }
+
+    private void EnableLocationIfNeeded() {
+
+        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if(!provider.contains("gps")) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme );
+            builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                    .setCancelable(false)
+                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, final int id) {
+                            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        }
+                    })
+                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, final int id) {
+                            dialog.cancel();
+                        }
+                    });
+            final AlertDialog alert = builder.create();
+            alert.setTitle("GROUPI");
+            alert.show();
+        }
     }
 
     private void SendUserToLoginActivity()
