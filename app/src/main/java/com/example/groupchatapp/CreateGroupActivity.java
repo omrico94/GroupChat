@@ -80,7 +80,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     private void UpdateSettings() {
 
         String setGroupName = groupName.getText().toString();
-        uniqueID = setGroupName;
+
         String setGroupDescription = groupDescription.getText().toString();
 
         if(TextUtils.isEmpty(setGroupName))
@@ -96,6 +96,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         else
         {
             final String groupId = RootRef.child("Groups").push().getKey();
+            uniqueID = groupId;
             HashMap<String,Object> profileMap=new HashMap<>();
             profileMap.put("gid",groupId);
             profileMap.put("name",setGroupName);
@@ -111,7 +112,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful())
                     {
-                        m_LoginManager.getLoggedInUser().getValue().addNewGroup(groupId);
+                        m_LoginManager.addNewGroupIdToCurrentUser(groupId);
                         RootRef.child("Users").
                                 child(m_LoginManager.getLoggedInUser().getValue().getUid()).
                                 child("groupsId").setValue(m_LoginManager.getLoggedInUser().getValue().getGroupsId());

@@ -16,7 +16,7 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter
     }
     private List<Fragment> fragments = new ArrayList<Fragment>(){{
         add(new MyGroupsFragment());
- //       add(new GroupsFragment());
+        add(new AllGroupsFragment());
    //     add(new ContactsFragment());
     }};
 

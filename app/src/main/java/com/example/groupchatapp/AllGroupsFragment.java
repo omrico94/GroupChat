@@ -23,20 +23,18 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MyGroupsFragment extends MyFragment {
-
+public class AllGroupsFragment extends MyFragment {
     private View privateChatsView;
     private RecyclerView m_GroupList;
-    private DatabaseReference m_GroupsRef,m_UsersRef;
-    private GroupsAdapter m_GroupsAdapter;
+    private DatabaseReference m_GroupsRef, m_UsersRef;
+    private AllGroupsAdapter m_GroupsAdapter;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<Group>();
 
-    private User m_CurrentUser;
 
 
-    public MyGroupsFragment() {
+    public AllGroupsFragment() {
         // Required empty public constructor
-        title = "My Groups";
+        title = "All Group";
     }
 
     @Override
@@ -46,12 +44,13 @@ public class MyGroupsFragment extends MyFragment {
         privateChatsView = inflater.inflate(R.layout.fragment_chats, container, false);
 
         m_GroupList = privateChatsView.findViewById(R.id.chats_list);
-        m_GroupsAdapter = new GroupsAdapter(groupsToDisplay, getContext());
+        m_GroupsAdapter = new AllGroupsAdapter(groupsToDisplay, getContext());
         m_GroupList.setLayoutManager(new LinearLayoutManager(getContext()));
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups");
         m_UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
         m_GroupList.setAdapter(m_GroupsAdapter);
+
 
         return privateChatsView;
     }
@@ -60,34 +59,23 @@ public class MyGroupsFragment extends MyFragment {
     public void onStart() {
         super.onStart();
 
-       //m_UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-       //    @Override
-       //    public void onDataChange(DataSnapshot dataSnapshot) {
-       //        m_CurrentUser = dataSnapshot.child(FirebaseAuth.getInstance().getLoggedInUser().getUid()).getValue(User.class);
-       //    }
-
-       //    @Override
-       //    public void onCancelled(DatabaseError databaseError) {
-
-       //    }
-       //});
         final androidx.lifecycle.Observer<User> currentUserObserver = new Observer<User>() {
             @Override
             public void onChanged(User currentUser) {
 
+
                 m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
-                        if(currentUser!=null)
-                        {groupsToDisplay.clear();
-                        //להכניס סינון אם רוצים. להסתכל על FirebaseRecyclerOptions
-                        //ברור שכרגע זה לא יעיל.. שווה לחשוב על משהו אחר
-                        for (String gid : currentUser.getGroupsId()) {
-                            groupsToDisplay.add(dataSnapshot.child(gid).getValue(Group.class));
-                        }
+                        if(currentUser!=null) {
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
-                        m_GroupsAdapter.notifyDataSetChanged();
-                    }}
+                                if (!currentUser.getGroupsId().contains(ds.child("gid").getValue()))
+                                    groupsToDisplay.add(ds.getValue(Group.class));
+                            }
+                            m_GroupsAdapter.notifyDataSetChanged();
+                        }
+                    }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -96,20 +84,16 @@ public class MyGroupsFragment extends MyFragment {
                 });
 
 
-            }};
+            }
+        };
 
         LoginManager.getInstance().getLoggedInUser().observe(this, currentUserObserver);
-
-
-            //     Iterator iterator = dataSnapshot.getChildren().iterator();
-            //     while (iterator.hasNext()) {
-            //         DataSnapshot nextSnapshot = ((DataSnapshot) iterator.next());
-            //         if (nextSnapshot.child("code").getValue().toString().equals("12")) {
-            //             groupsToDisplay.add(nextSnapshot);
-            //             m_GroupsAdapter.notifyDataSetChanged();
-            //         }
-            //     }
-        }
+        //אם משנים דאטה בייס בקבוצות צריך להוסיף עוד קינון
 
 
     }
+}
+
+
+
+
