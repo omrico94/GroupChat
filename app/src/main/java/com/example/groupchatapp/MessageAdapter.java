@@ -26,12 +26,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder>
 {
-    private List<Messages> groupMessagesList;
+    private List<Message> groupMessagesList;
     private FirebaseAuth mAuth;
     private DatabaseReference groupRef,usersRef;
     private String currentGroup;
 
-    public MessageAdapter(List<Messages> groupMessagesList, String currentGroup)
+    public MessageAdapter(List<Message> groupMessagesList, String currentGroup)
     {
         this.groupMessagesList = groupMessagesList;
         this.currentGroup=currentGroup;
@@ -52,7 +52,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             receiverProfileImage =  itemView.findViewById(R.id.message_profile_image);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
             messageSenderPicture = itemView.findViewById(R.id.message_sender_image_view);
-            groupRef = FirebaseDatabase.getInstance().getReference().child("new Groups").child(currentGroup);
+            groupRef = FirebaseDatabase.getInstance().getReference().child("new Group").child(currentGroup);
             usersRef=FirebaseDatabase.getInstance().getReference().child("Users");
         }
 
@@ -73,7 +73,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull final MessageViewHolder messageViewHolder, final int position)
     {
         String currentUserId = mAuth.getCurrentUser().getUid();
-        Messages messages = groupMessagesList.get(position);
+        Message messages = groupMessagesList.get(position);
         String fromUserId = messages.getFrom();
         String fromMessageType = messages.getType();
 

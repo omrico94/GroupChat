@@ -1,28 +1,23 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -30,7 +25,6 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -38,15 +32,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class CreateGroupActivity extends AppCompatActivity {
 
     private Button updateGroupButton;
-    private EditText groupName, groupCode;
+    private EditText groupName, groupDescription;
     private CircleImageView groupImage;
-    private FirebaseAuth mAuth;
     private DatabaseReference RootRef;
     private StorageReference groupImageRef;
     private ProgressDialog loadingBar;
     private Toolbar createGroupToolBar;
-    private static final int galleryPic=1;
-    private String uniqueID;
+    private LoginManager m_LoginManager;
+    private  Uri imageUri;
 
 
     @Override
@@ -54,39 +47,32 @@ public class CreateGroupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_group);
 
-        mAuth=FirebaseAuth.getInstance();
         RootRef= FirebaseDatabase.getInstance().getReference();
         groupImageRef = FirebaseStorage.getInstance().getReference().child("Group images");
 
         initializeFields();
 
 
-        updateGroupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UpdateSettings();
-            }
-        });
+        updateGroupButton.setOnClickListener(v -> UpdateSettings());
 
  //       RetrieveUserInfo();
 
-        groupImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        groupImage.setOnClickListener(view -> {
 
-                Intent galleryIntent=new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent,galleryPic);
-            }
+            CropImage.activity()
+                    .setGuidelines(CropImageView.Guidelines.ON)
+                    .setAspectRatio(1,1)
+                    .start(this);
         });
+
+        m_LoginManager = LoginManager.getInstance();
     }
 
     private void UpdateSettings() {
 
         String setGroupName = groupName.getText().toString();
-        uniqueID = setGroupName;
-        int setGroupCode = Integer.parseInt(groupCode.getText().toString());
+
+        String setGroupDescription = groupDescription.getText().toString();
 
         if(TextUtils.isEmpty(setGroupName))
         {
@@ -100,19 +86,25 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         else
         {
+            final String groupId = RootRef.child("Groups").push().getKey();
+            uploadImageToStorage(groupId);
             HashMap<String,Object> profileMap=new HashMap<>();
-            profileMap.put("gid",setGroupName);
+            profileMap.put("gid",groupId);
             profileMap.put("name",setGroupName);
-            profileMap.put("code",setGroupCode);
+            profileMap.put("description",setGroupDescription);
             profileMap.put("latitude",getIntent().getExtras().get("latitude").toString());
             profileMap.put("longitude",getIntent().getExtras().get("longitude").toString());
+            profileMap.put("numberOfUsers","1");
 
-
-            RootRef.child("new Groups").child(setGroupName).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            RootRef.child("Groups").child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful())
                     {
+                        m_LoginManager.addNewGroupIdToCurrentUser(groupId);
+                        RootRef.child("Users").
+                                child(m_LoginManager.getLoggedInUser().getValue().getUid()).
+                                child("groupsId").setValue(m_LoginManager.getLoggedInUser().getValue().getGroupsId());
                         SendUserToMainActivity();
                         Toast.makeText(CreateGroupActivity.this,"Group created successfully",Toast.LENGTH_SHORT).show();
                     }
@@ -123,13 +115,34 @@ public class CreateGroupActivity extends AppCompatActivity {
                     }
                 }
             });
-
         }
     }
 
-   //private void RetrieveUserInfo() פונקציה שתתאים לנו שנרצה לאפשר עריכה של פרטים לקבוצה קיימת
+    private void uploadImageToStorage(String groupId) {
+        StorageReference filePath = groupImageRef.child(groupId + ".jpg");
+        filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                if (task.isSuccessful())
+                {
+                    Toast.makeText(CreateGroupActivity.this,"Group image uploaded successfully",Toast.LENGTH_SHORT).show();
+                    final String downloadUrl = task.getResult().getDownloadUrl().toString();
+                    RootRef.child("Groups").child(groupId).child("photoUrl")
+                            .setValue(downloadUrl);
+                }
+                else
+                {
+                    String message = task.getException().toString();
+                    Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    //private void RetrieveUserInfo() פונקציה שתתאים לנו שנרצה לאפשר עריכה של פרטים לקבוצה קיימת
    //{
-   //    RootRef.child("new Groups").child(currentUserID).addValueEventListener(new ValueEventListener()
+   //    RootRef.child("new Group").child(currentUserID).addValueEventListener(new ValueEventListener()
    //    {
    //
    //
@@ -141,7 +154,7 @@ public class CreateGroupActivity extends AppCompatActivity {
    //             String retrieveGroupName = dataSnapshot.child("name").getValue().toString();
    //             String retrieveGroupCode = dataSnapshot.child("code").getValue().toString();
    //             groupName.setText(retrieveGroupName);
-   //             groupCode.setText(retrieveGroupCode);
+   //             groupDescription.setText(retrieveGroupCode);
 ////
    //             if(dataSnapshot.hasChild("image"))
    //             {
@@ -170,7 +183,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
        updateGroupButton =findViewById(R.id.update_group_button);
        groupName = findViewById(R.id.set_group_name);
-       groupCode = findViewById(R.id.set_group_code);
+       groupDescription = findViewById(R.id.set_group_code);
        groupImage = findViewById(R.id.set_group_image);
        loadingBar = new ProgressDialog(this);
 
@@ -194,17 +207,6 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==galleryPic && resultCode==RESULT_OK && data!=null)
-        {
-            //חסר משהו. צריך לראות שוב את החלק הזה בסרטון של הsettings
-            Uri imageUri = data.getData();
-
-            CropImage.activity()
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
-                    .start(this);
-        }
-
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
 
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -215,52 +217,16 @@ public class CreateGroupActivity extends AppCompatActivity {
                 loadingBar.setCanceledOnTouchOutside(false);
                 loadingBar.show();
 
-                Uri resultUri = result.getUri();
+                imageUri = result.getUri();
+                loadingBar.dismiss();
+                Picasso.get().load(imageUri).into(groupImage);
 
-                StorageReference filePath = groupImageRef.child(uniqueID + ".jpg");
-                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                        if (task.isSuccessful())
-                        {
-                            Toast.makeText(CreateGroupActivity.this,"Group image uploaded successfully",Toast.LENGTH_SHORT).show();
-                            final String downloadUrl = task.getResult().getDownloadUrl().toString();
-                            RootRef.child("new Groups").child(uniqueID).child("image")
-                                    .setValue(downloadUrl)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-
-                                            if(task.isSuccessful())
-                                            {
-                                                Toast.makeText(CreateGroupActivity.this, "Image saved in databse", Toast.LENGTH_SHORT).show();
-                                                loadingBar.dismiss();
-                                            }
-                                            else
-                                            {
-                                                String message = task.getException().toString();
-                                                Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
-                                                loadingBar.dismiss();
-                                            }
-                                        }
-                                    });
-                        }
-                        else
-                        {
-                            String message = task.getException().toString();
-                            Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
-                            loadingBar.dismiss();
-                        }
-                    }
-                });
             }
 
-            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-            }
+         // else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+         //     Exception error = result.getError();
+         // }
         }
 
     }
 }
-

@@ -1,11 +1,5 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,11 +7,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -47,16 +46,16 @@ public class FindFriendsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        FirebaseRecyclerOptions<Groups> options=new FirebaseRecyclerOptions.Builder<Groups>()
-                .setQuery(usersRef, Groups.class)
+        FirebaseRecyclerOptions<Group> options=new FirebaseRecyclerOptions.Builder<Group>()
+                .setQuery(usersRef, Group.class)
                 .build();
 
-        FirebaseRecyclerAdapter<Groups,FindFriendViewHolder> adapter=new FirebaseRecyclerAdapter<Groups, FindFriendViewHolder>(options) {
+        FirebaseRecyclerAdapter<Group,FindFriendViewHolder> adapter=new FirebaseRecyclerAdapter<Group, FindFriendViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, final int position, @NonNull Groups model) {
+            protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, final int position, @NonNull Group model) {
 
                 holder.userName.setText(model.getName());
-                Picasso.get().load(model.getImage()).placeholder(R.drawable.profile_image).into(holder.profileImage);
+          //      Picasso.get().load(model.getImage()).placeholder(R.drawable.profile_image).into(holder.groupPhoto);
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

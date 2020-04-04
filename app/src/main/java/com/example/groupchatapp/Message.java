@@ -1,30 +1,30 @@
 package com.example.groupchatapp;
 
-public class Messages
+public class Message
 {
-    private String from, message, type , time , date , name;
+    private String from, message, type, time, date, name, mid;
 
-    public Messages()
+    public Message()
     {
 
     }
 
-    public Messages(String from, String message, String type, String time, String date, String name) {
+    public Message(String id, String from, String message, String type, String time, String date, String name) {
         this.from = from;
         this.message = message;
         this.type = type;
-
+        this.mid =id;
         this.time = time;
         this.date = date;
         this.name = name;
     }
 
-    public String getFrom() {
-        return from;
+    public String getId() {
+        return mid;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public String getFrom() {
+        return from;
     }
 
     public String getMessage() {
@@ -39,32 +39,15 @@ public class Messages
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-
     public String getTime() {
         return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
     }
 
     public String getDate() {
         return date;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }
