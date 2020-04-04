@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -230,7 +231,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
                 imageUri = result.getUri();
                 loadingBar.dismiss();
-
+                Picasso.get().load(imageUri).into(groupImage);
             }
 
           // else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
