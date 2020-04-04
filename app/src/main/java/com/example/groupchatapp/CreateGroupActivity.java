@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -59,10 +60,10 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         groupImage.setOnClickListener(view -> {
 
-            Intent galleryIntent=new Intent();
-            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-            galleryIntent.setType("image/*");
-            startActivityForResult(galleryIntent,galleryPic);
+            CropImage.activity()
+                    .setGuidelines(CropImageView.Guidelines.ON)
+                    .setAspectRatio(1,1)
+                    .start(this);
         });
 
         m_LoginManager = LoginManager.getInstance();
@@ -95,8 +96,6 @@ public class CreateGroupActivity extends AppCompatActivity {
             profileMap.put("latitude",getIntent().getExtras().get("latitude").toString());
             profileMap.put("longitude",getIntent().getExtras().get("longitude").toString());
             profileMap.put("numberOfUsers","1");
-
-
 
             RootRef.child("Groups").child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -132,30 +131,12 @@ public class CreateGroupActivity extends AppCompatActivity {
                     Toast.makeText(CreateGroupActivity.this,"Group image uploaded successfully",Toast.LENGTH_SHORT).show();
                     final String downloadUrl = task.getResult().getDownloadUrl().toString();
                     RootRef.child("Groups").child(groupId).child("photoUrl")
-                            .setValue(downloadUrl)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-
-                                    if(task.isSuccessful())
-                                    {
-                                        Toast.makeText(CreateGroupActivity.this, "Image saved in databse", Toast.LENGTH_SHORT).show();
-                                        loadingBar.dismiss();
-                                    }
-                                    else
-                                    {
-                                        String message = task.getException().toString();
-                                        Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
-                                        loadingBar.dismiss();
-                                    }
-                                }
-                            });
+                            .setValue(downloadUrl);
                 }
                 else
                 {
                     String message = task.getException().toString();
                     Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
-                    loadingBar.dismiss();
                 }
             }
         });
@@ -228,17 +209,6 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==galleryPic && resultCode==RESULT_OK && data!=null)
-        {
-            //חסר משהו. צריך לראות שוב את החלק הזה בסרטון של הsettings
-//            Uri imageUri = data.getData();
-
-            CropImage.activity()
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
-                    .start(this);
-        }
-
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
 
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -250,12 +220,14 @@ public class CreateGroupActivity extends AppCompatActivity {
                 loadingBar.show();
 
                 imageUri = result.getUri();
+                loadingBar.dismiss();
+                Picasso.get().load(imageUri).into(groupImage);
 
             }
 
-          // else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-          //     Exception error = result.getError();
-          // }
+         // else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+         //     Exception error = result.getError();
+         // }
         }
 
     }

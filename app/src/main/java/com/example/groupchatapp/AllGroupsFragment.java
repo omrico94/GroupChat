@@ -62,8 +62,9 @@ public class AllGroupsFragment extends MyFragment {
                 currentUser -> m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
-                groupsToDisplay.clear();
+
                 if(currentUser!=null) {
+                    groupsToDisplay.clear();
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
                         if (!currentUser.getGroupsId().contains(ds.child("gid").getValue()))
