@@ -64,6 +64,7 @@ public class AllGroupsFragment extends MyFragment {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
                         if (currentUser != null) {
+                            groupsToDisplay.clear();
 
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
 

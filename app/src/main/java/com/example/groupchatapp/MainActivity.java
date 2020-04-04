@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity
 
     private void getFromLocationGeocoder() {
         try {
-            List<Address> lstAdd = geocoder.getFromLocation(m_latitude, m_longitude, 1);
+            List<Address> lstAdd = m_Geocoder.getFromLocation(m_latitude, m_longitude, 1);
             if (lstAdd.size() > 0)
             {
                 String countryName = lstAdd.get(0).getCountryName();

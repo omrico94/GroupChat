@@ -129,30 +129,12 @@ public class CreateGroupActivity extends AppCompatActivity {
                     Toast.makeText(CreateGroupActivity.this,"Group image uploaded successfully",Toast.LENGTH_SHORT).show();
                     final String downloadUrl = task.getResult().getDownloadUrl().toString();
                     RootRef.child("Groups").child(groupId).child("photoUrl")
-                            .setValue(downloadUrl)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-
-                                    if(task.isSuccessful())
-                                    {
-                                        Toast.makeText(CreateGroupActivity.this, "Image saved in databse", Toast.LENGTH_SHORT).show();
-                                        loadingBar.dismiss();
-                                    }
-                                    else
-                                    {
-                                        String message = task.getException().toString();
-                                        Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
-                                        loadingBar.dismiss();
-                                    }
-                                }
-                            });
+                            .setValue(downloadUrl);
                 }
                 else
                 {
                     String message = task.getException().toString();
                     Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
-                    loadingBar.dismiss();
                 }
             }
         });
@@ -247,6 +229,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                 loadingBar.show();
 
                 imageUri = result.getUri();
+                loadingBar.dismiss();
 
             }
 
@@ -257,4 +240,3 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     }
 }
-
