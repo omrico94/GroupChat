@@ -60,30 +60,31 @@ public class AllGroupsFragment extends MyFragment {
 
         final androidx.lifecycle.Observer<User> currentUserObserver =
                 currentUser -> m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                if(currentUser!=null) {
-                    groupsToDisplay.clear();
-                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    @Override
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                        if (!currentUser.getGroupsId().contains(ds.child("gid").getValue()))
-                            groupsToDisplay.add(ds.getValue(Group.class));
+                        if (currentUser != null) {
+                            groupsToDisplay.clear();
+
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+
+                                if (!currentUser.getGroupsId().contains(ds.child("gid").getValue()))
+                                    groupsToDisplay.add(ds.getValue(Group.class));
+                            }
+                            m_GroupsAdapter.notifyDataSetChanged();
+                        }
+
                     }
-                    m_GroupsAdapter.notifyDataSetChanged();
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                    }
+                });
 
         LoginManager.getInstance().getLoggedInUser().observe(this, currentUserObserver);
         //אם משנים דאטה בייס בקבוצות צריך להוסיף עוד קינון
-
-
     }
 }
 

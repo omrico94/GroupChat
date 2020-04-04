@@ -115,7 +115,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                     }
                 }
             });
-
         }
     }
 
@@ -231,4 +230,3 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     }
 }
-
