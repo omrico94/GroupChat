@@ -38,7 +38,6 @@ public class CreateGroupActivity extends AppCompatActivity {
     private StorageReference groupImageRef;
     private ProgressDialog loadingBar;
     private Toolbar createGroupToolBar;
-    private static final int galleryPic=1;
     private LoginManager m_LoginManager;
     private  Uri imageUri;
 
