@@ -61,13 +61,14 @@ public class AllGroupsFragment extends MyFragment {
 
         final androidx.lifecycle.Observer<User> currentUserObserver = new Observer<User>() {
             @Override
-            public void onChanged(User currentUser) {
+            public void onChanged(final User currentUser) {
 
 
                 m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
                         if(currentUser!=null) {
+
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
                                 if (!currentUser.getGroupsId().contains(ds.child("gid").getValue()))
@@ -82,8 +83,6 @@ public class AllGroupsFragment extends MyFragment {
 
                     }
                 });
-
-
             }
         };
 

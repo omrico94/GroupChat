@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -32,6 +34,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 
 public class MainActivity extends AppCompatActivity
 {
@@ -49,12 +55,14 @@ public class MainActivity extends AppCompatActivity
 
     private LoginManager m_LoginManager;
 
-    LocationListener m_LocationListener;
-    LocationManager m_LocationManager;
+    private LocationListener m_LocationListener;
+    private LocationManager m_LocationManager;
+    private Geocoder m_Geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        m_Geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -82,8 +90,6 @@ public class MainActivity extends AppCompatActivity
         {
             m_LoginManager.Login();
         }
-
-
 
         final androidx.lifecycle.Observer<User> currentUserObserver = new Observer<User>() {
             @Override
@@ -137,6 +143,7 @@ public class MainActivity extends AppCompatActivity
             public void onLocationChanged(Location location) {
                     m_latitude = location.getLatitude();
                     m_longitude = location.getLongitude();
+                    getFromLocationGeocoder();
                 Toast.makeText( MainActivity.this,"Location Changed!",Toast.LENGTH_SHORT).show();
             }
 
@@ -153,7 +160,10 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onProviderDisabled(String provider) {
+                m_latitude = 0;
+                m_longitude = 0;
                 EnableLocationIfNeeded();
+                Toast.makeText(MainActivity.this,"Provider Disabled!",Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -164,6 +174,18 @@ public class MainActivity extends AppCompatActivity
         }
         catch (SecurityException e){
 
+        }
+    }
+
+    private void getFromLocationGeocoder() {
+        try {
+            List<Address> lstAdd = geocoder.getFromLocation(m_latitude, m_longitude, 1);
+            if (lstAdd.size() > 0)
+            {
+                String countryName = lstAdd.get(0).getCountryName();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -263,6 +285,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == 1 && grantResults.length > 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 createLocationManagerAndListener(); //App can use location!
+                getCurrentLocation();
             }
             else {
                 //Can't use the app message.
@@ -281,6 +304,7 @@ public class MainActivity extends AppCompatActivity
         }
         else {
             createLocationManagerAndListener(); //App can use location!
+            getCurrentLocation();
         }
     }
 
@@ -303,6 +327,7 @@ public class MainActivity extends AppCompatActivity
                                     locationResult.getLocations().get(latestLocationIndex).getLatitude();
                             m_longitude =
                                     locationResult.getLocations().get(latestLocationIndex).getLongitude();
+                            getFromLocationGeocoder();
                         }
                     }
                 }, Looper.getMainLooper());

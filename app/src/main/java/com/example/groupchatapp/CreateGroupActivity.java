@@ -105,8 +105,6 @@ public class CreateGroupActivity extends AppCompatActivity {
             profileMap.put("longitude",getIntent().getExtras().get("longitude").toString());
             profileMap.put("numberOfUsers","1");
 
-
-
             RootRef.child("Groups").child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -126,7 +124,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                     }
                 }
             });
-
         }
     }
 
