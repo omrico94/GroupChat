@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -47,6 +48,9 @@ public class MainActivity extends AppCompatActivity
     private double m_latitude,m_longitude;
 
     private LoginManager m_LoginManager;
+
+    LocationListener m_LocationListener;
+    LocationManager m_LocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -101,7 +105,10 @@ public class MainActivity extends AppCompatActivity
         m_LoginManager.getLoggedInUser().observe(this, currentUserObserver);
 
         CheckPermissionLocation();
-     //   m_LoginManager.getLoggedInUser().observe(this, Observer<User>
+
+        //createLocationManagerAndListener();
+
+        //   m_LoginManager.getLoggedInUser().observe(this, Observer<User>
     //           {currentUser ->
     //   if (m_CurrentUser.getUid() == null) {
     //       SendUserToLoginActivity();
@@ -122,28 +129,48 @@ public class MainActivity extends AppCompatActivity
 //
       //      }
       //  });
+    }
 
+    private void createLocationManagerAndListener() {
+        m_LocationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                    m_latitude = location.getLatitude();
+                    m_longitude = location.getLongitude();
+                Toast.makeText( MainActivity.this,"Location Changed!",Toast.LENGTH_SHORT).show();
+            }
 
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
 
+            }
 
+            @Override
+            public void onProviderEnabled(String provider) {
+                getCurrentLocation();
+                Toast.makeText(MainActivity.this,"Provider Enabled!",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                EnableLocationIfNeeded();
+            }
+        };
+
+        m_LocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        try {
+            m_LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 200, 1, m_LocationListener);
+        }
+        catch (SecurityException e){
+
+        }
     }
 
     @Override
     protected  void onStart()
     {
         super.onStart();
-
-        EnableLocationIfNeeded();
-        getCurrentLocation();
-    }
-
-    private void CheckPermissionLocation() {
-        if (ContextCompat.checkSelfPermission(
-                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
-        }
     }
 
     private void EnableLocationIfNeeded() {
@@ -235,11 +262,25 @@ public class MainActivity extends AppCompatActivity
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1 && grantResults.length > 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation();
+                createLocationManagerAndListener(); //App can use location!
             }
             else {
+                //Can't use the app message.
+                //For Using the app you need to go to setting and enable location permissions to the app.
                 Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private void CheckPermissionLocation() {
+        if (ContextCompat.checkSelfPermission(
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+        }
+        else {
+            createLocationManagerAndListener(); //App can use location!
         }
     }
 
