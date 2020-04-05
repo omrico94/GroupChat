@@ -23,7 +23,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private Button LoginButton,PhoneLoginButton;
+    private Button LoginButton;
     private EditText UserEmail,UserPassword;
     private TextView NeedNewAccountLink,ForgetPasswordLink;
     private ProgressDialog loadingBar;
@@ -127,7 +127,6 @@ mAuth=FirebaseAuth.getInstance();
     private void  initializeFields()
     {
         LoginButton = findViewById(R.id.login_button);
-        PhoneLoginButton = findViewById(R.id.phone_login_button);
         UserEmail = findViewById(R.id.login_email);
         UserPassword = findViewById(R.id.login_password);
         NeedNewAccountLink = findViewById(R.id.need_new_account_link);
