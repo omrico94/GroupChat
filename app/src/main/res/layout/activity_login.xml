@@ -34,7 +34,9 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="190dp"
                 android:background="#00FDFCFC"
-                app:srcCompat="@drawable/login_background" />
+                app:srcCompat="@drawable/bluebackground" />
+
+
 
             <EditText
                 android:id="@+id/login_email"
