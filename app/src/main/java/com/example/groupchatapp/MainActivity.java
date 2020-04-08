@@ -23,28 +23,39 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
-import androidx.viewpager.widget.ViewPager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+
+
+
+
 
 
 public class MainActivity extends AppCompatActivity
 {
     private Toolbar mToolbar;
-    private ViewPager myViewPager;
-    private TabLayout myTabLayout;
-    private TabsAccessorAdapter myTabsAccessorAdapter;
+
+    private RecyclerView m_GroupList;
+    private DatabaseReference m_GroupsRef;
+    private AllGroupsAdapter m_GroupsAdapter;
+    private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
 
 
     private FirebaseAuth mAuth;
@@ -74,14 +85,12 @@ public class MainActivity extends AppCompatActivity
         getSupportActionBar().setTitle("GroupChat");
 
 
-        myViewPager = findViewById(R.id.main_tabs_pager);
-        myTabsAccessorAdapter = new TabsAccessorAdapter(getSupportFragmentManager());
-        myViewPager.setAdapter(myTabsAccessorAdapter);
+        m_GroupList =findViewById(R.id.chats_list);
+        m_GroupsAdapter = new AllGroupsAdapter(groupsToDisplay, this);
+        m_GroupList.setLayoutManager(new LinearLayoutManager(this));
+        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups");
 
-
-        myTabLayout = findViewById(R.id.main_tabs);
-        myTabLayout.setupWithViewPager(myViewPager);
-
+        m_GroupList.setAdapter(m_GroupsAdapter);
 
         UsersRef= FirebaseDatabase.getInstance().getReference().child("Users");
         m_LoginManager = LoginManager.getInstance();
@@ -193,7 +202,36 @@ public class MainActivity extends AppCompatActivity
     protected  void onStart()
     {
         super.onStart();
+
+        final androidx.lifecycle.Observer<User> currentUserObserver =
+                currentUser -> m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
+
+                        if (currentUser != null) {
+                            groupsToDisplay.clear();
+
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+
+                                if (!currentUser.getGroupsId().contains(ds.child("gid").getValue()))
+                                    groupsToDisplay.add(ds.getValue(Group.class));
+                            }
+                            m_GroupsAdapter.notifyDataSetChanged();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        LoginManager.getInstance().getLoggedInUser().observe(this, currentUserObserver);
+        //אם משנים דאטה בייס בקבוצות צריך להוסיף עוד קינון
     }
+
 
     private void EnableLocationIfNeeded() {
 
@@ -261,8 +299,17 @@ public class MainActivity extends AppCompatActivity
          {
              SendUserToCreateGroupActivity();
          }
+        if(item.getItemId()==R.id.main_my_groups_option)
+        {
+            SendUserToMyGroupsActivity();
+        }
 
          return true;
+    }
+
+    private void SendUserToMyGroupsActivity() {
+        Intent myGroupsIntent = new Intent(MainActivity.this,MyGroupsActivity.class);
+        startActivity(myGroupsIntent);
     }
 
     private void SendUserToCreateGroupActivity() {
