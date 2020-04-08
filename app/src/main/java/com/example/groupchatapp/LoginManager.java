@@ -116,6 +116,7 @@ public class LoginManager {
     {
         m_CurrentUser.getValue().getGroupsId().add(groupId);
         userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").setValue( m_CurrentUser.getValue().getGroupsId());
+
     }
 
     public void removeGroupIdFromCurrentUser(String groupId)

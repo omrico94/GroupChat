@@ -49,14 +49,6 @@ import java.util.ArrayList;
             return groupsId;
         }
 
-//      public void addNewGroup(String gid) {
-
-//          groupsId.add(gid);
-//      }
-
-   //     public void removeGroup(String gid) {
-   //         groupsId.remove(gid);
-   //     }
 
         public void setName(String name) {
             this.name = name;

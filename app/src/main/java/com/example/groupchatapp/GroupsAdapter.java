@@ -53,7 +53,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
                 Intent chatIntent = new Intent(mContext, ChatActivity.class);
                 chatIntent.putExtra("group_id", groupId);
                 chatIntent.putExtra("group_name", retName);
-                chatIntent.putExtra("group_image", retImage);
+                chatIntent.putExtra("group_image", retImage[0]);
                 mContext.startActivity(chatIntent);
             }
         });
