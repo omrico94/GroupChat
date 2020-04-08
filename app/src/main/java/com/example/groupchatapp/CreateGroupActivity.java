@@ -87,7 +87,8 @@ public class CreateGroupActivity extends AppCompatActivity {
         else
         {
             final String groupId = RootRef.child("Groups").push().getKey();
-            uploadImageToStorage(groupId);
+            if(imageUri!=null)
+            {uploadImageToStorage(groupId);}
             HashMap<String,Object> profileMap=new HashMap<>();
             profileMap.put("gid",groupId);
             profileMap.put("name",setGroupName);
