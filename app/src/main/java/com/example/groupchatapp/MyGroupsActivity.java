@@ -5,10 +5,10 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,10 +21,9 @@ public class MyGroupsActivity extends AppCompatActivity {
 
 
     private RecyclerView m_GroupList;
-    private DatabaseReference m_GroupsRef, m_UsersRef;
-    private GroupsAdapter m_GroupsAdapter;
-    private final ArrayList<Group> groupsToDisplay = new ArrayList<Group>();
-    private User m_CurrentUser;
+    private DatabaseReference m_GroupsRef, m_UsersGroupsRef;
+    private MyGroupsAdapter m_GroupsAdapter;
+    private final ArrayList< Group> groupsToDisplay = new ArrayList<>();
     private Toolbar mToolbar;
 
     @Override
@@ -35,47 +34,29 @@ public class MyGroupsActivity extends AppCompatActivity {
         mToolbar = findViewById(R.id.my_groups_page_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("My Groups");
-        m_GroupsAdapter = new GroupsAdapter(groupsToDisplay, this);
+        m_GroupsAdapter = new MyGroupsAdapter(groupsToDisplay, this);
         m_GroupList.setLayoutManager(new LinearLayoutManager(this));
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups");
-        m_UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
+
 
         m_GroupList.setAdapter(m_GroupsAdapter);
-    }
 
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        //m_UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-        //    @Override
-        //    public void onDataChange(DataSnapshot dataSnapshot) {
-        //        m_CurrentUser = dataSnapshot.child(FirebaseAuth.getInstance().getLoggedInUser().getUid()).getValue(User.class);
-        //    }
-
-        //    @Override
-        //    public void onCancelled(DatabaseError databaseError) {
-
-        //    }
-        //});
-        final androidx.lifecycle.Observer<User> currentUserObserver = new Observer<User>() {
+        m_UsersGroupsRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChanged(User currentUser) {
+            public void onChildAdded(DataSnapshot dataSnapshotGroupId, String s) {
 
                 m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
-                        if (currentUser != null) {
-                            groupsToDisplay.clear();
-                            //להכניס סינון אם רוצים. להסתכל על FirebaseRecyclerOptions
-                            //ברור שכרגע זה לא יעיל.. שווה לחשוב על משהו אחר
-                            for (String gid : currentUser.getGroupsId()) {
-                                groupsToDisplay.add(dataSnapshot.child(gid).getValue(Group.class));
-                            }
 
-                            m_GroupsAdapter.notifyDataSetChanged();
-                        }
+                        String groupId = dataSnapshotGroupId.getValue().toString();
+                        Group group = dataSnapshot.child(groupId).getValue(Group.class);
+                        groupsToDisplay.add(group);
+
+
+                        m_GroupsAdapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -84,24 +65,31 @@ public class MyGroupsActivity extends AppCompatActivity {
                     }
                 });
 
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
             }
-        };
 
-        LoginManager.getInstance().getLoggedInUser().observe(this, currentUserObserver);
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
-        //     Iterator iterator = dataSnapshot.getChildren().iterator();
-        //     while (iterator.hasNext()) {
-        //         DataSnapshot nextSnapshot = ((DataSnapshot) iterator.next());
-        //         if (nextSnapshot.child("code").getValue().toString().equals("12")) {
-        //             groupsToDisplay.add(nextSnapshot);
-        //             m_GroupsAdapter.notifyDataSetChanged();
-        //         }
-        //     }
     }
 
-
 }
-
 

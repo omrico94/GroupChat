@@ -31,11 +31,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity
     private LocationListener m_LocationListener;
     private LocationManager m_LocationManager;
     private Geocoder m_Geocoder;
+
+    private androidx.lifecycle.Observer<User> m_CurrentUserObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -121,38 +123,81 @@ public class MainActivity extends AppCompatActivity
 
         CheckPermissionLocation();
 
-        //createLocationManagerAndListener();
+        m_CurrentUserObserver =
+                currentUser -> m_GroupsRef.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        if (currentUser != null)
+                        {
+                            Group groupToAdd = dataSnapshot.getValue(Group.class);
+                            if (!currentUser.getGroupsId().contains(groupToAdd.getGid()))
+                                groupsToDisplay.add(dataSnapshot.getValue(Group.class));
+                            m_GroupsAdapter.notifyDataSetChanged();
+                        }
+                    }
 
-        //   m_LoginManager.getLoggedInUser().observe(this, Observer<User>
-    //           {currentUser ->
-    //   if (m_CurrentUser.getUid() == null) {
-    //       SendUserToLoginActivity();
-    //   } else if (m_CurrentUser.getName() == null) {
-    //       SendUserToSettingsActivity();
-    //   }
-    //   });
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        Group groupToChange = dataSnapshot.getValue(Group.class);
+                        if (currentUser != null)
+                        {
+                            int indexToChange = findIndexOfGroup(groupToChange);
+                            if (indexToChange != -1) {
+                                groupsToDisplay.set(indexToChange, groupToChange);
+                                m_GroupsAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
 
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        Group groupToRemove = dataSnapshot.getValue(Group.class);
+                        if (currentUser != null)
+                        {
+                            int indexToRemove = findIndexOfGroup(groupToRemove);
+                            if (indexToRemove != -1){
+                                groupsToDisplay.remove(indexToRemove);
+                                m_GroupsAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
 
-      //  UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-      //      @Override
-      //      public void onDataChange(DataSnapshot dataSnapshot) {
-      //          m_CurrentUser=dataSnapshot.child(mAuth.getLoggedInUser().getUid()).getValue(User.class);
-      //      }
-//
-      //      @Override
-      //      public void onCancelled(DatabaseError databaseError) {
-//
-      //      }
-      //  });
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private int findIndexOfGroup(Group group)
+    {
+        int i;
+        for (i = 0; i < groupsToDisplay.size(); i++)
+        {
+            if (groupsToDisplay.get(i).getGid() != group.getGid()) {
+                break;
+            }
+        }
+
+        if (i == groupsToDisplay.size()) {
+            i = -1;
+        }
+
+        return i;
     }
 
     private void createLocationManagerAndListener() {
         m_LocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                    m_latitude = location.getLatitude();
-                    m_longitude = location.getLongitude();
-                    getFromLocationGeocoder();
+                m_latitude = location.getLatitude();
+                m_longitude = location.getLongitude();
+                getFromLocationGeocoder();
                 Toast.makeText( MainActivity.this,"Location Changed!",Toast.LENGTH_SHORT).show();
             }
 
@@ -203,32 +248,7 @@ public class MainActivity extends AppCompatActivity
     {
         super.onStart();
 
-        final androidx.lifecycle.Observer<User> currentUserObserver =
-                currentUser -> m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                    @Override
-                    public void onDataChange(final DataSnapshot dataSnapshot) {
-
-                        if (currentUser != null) {
-                            groupsToDisplay.clear();
-
-                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
-
-                                if (!currentUser.getGroupsId().contains(ds.child("gid").getValue()))
-                                    groupsToDisplay.add(ds.getValue(Group.class));
-                            }
-                            m_GroupsAdapter.notifyDataSetChanged();
-                        }
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-        LoginManager.getInstance().getLoggedInUser().observe(this, currentUserObserver);
+        LoginManager.getInstance().getLoggedInUser().observe(this, m_CurrentUserObserver);
         //אם משנים דאטה בייס בקבוצות צריך להוסיף עוד קינון
     }
 
@@ -280,31 +300,31 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-         super.onOptionsItemSelected(item);
-         if(item.getItemId()==R.id.main_logout_option)
-         {
-                m_LoginManager.Logout();
-         }
+        super.onOptionsItemSelected(item);
+        if(item.getItemId()==R.id.main_logout_option)
+        {
+            m_LoginManager.Logout();
+        }
 
-         if(item.getItemId()==R.id.main_settings_option)
-         {
+        if(item.getItemId()==R.id.main_settings_option)
+        {
             SendUserToSettingsActivity();
-         }
+        }
 
-         if(item.getItemId()==R.id.main_find_friends_option)
-         {
-             SendUserToFindFriendsActivity();
-         }
-         if(item.getItemId()==R.id.main_Create_Group_option)
-         {
-             SendUserToCreateGroupActivity();
-         }
+        if(item.getItemId()==R.id.main_find_friends_option)
+        {
+            SendUserToFindFriendsActivity();
+        }
+        if(item.getItemId()==R.id.main_Create_Group_option)
+        {
+            SendUserToCreateGroupActivity();
+        }
         if(item.getItemId()==R.id.main_my_groups_option)
         {
             SendUserToMyGroupsActivity();
         }
 
-         return true;
+        return true;
     }
 
     private void SendUserToMyGroupsActivity() {
@@ -381,10 +401,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
- //   @Override
- //   protected void onStop() {
- //       super.onStop();
- //       UsersRef.child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").setValue(m_LoginManager.getLoggedInUser().getValue().getGroupsId());
- //   }
+    //   @Override
+    //   protected void onStop() {
+    //       super.onStop();
+    //       UsersRef.child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").setValue(m_LoginManager.getLoggedInUser().getValue().getGroupsId());
+    //   }
 }
-

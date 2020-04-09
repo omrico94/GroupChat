@@ -1,7 +1,6 @@
 package com.example.groupchatapp;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +15,16 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
- class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupsViewHolder> {
+ abstract class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupsViewHolder> {
 
-    private ArrayList<Group> mGroups;
-    private Context mContext;
+    protected ArrayList<Group> mGroups;
+    protected Context mContext;
 
     public GroupsAdapter(ArrayList<Group> mGroups, Context mContext) {
         this.mGroups = mGroups;
         this.mContext = mContext;//אם זה רק משומש ב mygroups אז אפשר בלי זה
     }
+
 
     @NonNull
     @Override
@@ -36,27 +36,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
     @Override
     public void onBindViewHolder(@NonNull final GroupsViewHolder holder, int position) {
 
-        final String groupId = mGroups.get(position).getGid();
-        final String[] retImage = {"default_image"};
-        if (mGroups.get(position).getPhotoUrl()!=null) {
-            retImage[0] = mGroups.get(position).getPhotoUrl();
-            Picasso.get().load(retImage[0]).placeholder(R.drawable.profile_image).into(holder.groupPhoto);
-        }
-
+        final String retImage = mGroups.get(position).getPhotoUrl()!=null? mGroups.get(position).getPhotoUrl():"default_image";
+        Picasso.get().load(retImage).placeholder(R.drawable.profile_image).into(holder.groupPhoto);
         final String retName = mGroups.get(position).getName();
         holder.groupName.setText(retName);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Intent chatIntent = new Intent(mContext, ChatActivity.class);
-                chatIntent.putExtra("group_id", groupId);
-                chatIntent.putExtra("group_name", retName);
-                chatIntent.putExtra("group_image", retImage[0]);
-                mContext.startActivity(chatIntent);
-            }
-        });
+        holder.itemView.setOnClickListener(view ->onClickItem(view, mGroups.get(position),retImage));
 
     }
 
@@ -64,6 +49,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
     public int getItemCount() {
         return mGroups.size();
     }
+
+    abstract void onClickItem(View view,Group currentGroup,String groupPhoto);
 
     public class GroupsViewHolder extends RecyclerView.ViewHolder {
         CircleImageView groupPhoto;
@@ -76,6 +63,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
             groupPhoto = itemView.findViewById(R.id.users_profile_image);
         }
     }
+
+
 
 
 }
