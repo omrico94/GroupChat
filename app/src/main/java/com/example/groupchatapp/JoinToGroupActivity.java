@@ -64,7 +64,7 @@ public class JoinToGroupActivity extends AppCompatActivity {
             //אם משנים את הדאטה בייס צריך להוסיף כאן עוד קינון של ילד
             String uid=m_LoginManager.getLoggedInUser().getValue().getUid();
             RootRef.child("Groups").child(groupId).child("usersId").child(uid).setValue(uid);
-            SendUserToMainActivity();
+            SendUserToChatActivity();
         }
 
         else
@@ -106,11 +106,13 @@ public class JoinToGroupActivity extends AppCompatActivity {
 
     }
 
-    private void SendUserToMainActivity()
+    private void SendUserToChatActivity()
     {
-        Intent mainIntent = new Intent(JoinToGroupActivity.this,MainActivity.class);
-        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(mainIntent);
+        Intent chatIntent = new Intent(this, ChatActivity.class);
+        chatIntent.putExtra("group_id", groupId);
+        chatIntent.putExtra("group_name", groupName);
+        chatIntent.putExtra("group_image", groupImageStr);
+        this.startActivity(chatIntent);
         finish();
     }
 
