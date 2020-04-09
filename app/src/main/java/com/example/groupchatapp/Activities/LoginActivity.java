@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -65,9 +67,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if(m_LoginManager.isUserExist())
-        {
+        if (m_LoginManager.isUserExist()) {
+
             SendUserToMainActivity();
+
         }
     }
 
@@ -106,7 +109,8 @@ public class LoginActivity extends AppCompatActivity {
 
                                         if(task.isSuccessful())
                                         {
-                                            SendUserToMainActivity();
+                                                SendUserToMainActivity();
+
                                             Toast.makeText(LoginActivity.this,"Logged in successful",Toast.LENGTH_SHORT).show();
                                             loadingBar.dismiss();
                                         }
@@ -136,16 +140,21 @@ public class LoginActivity extends AppCompatActivity {
 
     private void SendUserToMainActivity()
     {
-      //  m_LoginManager.Login();
         Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(mainIntent);
-       //finish()
+        finish();
     }
     private void SendUserToRegisterActivity()
     {
-       // m_LoginManager.Login();
         Intent registerIntent = new Intent(LoginActivity.this,RegisterActivity.class);
         startActivity(registerIntent);
+    }
+
+    private boolean isNewUser()
+    {
+        //צריך לחכות ולחשוב האם ביטול של המשתמש בשלב הסטטינג אחרי ההרשמה מוחקת את המשתמש שהוא יצר או לא. אם לא אז צריך לחשוב כאן על מטודה טובה
+        return true;
+
     }
 }

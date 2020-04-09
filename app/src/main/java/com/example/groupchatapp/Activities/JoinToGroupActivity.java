@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.R;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -18,9 +20,6 @@ import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class JoinToGroupActivity extends AppCompatActivity {
-
-
-
 
     private Button joinGroup;
     private TextView groupNameEditText;
@@ -80,9 +79,6 @@ public class JoinToGroupActivity extends AppCompatActivity {
 
       if (groupImageStr != null) {
           Picasso.get().load(groupImageStr).placeholder(R.drawable.profile_image).into(groupProfileImage);
-
-
-
       }
   }
 

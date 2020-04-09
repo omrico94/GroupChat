@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

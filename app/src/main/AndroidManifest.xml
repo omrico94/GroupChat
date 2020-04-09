@@ -15,31 +15,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MyGroupsActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".Activities.MyGroupsActivity"
+            android:parentActivityName=".Activities.MainActivity">
         </activity>
         <activity
-            android:name=".JoinToGroupActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Activities.JoinToGroupActivity"
+            android:parentActivityName=".Activities.MainActivity" />
         <activity
-            android:name=".CreateGroupActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Activities.CreateGroupActivity"
+            android:parentActivityName=".Activities.MainActivity" />
         <activity
-            android:name=".ChatActivity"
-            android:parentActivityName=".MyGroupsActivity" />
-        <activity android:name=".ProfileActivity" />
+            android:name=".Activities.ChatActivity"
+            android:parentActivityName=".Activities.MyGroupsActivity" />
+        <activity android:name=".Activities.ProfileActivity" />
         <activity
-            android:name=".FindFriendsActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".GroupChatActivity" />
+            android:name=".Activities.FindFriendsActivity"
+            android:parentActivityName=".Activities.MainActivity" />
+        <activity android:name=".Activities.GroupChatActivity" />
         <activity
-            android:name=".SettingsActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".RegisterActivity" />
+            android:name=".Activities.SettingsActivity"
+            android:parentActivityName=".Activities.MainActivity" />
+        <activity android:name=".Activities.RegisterActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.MainActivity"
             android:launchMode="singleTop" />
-        <activity android:name=".LoginActivity">
+        <activity android:name=".Activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

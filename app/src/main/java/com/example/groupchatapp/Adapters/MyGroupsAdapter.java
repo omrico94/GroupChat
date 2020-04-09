@@ -1,8 +1,11 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+
+import com.example.groupchatapp.Activities.ChatActivity;
+import com.example.groupchatapp.Models.Group;
 
 import java.util.ArrayList;
 

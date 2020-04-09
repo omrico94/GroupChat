@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Activities;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.groupchatapp.Models.Message;
+import com.example.groupchatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;

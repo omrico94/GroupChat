@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Activities;
 
 
 import android.os.Bundle;
@@ -8,6 +8,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.Adapters.MyGroupsAdapter;
+import com.example.groupchatapp.R;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,7 +27,7 @@ public class MyGroupsActivity extends AppCompatActivity {
     private RecyclerView m_GroupList;
     private DatabaseReference m_GroupsRef, m_UsersGroupsRef;
     private MyGroupsAdapter m_GroupsAdapter;
-    private final ArrayList< Group> groupsToDisplay = new ArrayList<>();
+    private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private Toolbar mToolbar;
 
     @Override
@@ -118,6 +122,7 @@ public class MyGroupsActivity extends AppCompatActivity {
                     }
             }
 
+            //כנראה לא צריך כאן קוד
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Group group = dataSnapshot.getValue(Group.class);
@@ -144,7 +149,7 @@ public class MyGroupsActivity extends AppCompatActivity {
     {
         int i;
         for (i = 0; i < groupsToDisplay.size(); i++) {
-            if (groupsToDisplay.get(i).getGid() == group.getGid()) {
+            if (groupsToDisplay.get(i).getGid().equals(group.getGid())) {
                 break;
             }
         }
