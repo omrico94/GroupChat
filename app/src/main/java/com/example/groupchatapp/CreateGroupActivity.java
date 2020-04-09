@@ -26,13 +26,14 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CreateGroupActivity extends AppCompatActivity {
 
     private Button updateGroupButton;
-    private EditText groupName, groupDescription;
+    private EditText groupName, groupDescription,groupPassword;
     private CircleImageView groupImage;
     private DatabaseReference RootRef;
     private StorageReference groupImageRef;
@@ -74,6 +75,8 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         String setGroupDescription = groupDescription.getText().toString();
 
+        String setGroupPassword = groupPassword.getText().toString();
+
         if(TextUtils.isEmpty(setGroupName))
         {
             Toast.makeText(this,"Please write your group name first",Toast.LENGTH_SHORT).show();
@@ -86,16 +89,29 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         else
         {
+
+            final String currentUserId=m_LoginManager.getLoggedInUser().getValue().getUid();
+            final Map usersIdMap  = new HashMap(){
+                {
+                    put(currentUserId,currentUserId);
+                }};
+
+
             final String groupId = RootRef.child("Groups").push().getKey();
             if(imageUri!=null)
-            {uploadImageToStorage(groupId);}
+            { uploadImageToStorage(groupId);}
+
             HashMap<String,Object> profileMap=new HashMap<>();
             profileMap.put("gid",groupId);
             profileMap.put("name",setGroupName);
             profileMap.put("description",setGroupDescription);
             profileMap.put("latitude",getIntent().getExtras().get("latitude").toString());
             profileMap.put("longitude",getIntent().getExtras().get("longitude").toString());
-            profileMap.put("numberOfUsers","1");
+            profileMap.put("usersId",usersIdMap);
+            if(!setGroupPassword.isEmpty())
+            {
+                profileMap.put("password",setGroupPassword);
+            }
 
             RootRef.child("Groups").child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -103,9 +119,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                     if(task.isSuccessful())
                     {
                         m_LoginManager.addNewGroupIdToCurrentUser(groupId);
-                        RootRef.child("Users").
-                                child(m_LoginManager.getLoggedInUser().getValue().getUid()).
-                                child("groupsId").setValue(m_LoginManager.getLoggedInUser().getValue().getGroupsId());
                         SendUserToMainActivity();
                         Toast.makeText(CreateGroupActivity.this,"Group created successfully",Toast.LENGTH_SHORT).show();
                     }
@@ -184,6 +197,8 @@ public class CreateGroupActivity extends AppCompatActivity {
 
        updateGroupButton =findViewById(R.id.update_group_button);
        groupName = findViewById(R.id.set_group_name);
+       groupPassword = findViewById(R.id.set_group_password);
+
        groupDescription = findViewById(R.id.set_group_code);
        groupImage = findViewById(R.id.set_group_image);
        loadingBar = new ProgressDialog(this);

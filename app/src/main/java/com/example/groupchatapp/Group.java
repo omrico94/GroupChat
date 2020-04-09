@@ -1,25 +1,29 @@
 package com.example.groupchatapp;
 
+import java.util.HashMap;
+
 //אולי בהמשך נשנה את שם המחלקה לקבוצה
 public class Group {
 
     private String name, photoUrl, gid, description;
 
-    private String longitude, latitude, numberOfUsers;
+    private String longitude, latitude,password;
+
+    private HashMap<String,String> usersId = new HashMap<>();
 
     public Group() {
     }
 
-    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, String numberOfUsers) {
+    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password) {
         this.name = name;
         this.photoUrl = photoUrl;
         this.gid = groupId;
         this.longitude = longitude;
         this.latitude = latitude;
         this.description =description;
-        this.numberOfUsers = numberOfUsers;
+        this.usersId = usersId;
+        this.password=password;
     }
-
 
     public String getName() {
         return name;
@@ -45,8 +49,16 @@ public class Group {
         return latitude;
     }
 
-    public String getNumberOfUsers() {
-        return numberOfUsers;
+    public HashMap<String,String> getUsersId() {
+        return usersId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public boolean isWithPassword() {
+        return password!=null;
     }
 }
 

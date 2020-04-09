@@ -46,7 +46,6 @@ public class AllGroupsAdapter extends RecyclerView.Adapter<AllGroupsAdapter.AllG
         final String retName = mGroups.get(position).getName();
         holder.groupName.setText(retName);
 
-        final String numberOfUsers = mGroups.get(position).getNumberOfUsers();
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,7 +54,8 @@ public class AllGroupsAdapter extends RecyclerView.Adapter<AllGroupsAdapter.AllG
                 joinGroupIntent.putExtra("group_id", groupId);
                 joinGroupIntent.putExtra("group_name", retName);
                 joinGroupIntent.putExtra("group_image", retImage);
-                joinGroupIntent.putExtra("group_number_of_users",numberOfUsers );
+                joinGroupIntent.putExtra("group_password", mGroups.get(position).getPassword());
+
 
                 mContext.startActivity(joinGroupIntent);
             }
