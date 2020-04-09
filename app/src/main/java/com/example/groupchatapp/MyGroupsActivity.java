@@ -55,7 +55,6 @@ public class MyGroupsActivity extends AppCompatActivity {
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.add(group);
 
-
                         m_GroupsAdapter.notifyDataSetChanged();
                     }
 
@@ -73,8 +72,23 @@ public class MyGroupsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            public void onChildRemoved(DataSnapshot dataSnapshotGroupId) {
+                m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
 
+                        String groupId = dataSnapshotGroupId.getValue().toString();
+                        Group group = dataSnapshot.child(groupId).getValue(Group.class);
+                        groupsToDisplay.remove(group);
+
+                        m_GroupsAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -88,8 +102,58 @@ public class MyGroupsActivity extends AppCompatActivity {
             }
         });
 
+        m_GroupsRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    Group group = dataSnapshot.getValue(Group.class);
+                    int index = findIndexOfGroup(group);
+                    if (index != -1) {
+                        groupsToDisplay.set(index, group);
+                        m_GroupsAdapter.notifyDataSetChanged();
+                    }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Group group = dataSnapshot.getValue(Group.class);
+                int index = findIndexOfGroup(group);
+                if (index != -1) {
+                    groupsToDisplay.remove(index);
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
+    private int findIndexOfGroup(Group group)
+    {
+        int i;
+        for (i = 0; i < groupsToDisplay.size(); i++) {
+            if (groupsToDisplay.get(i).getGid() == group.getGid()) {
+                break;
+            }
+        }
+
+        if (i == groupsToDisplay.size()) {
+            i = -1;
+        }
+
+        return i;
+    }
 }
 

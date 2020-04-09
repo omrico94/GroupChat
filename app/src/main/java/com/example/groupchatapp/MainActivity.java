@@ -146,6 +146,8 @@ public class MainActivity extends AppCompatActivity
                                 groupsToDisplay.set(indexToChange, groupToChange);
                                 m_GroupsAdapter.notifyDataSetChanged();
                             }
+                            //צריך לבדוק אם השינוי היה ביציאת המשתמש
+                            //ואם כן אז צריך להוסיף את הקבוצה הזאת לגרופס טו דיספליי
                         }
                     }
 
@@ -177,9 +179,8 @@ public class MainActivity extends AppCompatActivity
     private int findIndexOfGroup(Group group)
     {
         int i;
-        for (i = 0; i < groupsToDisplay.size(); i++)
-        {
-            if (groupsToDisplay.get(i).getGid() != group.getGid()) {
+        for (i = 0; i < groupsToDisplay.size(); i++) {
+            if (groupsToDisplay.get(i).getGid() == group.getGid()) {
                 break;
             }
         }

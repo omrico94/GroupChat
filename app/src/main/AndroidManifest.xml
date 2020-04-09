@@ -14,7 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MyGroupsActivity"></activity>
+        <activity
+            android:name=".MyGroupsActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
         <activity
             android:name=".JoinToGroupActivity"
             android:parentActivityName=".MainActivity" />
@@ -23,7 +26,7 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ChatActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MyGroupsActivity" />
         <activity android:name=".ProfileActivity" />
         <activity
             android:name=".FindFriendsActivity"
