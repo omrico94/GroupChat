@@ -115,12 +115,13 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("password",setGroupPassword);
             }
 
+            m_LoginManager.addNewGroupIdToCurrentUser(groupId);
+
             RootRef.child("Groups").child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful())
                     {
-                        m_LoginManager.addNewGroupIdToCurrentUser(groupId);
                         SendUserToMyGroupsActivity();
                         Toast.makeText(CreateGroupActivity.this,"Group created successfully",Toast.LENGTH_SHORT).show();
                     }
@@ -221,11 +222,9 @@ public class CreateGroupActivity extends AppCompatActivity {
    }
 
 
-    private void SendUserToMyGroupsActivity()
-    {
-             Intent myGroupsIntent = new Intent(CreateGroupActivity.this,MyGroupsActivity.class);
-        myGroupsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-             startActivity(myGroupsIntent);
+    private void SendUserToMyGroupsActivity() {
+        Intent myGroupsIntent = new Intent(CreateGroupActivity.this, MyGroupsActivity.class);
+        startActivity(myGroupsIntent);
         finish();
     }
 

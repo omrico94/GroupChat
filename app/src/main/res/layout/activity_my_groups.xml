@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyGroupsFragment">
+    tools:context=".Activities.MyGroupsActivity">
 
-    android:id="@+id/myGtoupsBarLayout"
+    android:id="@+id/myGroupsBarLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"/>
 
