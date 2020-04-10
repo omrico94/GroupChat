@@ -201,7 +201,7 @@ public class CreateGroupActivity extends AppCompatActivity {
        groupName = findViewById(R.id.set_group_name);
        groupPassword = findViewById(R.id.set_group_password);
 
-       groupDescription = findViewById(R.id.set_group_code);
+       groupDescription = findViewById(R.id.set_group_description);
        groupImage = findViewById(R.id.set_group_image);
        loadingBar = new ProgressDialog(this);
 
