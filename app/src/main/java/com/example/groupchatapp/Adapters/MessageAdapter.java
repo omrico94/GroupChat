@@ -12,9 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Message;
 import com.example.groupchatapp.R;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,7 +29,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder>
 {
     private List<Message> groupMessagesList;
-    private FirebaseAuth mAuth;
     private DatabaseReference groupRef,usersRef;
     private String currentGroup;
 
@@ -42,7 +41,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public class MessageViewHolder extends RecyclerView.ViewHolder
     {
-        public TextView senderMessageText, receiverMessageText;
+        public TextView senderMessageText, receiverMessageText,receiverName;
         public CircleImageView receiverProfileImage;
         public ImageView messageReceiverPicture,messageSenderPicture;
         public MessageViewHolder(@NonNull View itemView)
@@ -52,9 +51,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             senderMessageText =  itemView.findViewById(R.id.sender_message_text);
             receiverMessageText =  itemView.findViewById(R.id.receiver_message_text);
             receiverProfileImage =  itemView.findViewById(R.id.message_profile_image);
+            receiverName =  itemView.findViewById(R.id.receiver_name);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
             messageSenderPicture = itemView.findViewById(R.id.message_sender_image_view);
-            groupRef = FirebaseDatabase.getInstance().getReference().child("new Group").child(currentGroup);
+            groupRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(currentGroup);
             usersRef=FirebaseDatabase.getInstance().getReference().child("Users");
         }
 
@@ -67,29 +67,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.custom_messages_layout, viewGroup, false);
 
-        mAuth = FirebaseAuth.getInstance();
         return new MessageViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final MessageViewHolder messageViewHolder, final int position)
     {
-        String currentUserId = mAuth.getCurrentUser().getUid();
-        Message messages = groupMessagesList.get(position);
-        String fromUserId = messages.getFrom();
-        String fromMessageType = messages.getType();
+        String currentUserId = LoginManager.getInstance().getLoggedInUser().getValue().getUid();
+        Message message = groupMessagesList.get(position);
+        String fromUserId = message.getFrom();
+        String fromMessageType = message.getType();
 
 
         usersRef.child(fromUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                        if (dataSnapshot.hasChild("image"))
+                        if (dataSnapshot.hasChild("photoUrl"))
                         {
-                            String receiverImage = dataSnapshot.child("image").getValue().toString();
+                            String receiverImage = dataSnapshot.child("photoUrl").getValue().toString();
 
                             Picasso.get().load(receiverImage).placeholder(R.drawable.profile_image).into(messageViewHolder.receiverProfileImage);
                         }
+
+                        messageViewHolder.receiverName.setText(dataSnapshot.child("name").getValue().toString());
             }
 
             @Override
@@ -112,7 +113,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
              messageViewHolder.senderMessageText.setBackgroundResource(R.drawable.sender_messages_layout);
              messageViewHolder.senderMessageText.setTextColor(Color.BLACK);
-             messageViewHolder.senderMessageText.setText(messages.getMessage() + "\n\n" + messages.getTime() + " - " + messages.getDate());
+             messageViewHolder.senderMessageText.setText(message.getMessage() + "\n\n" + message.getTime() + " - " + message.getDate());
          }
          else
          {
@@ -121,7 +122,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
              messageViewHolder.receiverMessageText.setBackgroundResource(R.drawable.receiver_messages_layout);
              messageViewHolder.receiverMessageText.setTextColor(Color.BLACK);
-             messageViewHolder.receiverMessageText.setText(messages.getMessage() + "\n\n" + messages.getTime() + " - " + messages.getDate());
+             messageViewHolder.receiverMessageText.setText(message.getMessage() + "\n\n" + message.getTime() + " - " + message.getDate());
          }
      }
      else if(fromMessageType.equals("image"))
@@ -129,13 +130,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
          if(fromUserId.equals(currentUserId))
          {
              messageViewHolder.messageSenderPicture.setVisibility(View.VISIBLE);
-             Picasso.get().load(messages.getMessage()).into(messageViewHolder.messageSenderPicture);
+             Picasso.get().load(message.getMessage()).into(messageViewHolder.messageSenderPicture);
          }
          else
          {
              messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
              messageViewHolder.messageReceiverPicture.setVisibility(View.VISIBLE);
-             Picasso.get().load(messages.getMessage()).into(messageViewHolder.messageReceiverPicture);
+             Picasso.get().load(message.getMessage()).into(messageViewHolder.messageReceiverPicture);
          }
      }
      else if(fromMessageType.equals("pdf") || fromMessageType.equals("docx"))
