@@ -38,6 +38,8 @@ public class MyGroupsActivity extends AppCompatActivity {
         m_GroupList = findViewById(R.id.chats_list);
         mToolbar = findViewById(R.id.my_groups_page_toolbar);
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setTitle("My Groups");
         m_GroupsAdapter = new MyGroupsAdapter(groupsToDisplay, this);
         m_GroupList.setLayoutManager(new LinearLayoutManager(this));
