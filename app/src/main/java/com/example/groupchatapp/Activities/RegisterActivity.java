@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -90,8 +91,11 @@ public class RegisterActivity extends AppCompatActivity
                         final String currentUserID = mAuth.getCurrentUser().getUid();
                         RootRef.child("Users").child(currentUserID).setValue("");
                         RootRef.child("Users").child(currentUserID).child("token").setValue(deviceToken);
+                        //להעיף אחכ
+                        RootRef.child("Users").child(currentUserID).child("name").setValue(email);
+                        RootRef.child("Users").child(currentUserID).child("uid").setValue(currentUserID);
 
-                        SendUserToSettingsActivity();
+                        SendUserToMainActivity();
                         Toast.makeText(RegisterActivity.this,"Account created successfully",Toast.LENGTH_SHORT).show();
                         loadingBar.dismiss();
                     }
@@ -119,16 +123,17 @@ public class RegisterActivity extends AppCompatActivity
 
     private void SendUserToLoginActivity()
     {
-        Intent loginIntent = new Intent(RegisterActivity.this,LoginActivity.class);
-        startActivity(loginIntent);
+        //Intent loginIntent = new Intent(RegisterActivity.this,LoginActivity.class);
+        //startActivity(loginIntent);
+        finish();
     }
 
-    private void SendUserToSettingsActivity()
+    private void SendUserToMainActivity()
     {
-        //לא בטוח בקוד כאן
-        Intent settingsIntent = new Intent(RegisterActivity.this,SettingsActivity.class);
-  //      settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(settingsIntent);
-
+        Intent mainIntent = new Intent(RegisterActivity.this,MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(mainIntent);
+        finish();
     }
+
 }

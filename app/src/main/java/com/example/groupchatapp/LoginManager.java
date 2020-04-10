@@ -2,6 +2,7 @@ package com.example.groupchatapp;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.groupchatapp.Models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -16,6 +17,8 @@ public class LoginManager {
     private boolean isLoggedIn;
     private DatabaseReference userRef;
      private FirebaseAuth mAuth;
+
+     //יש מצב שאפשר לעשות אותו פשוט user
     private MutableLiveData<User> m_CurrentUser;
 
 
@@ -49,30 +52,6 @@ public class LoginManager {
         return isLoggedIn;
     }
 
-//  public Task<AuthResult> CreateUserWithEmailAndPassword(String email,String password)
-//  {
-//      return mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-//          @Override
-//          public void onComplete(@NonNull Task<AuthResult> task)
-//          {
-
-//              if(task.isSuccessful())
-//              {
-//                 m_FireBaseCurrentUser=mAuth.getCurrentUser();
-//                 final String deviceToken = FirebaseInstanceId.getInstance().getToken();
-
-//                 m_FireBaseCurrentUser = mAuth.getCurrentUser();
-
-//                 userRef.child(m_FireBaseCurrentUser.getUid()).setValue("");
-
-//                 userRef.child(m_FireBaseCurrentUser.getUid()).child("token").setValue(deviceToken);
-
-//              }
-//          }
-
-//      });
-//  }
-
     public FirebaseUser getFireBaseCurrentUser() {
         return mAuth.getCurrentUser();
     }
@@ -80,30 +59,32 @@ public class LoginManager {
     public void Logout()
     {
         mAuth.signOut();
+        //אפשר אולי להוסיף כאן משהו שישמור את כל המידע בדאטה בייס, למקרה שיש משהו לא שמור
         m_CurrentUser.setValue(null);
         isLoggedIn=false;
     }
 
-    public void Login()
-    {
-        isLoggedIn=true;
-        m_CurrentUser = new MutableLiveData<>();
+    public void Login(OnLoggedIn listener) {
+
+        listener.onStart();
+
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
+                isLoggedIn = true;
+                m_CurrentUser = new MutableLiveData<>();
                 m_CurrentUser.setValue(dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue(User.class));
+                listener.onSuccess();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+                listener.onFailure();
             }
         });
-    }
 
-    public boolean isNewUser()
-    {
-       return m_CurrentUser.getValue().getName()==null;
     }
 
     public boolean isUserExist()

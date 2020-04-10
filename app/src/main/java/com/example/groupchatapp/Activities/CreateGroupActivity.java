@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -119,7 +121,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                     if(task.isSuccessful())
                     {
                         m_LoginManager.addNewGroupIdToCurrentUser(groupId);
-                        SendUserToMainActivity();
+                        SendUserToMyGroupsActivity();
                         Toast.makeText(CreateGroupActivity.this,"Group created successfully",Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -212,11 +214,20 @@ public class CreateGroupActivity extends AppCompatActivity {
 
    private void SendUserToMainActivity()
    {
-       Intent mainIntent = new Intent(CreateGroupActivity.this,MainActivity.class);
-       mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-       startActivity(mainIntent);
+ //     Intent mainIntent = new Intent(CreateGroupActivity.this,MainActivity.class);
+ //     mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+ //     startActivity(mainIntent);
        finish();
    }
+
+
+    private void SendUserToMyGroupsActivity()
+    {
+             Intent myGroupsIntent = new Intent(CreateGroupActivity.this,MyGroupsActivity.class);
+        myGroupsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+             startActivity(myGroupsIntent);
+        finish();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

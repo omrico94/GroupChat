@@ -1,4 +1,4 @@
-package com.example.groupchatapp;
+package com.example.groupchatapp.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -23,6 +23,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.Models.Message;
+import com.example.groupchatapp.Adapters.MessageAdapter;
+import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
