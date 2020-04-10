@@ -30,6 +30,7 @@ import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
+import com.example.groupchatapp.Utils;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -91,24 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    //כנראה שאפשר להוציא למחלקה אחרת.. אולי יוטילס או משהו
-    private int findIndexOfGroup(Group group) {
-        int i;
-        for (i = 0; i < groupsToDisplay.size(); i++) {
-
-            if (groupsToDisplay.get(i).getGid().equals(group.getGid())) {
-
-                break;
-            }
-        }
-
-        if (i == groupsToDisplay.size()) {
-            i = -1;
-        }
-
-        return i;
-    }
 
     private void createLocationManagerAndListener() {
         m_LocationListener = new LocationListener() {
@@ -326,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Group changedGroup = dataSnapshot.getValue(Group.class);
 
-                        int indexToChange = findIndexOfGroup(changedGroup);
+                        int indexToChange = Utils.findIndexOfGroup(groupsToDisplay,changedGroup);
 
                         if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(changedGroup.getGid())) {
 
@@ -352,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
                         Group groupToRemove = dataSnapshot.getValue(Group.class);
 
-                        int indexToRemove = findIndexOfGroup(groupToRemove);
+                        int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay,groupToRemove);
                         if (indexToRemove != -1) {
                             groupsToDisplay.remove(indexToRemove);
                             m_GroupsAdapter.notifyDataSetChanged();

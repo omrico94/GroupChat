@@ -12,6 +12,7 @@ import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Adapters.MyGroupsAdapter;
 import com.example.groupchatapp.R;
+import com.example.groupchatapp.Utils;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -115,8 +116,8 @@ public class MyGroupsActivity extends AppCompatActivity {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                     Group group = dataSnapshot.getValue(Group.class);
-                    int index = findIndexOfGroup(group);
-                    if (index != -1) {
+                int index = Utils.findIndexOfGroup(groupsToDisplay,group);
+                if (index != -1) {
                         groupsToDisplay.set(index, group);
                         m_GroupsAdapter.notifyDataSetChanged();
                     }
@@ -126,7 +127,7 @@ public class MyGroupsActivity extends AppCompatActivity {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Group group = dataSnapshot.getValue(Group.class);
-                int index = findIndexOfGroup(group);
+                int index = Utils.findIndexOfGroup(groupsToDisplay,group);
                 if (index != -1) {
                     groupsToDisplay.remove(index);
                     m_GroupsAdapter.notifyDataSetChanged();
@@ -145,20 +146,5 @@ public class MyGroupsActivity extends AppCompatActivity {
         });
     }
 
-    private int findIndexOfGroup(Group group)
-    {
-        int i;
-        for (i = 0; i < groupsToDisplay.size(); i++) {
-            if (groupsToDisplay.get(i).getGid().equals(group.getGid())) {
-                break;
-            }
-        }
-
-        if (i == groupsToDisplay.size()) {
-            i = -1;
-        }
-
-        return i;
-    }
 }
 
