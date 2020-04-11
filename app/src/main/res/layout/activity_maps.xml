@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapsActivity">
+
+    <fragment
+        android:id="@+id/map"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_weight="1"
+        android:scrollbars="vertical" />
+    <ImageButton
+        android:id="@+id/settings_button"
+        android:layout_width="53dp"
+        android:layout_height="53dp"
+        android:background="#00FFFFFF"
+        android:src="@drawable/settings" />
+
+    <ImageButton
+        android:id="@+id/my_groups_button"
+        android:layout_width="53dp"
+        android:layout_height="53dp"
+        android:background="#00FFFFFF"
+        android:layout_toRightOf="@id/settings_button"
+        android:src="@drawable/my_groups" />
+
+    <ImageButton
+        android:id="@+id/add_group_button"
+        android:layout_width="53dp"
+        android:layout_height="53dp"
+        android:background="#00FFFFFF"
+        android:layout_toRightOf="@id/my_groups_button"
+        android:src="@drawable/add_group" />
+
+
+
+</RelativeLayout>
