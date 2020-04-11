@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#327BA3">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/custom_group_image"
@@ -9,10 +10,9 @@
         android:layout_height="47dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:src="@drawable/profile_image"
-        android:cropToPadding="true"
         android:layout_marginRight="10dp"
-        />
+        android:cropToPadding="true"
+        android:src="@drawable/profile_image" />
 
     <TextView
         android:id="@+id/custom_group_name"
@@ -20,11 +20,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Display Group Nmae"
-        android:textColor="@android:color/background_light"
-        android:textStyle="bold"
+        android:text="Display Group Name"
+        android:textColor="#000000"
         android:textSize="18sp"
-        />
+        android:textStyle="bold" />
 
 
 </RelativeLayout>

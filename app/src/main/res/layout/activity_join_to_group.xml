@@ -13,7 +13,6 @@
     </include>
 
     <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/set_profile_image"
         android:layout_width="250dp"
         android:layout_height="250dp"
@@ -21,8 +20,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="90dp"
         android:src="@drawable/profile_image"
-        app:civ_border_width="5dp"
-        app:civ_border_color="@color/colorPrimary"/>
+        app:civ_border_color="#A5AFA9"
+        app:civ_border_width="3dp" />
 
     <TextView
         android:layout_below="@+id/set_profile_image"
@@ -40,22 +39,22 @@
 
     <EditText
 
-        android:layout_below="@+id/group_name"
         android:id="@+id/password_to_join"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
+        android:layout_below="@+id/group_name"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
+        android:background="@drawable/textedit_round"
+        android:drawableStart="@drawable/key"
         android:hint="password"
+        android:inputType="textMultiLine"
+        android:padding="6dp"
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
-        android:background="@drawable/inputs"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:padding="6dp"
-        android:visibility="invisible"
-        android:layout_marginTop="10dp"
-        />
+        android:visibility="visible" />
 
 
     <Button
@@ -63,19 +62,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/password_to_join"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
+        android:background="@drawable/button_round"
         android:inputType="textMultiLine"
+        android:padding="6dp"
         android:text="Join"
         android:textAlignment="center"
-        android:textColor="@android:color/background_light"
-        android:textStyle="bold"
-        android:background="@drawable/buttons"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:padding="6dp"
-        android:layout_marginTop="10dp"
         android:textAllCaps="false"
+        android:textColor="@android:color/background_light"
         android:textSize="20sp"
-        />
+        android:textStyle="bold" />
 
 
 </RelativeLayout>
