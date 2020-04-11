@@ -35,11 +35,11 @@
             android:id="@+id/input_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="m_Type message here"
-            android:padding="15dp"
-            android:maxLines="5"
+            android:layout_toStartOf="@+id/send_message_button"
             android:layout_toEndOf="@+id/send_files_button"
-            android:layout_toStartOf="@+id/send_message_button"/>
+            android:hint="Type message"
+            android:maxLines="5"
+            android:padding="15dp" />
 
         <ImageButton
             android:id="@+id/send_message_button"

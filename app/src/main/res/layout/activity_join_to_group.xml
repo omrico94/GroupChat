@@ -54,7 +54,7 @@
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
-        android:visibility="visible" />
+        android:visibility="invisible" />
 
 
     <Button
