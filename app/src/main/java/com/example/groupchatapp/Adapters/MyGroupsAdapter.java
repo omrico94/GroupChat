@@ -1,23 +1,26 @@
 package com.example.groupchatapp.Adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.example.groupchatapp.Activities.ChatActivity;
-import com.example.groupchatapp.Activities.MainActivity;
-import com.example.groupchatapp.Activities.MyGroupsActivity;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.R;
 
 import java.util.ArrayList;
 
 public class MyGroupsAdapter extends GroupsAdapter {
 
 
- public MyGroupsAdapter(ArrayList<Group> mGroups, Context mContext) {
-        super(mGroups,mContext);
+    public MyGroupsAdapter(ArrayList<Group> mGroups, Context mContext) {
+        super(mGroups, mContext);
     }
 
     @Override
@@ -32,4 +35,44 @@ public class MyGroupsAdapter extends GroupsAdapter {
             Toast.makeText(this.mContext, "Turn on location!", Toast.LENGTH_SHORT).show();
         }
     }
+
+    @Override
+    public void onBindViewHolder(@NonNull final GroupsViewHolder holder, int position) {
+
+        super.onBindViewHolder(holder, position);
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Group group = mGroups.get(position);
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                LoginManager.getInstance().removeGroupIdFromCurrentUser(group.getGid());
+                                mGroups.remove(position);
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog dialogAlert = new AlertDialog.Builder(mContext, R.style.MyDialogTheme)
+                        .setTitle("Confirm")
+                        .setMessage("remove " + group.getName() + " from MyGroups?")
+                        .setPositiveButton("Yes",dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener)
+                        .create();
+                dialogAlert.show();
+                return false;
+            }
+        });
+    }
+
+
+
 }
