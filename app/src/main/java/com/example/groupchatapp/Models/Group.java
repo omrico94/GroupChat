@@ -1,9 +1,11 @@
 package com.example.groupchatapp.Models;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-//אולי בהמשך נשנה את שם המחלקה לקבוצה
-public class Group {
+//רק בשביל להעביר מידע למפות ימחק בהמשך serializable
+//   אולי בהמשך נשנה את שם המחלקה לקבוצה
+public class Group implements Serializable {
 
     private String name, photoUrl, gid, description;
 

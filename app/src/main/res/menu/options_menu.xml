@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:title="Map"
+        android:id="@+id/map_option"
+        app:showAsAction="never"
+        >
+    </item>
+    <item
         android:title="My Groups"
         android:id="@+id/main_my_groups_option"
         app:showAsAction="never"

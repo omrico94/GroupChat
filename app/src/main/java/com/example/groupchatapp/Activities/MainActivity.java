@@ -209,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.main_Create_Group_option) {
             SendUserToCreateGroupActivity();
         }
+        if (item.getItemId() == R.id.map_option) {
+            SendUserToMapsActivity();
+        }
 
         if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
             if (item.getItemId() == R.id.main_my_groups_option) {
@@ -240,6 +243,15 @@ public class MainActivity extends AppCompatActivity {
         startActivity(findFriendsIntent);
     }
 
+    private void SendUserToMapsActivity()
+    {
+
+        Intent mapIntent = new Intent(MainActivity.this,MapsActivity.class);
+        mapIntent.putExtra("groups",groupsToDisplay);
+        mapIntent.putExtra("latitude",m_latitude);
+        mapIntent.putExtra("longitude",m_longitude);
+        startActivity(mapIntent);
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
