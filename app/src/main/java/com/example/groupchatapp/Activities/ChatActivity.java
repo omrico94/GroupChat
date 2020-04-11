@@ -75,7 +75,7 @@ public class ChatActivity extends AppCompatActivity {
     private ProgressDialog loadingBar;
 
     private LoginManager m_LoginManager;
-
+    private String m_CountryCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +84,8 @@ public class ChatActivity extends AppCompatActivity {
 
 
         m_LoginManager = LoginManager.getInstance();
+        m_CountryCode = LoginManager.getInstance().getLoggedInUser().getValue().getCountryCode();
+
         userSenderId = m_LoginManager.getLoggedInUser().getValue().getUid();
         rootRef= FirebaseDatabase.getInstance().getReference();
         groupId =getIntent().getExtras().get("group_id").toString();
@@ -211,10 +213,10 @@ public class ChatActivity extends AppCompatActivity {
             if(!checker.equals("image")) // docx or pdf
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Document Files");
-                final String messageSenderRef ="Groups/"+groupId +"/Message/";
+                final String messageSenderRef ="Groups/"+m_CountryCode+"/"+groupId +"/Message/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("Groups").child(groupId).child("Message").push();
+                        rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Message").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + checker);
@@ -265,10 +267,10 @@ public class ChatActivity extends AppCompatActivity {
             else if(checker.equals("image"))
             {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
-                final String messageSenderRef ="Groups/"+groupId +"/Message/";
+                final String messageSenderRef ="Groups/"+m_CountryCode+"/"+groupId +"/Message/";
 
                 DatabaseReference userMessageKeyRef =
-                        rootRef.child("Groups").child(groupId).child("Message").push();
+                        rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Message").push();
                 final String messagePushId = userMessageKeyRef.getKey();
 
                 final StorageReference filePath = storageReference.child(messagePushId + "." + "jpg");
@@ -343,7 +345,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        rootRef.child("Groups").child(groupId).child("Message")
+        rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Message")
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
@@ -391,7 +393,7 @@ public class ChatActivity extends AppCompatActivity {
         else
             {
 
-                final String messageSenderRef ="Groups/"+groupId +"/Message/";
+                final String messageSenderRef ="Groups/"+m_CountryCode+"/"+groupId +"/Message/";
 
                 DatabaseReference userMessageKeyRef =
                         rootRef.child("new Group").child(groupId).child("Message").push();

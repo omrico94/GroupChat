@@ -34,6 +34,7 @@ public class MyGroupsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_my_groups);
         m_GroupList = findViewById(R.id.chats_list);
         mToolbar = findViewById(R.id.my_groups_page_toolbar);
@@ -43,7 +44,10 @@ public class MyGroupsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("My Groups");
         m_GroupsAdapter = new MyGroupsAdapter(groupsToDisplay, this);
         m_GroupList.setLayoutManager(new LinearLayoutManager(this));
-        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups");
+        String countryCode = LoginManager.getInstance().getLoggedInUser().getValue().getCountryCode();
+
+        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
+
         m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
 
 
@@ -63,6 +67,7 @@ public class MyGroupsActivity extends AppCompatActivity {
                         groupsToDisplay.add(group);
 
                         m_GroupsAdapter.notifyDataSetChanged();
+                        m_GroupsAdapter.getItemCount();
                     }
 
                     @Override
@@ -117,12 +122,12 @@ public class MyGroupsActivity extends AppCompatActivity {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                    Group group = dataSnapshot.getValue(Group.class);
+                Group group = dataSnapshot.getValue(Group.class);
                 int index = Utils.findIndexOfGroup(groupsToDisplay,group);
                 if (index != -1) {
-                        groupsToDisplay.set(index, group);
-                        m_GroupsAdapter.notifyDataSetChanged();
-                    }
+                    groupsToDisplay.set(index, group);
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
             }
 
             //כנראה לא צריך כאן קוד

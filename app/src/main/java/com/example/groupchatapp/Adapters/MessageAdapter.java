@@ -32,10 +32,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private DatabaseReference groupRef,usersRef;
     private String currentGroup;
 
+    private  String m_CountryCode;
+
     public MessageAdapter(List<Message> groupMessagesList, String currentGroup)
     {
         this.groupMessagesList = groupMessagesList;
         this.currentGroup=currentGroup;
+        this.m_CountryCode = LoginManager.getInstance().getLoggedInUser().getValue().getCountryCode();
     }
 
 
@@ -54,7 +57,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             receiverName =  itemView.findViewById(R.id.receiver_name);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
             messageSenderPicture = itemView.findViewById(R.id.message_sender_image_view);
-            groupRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(currentGroup);
+            groupRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(m_CountryCode).child(currentGroup);
             usersRef=FirebaseDatabase.getInstance().getReference().child("Users");
         }
 

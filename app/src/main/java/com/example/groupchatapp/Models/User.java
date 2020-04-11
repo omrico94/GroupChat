@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
         private ArrayList<String> groupsId = new ArrayList<>();
 
+        private String m_CountryCode;
+
         //keep empty c'tor for firebase downloading the user
         public User() {
         }
@@ -61,6 +63,10 @@ import java.util.ArrayList;
         public void setPhotoUrl(String photoUrl) {
             this.photoUrl = photoUrl;
         }
+
+        public void setCountryCode(String CountryCode) { this.m_CountryCode = CountryCode; }
+
+        public String getCountryCode() { return m_CountryCode; }
     }
 
 

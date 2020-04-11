@@ -16,7 +16,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".Activities.MyGroupsActivity"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".Activities.MainActivity"
+            android:launchMode="singleTop">
         </activity>
         <activity
             android:name=".Activities.JoinToGroupActivity"

@@ -77,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         m_GroupList = findViewById(R.id.chats_list);
         m_GroupsAdapter = new AllGroupsAdapter(groupsToDisplay, this);
         m_GroupList.setLayoutManager(new LinearLayoutManager(this));
-        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups");
 
         m_GroupList.setAdapter(m_GroupsAdapter);
 
@@ -111,15 +110,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProviderEnabled(String provider) {
                 getCurrentLocation();
-                Toast.makeText(MainActivity.this, "Provider Enabled!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Searching your location", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onProviderDisabled(String provider) {
                 m_latitude = 0;
                 m_longitude = 0;
-                EnableLocationIfNeeded();
-                Toast.makeText(MainActivity.this, "Provider Disabled!", Toast.LENGTH_SHORT).show();
+                m_LoginManager.getLoggedInUser().getValue().setCountryCode(null);
+                Toast.makeText(MainActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -133,13 +132,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getFromLocationGeocoder() {
-        try {
-            List<Address> lstAdd = m_Geocoder.getFromLocation(m_latitude, m_longitude, 1);
-            if (lstAdd.size() > 0) {
-                String countryName = lstAdd.get(0).getCountryName();
+        if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() == null) {
+            try {
+                List<Address> lstAdd = m_Geocoder.getFromLocation(m_latitude, m_longitude, 1);
+                if (lstAdd.size() > 0) {
+                    String countryCode = lstAdd.get(0).getCountryCode();
+                    m_LoginManager.getLoggedInUser().getValue().setCountryCode(countryCode);
+                    OnGroupRefProvide();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -202,11 +205,18 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.main_find_friends_option) {
             SendUserToFindFriendsActivity();
         }
+
         if (item.getItemId() == R.id.main_Create_Group_option) {
             SendUserToCreateGroupActivity();
         }
-        if (item.getItemId() == R.id.main_my_groups_option) {
-            SendUserToMyGroupsActivity();
+
+        if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
+            if (item.getItemId() == R.id.main_my_groups_option) {
+                SendUserToMyGroupsActivity();
+            }
+        } else {
+            Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
+            return false;
         }
 
         return true;
@@ -259,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getCurrentLocation() {
+        EnableLocationIfNeeded();
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(3000);
@@ -291,69 +302,6 @@ public class MainActivity extends AppCompatActivity {
 
                 //new Thread(()->CheckPermissionLocation()).start();
                 CheckPermissionLocation();
-                m_GroupsRef.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                        Group groupToAdd = dataSnapshot.getValue(Group.class);
-
-                        if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(groupToAdd.getGid())) {
-                            groupsToDisplay.add(dataSnapshot.getValue(Group.class));
-                            m_GroupsAdapter.notifyDataSetChanged();
-                        }
-                    }
-
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                        Group changedGroup = dataSnapshot.getValue(Group.class);
-
-                        int indexToChange = Utils.findIndexOfGroup(groupsToDisplay,changedGroup);
-
-                        if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(changedGroup.getGid())) {
-
-
-                            if (indexToChange == -1) {
-
-                                groupsToDisplay.add(changedGroup);
-                            } else {
-                                groupsToDisplay.set(indexToChange, changedGroup);
-
-                            }
-
-                        } else {
-                            if (indexToChange != -1) {
-                                groupsToDisplay.remove(indexToChange);
-                            }
-                        }
-
-                        m_GroupsAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        Group groupToRemove = dataSnapshot.getValue(Group.class);
-
-                        int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay,groupToRemove);
-                        if (indexToRemove != -1) {
-                            groupsToDisplay.remove(indexToRemove);
-                            m_GroupsAdapter.notifyDataSetChanged();
-                        }
-                    }
-
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-
-                });
             }
 
             @Override
@@ -367,6 +315,79 @@ public class MainActivity extends AppCompatActivity {
             }
 
         };
+    }
+
+    private void OnGroupRefProvide() {
+
+        groupsToDisplay.clear();
+        m_GroupsAdapter.notifyDataSetChanged();
+
+        String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
+        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
+
+        m_GroupsRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                Group groupToAdd = dataSnapshot.getValue(Group.class);
+
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(groupToAdd.getGid())) {
+                    groupsToDisplay.add(dataSnapshot.getValue(Group.class));
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
+            }
+
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                Group changedGroup = dataSnapshot.getValue(Group.class);
+
+                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay,changedGroup);
+
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(changedGroup.getGid())) {
+
+
+                    if (indexToChange == -1) {
+
+                        groupsToDisplay.add(changedGroup);
+                    } else {
+                        groupsToDisplay.set(indexToChange, changedGroup);
+
+                    }
+
+                } else {
+                    if (indexToChange != -1) {
+                        groupsToDisplay.remove(indexToChange);
+                    }
+                }
+
+                m_GroupsAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Group groupToRemove = dataSnapshot.getValue(Group.class);
+
+                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay,groupToRemove);
+                if (indexToRemove != -1) {
+                    groupsToDisplay.remove(indexToRemove);
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
+            }
+
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
     }
 
 }

@@ -48,7 +48,11 @@ public class JoinToGroupActivity extends AppCompatActivity {
         joinGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                joinGroup();
+                if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
+                    joinGroup();
+                } else {
+                    Toast.makeText(JoinToGroupActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -62,7 +66,8 @@ public class JoinToGroupActivity extends AppCompatActivity {
             m_LoginManager.addNewGroupIdToCurrentUser(groupId);
             //אם משנים את הדאטה בייס צריך להוסיף כאן עוד קינון של ילד
             String uid=m_LoginManager.getLoggedInUser().getValue().getUid();
-            RootRef.child("Groups").child(groupId).child("usersId").child(uid).setValue(uid);
+            String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
+            RootRef.child("Groups").child(countryCode).child(groupId).child("usersId").child(uid).setValue(uid);
             SendUserToChatActivity();
         }
 
