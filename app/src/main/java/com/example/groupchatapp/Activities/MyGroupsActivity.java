@@ -92,7 +92,14 @@ public class MyGroupsActivity extends AppCompatActivity {
                         String groupId = dataSnapshotGroupId.getValue().toString();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.remove(group);
-
+                        if(dataSnapshot.child(groupId).child("usersId").getChildrenCount()==1) // only current user was in group
+                        {
+                            m_GroupsRef.child(groupId).removeValue();
+                        }
+                      else
+                          {
+                            m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
+                        }
                         m_GroupsAdapter.notifyDataSetChanged();
                     }
 

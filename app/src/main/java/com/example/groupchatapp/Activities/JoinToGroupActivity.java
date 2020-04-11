@@ -64,7 +64,6 @@ public class JoinToGroupActivity extends AppCompatActivity {
         if(groupPasswordEditText.getVisibility()==View.INVISIBLE || groupPasswordEditText.getText().toString().equals(groupPassword))
         {
             m_LoginManager.addNewGroupIdToCurrentUser(groupId);
-            //אם משנים את הדאטה בייס צריך להוסיף כאן עוד קינון של ילד
             String uid=m_LoginManager.getLoggedInUser().getValue().getUid();
             String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
             RootRef.child("Groups").child(countryCode).child(groupId).child("usersId").child(uid).setValue(uid);
