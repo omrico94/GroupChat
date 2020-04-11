@@ -16,6 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.R;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -138,16 +139,25 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     private void uploadImageToStorage(String groupId) {
         StorageReference filePath = groupImageRef.child(groupId + ".jpg");
-        filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        filePath.putFile(imageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+                return filePath.getDownloadUrl();
+            }
+        }).
+                addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
 
-                if (task.isSuccessful())
-                {
-                    String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
-                    Toast.makeText(CreateGroupActivity.this,"Group image uploaded successfully",Toast.LENGTH_SHORT).show();
-                    final String downloadUrl = task.getResult().getDownloadUrl().toString();
-                    RootRef.child("Groups").child(countryCode).child(groupId).child("photoUrl")
+                        if (task.isSuccessful())
+                        {
+                            String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
+                            Toast.makeText(CreateGroupActivity.this,"Profile image uploaded successfully",Toast.LENGTH_SHORT).show();
+                            final String downloadUrl = task.getResult().toString();
+                            RootRef.child("Groups").child(countryCode).child(groupId).child("photoUrl")
                             .setValue(downloadUrl);
                 }
                 else
@@ -158,6 +168,8 @@ public class CreateGroupActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     //private void RetrieveUserInfo() פונקציה שתתאים לנו שנרצה לאפשר עריכה של פרטים לקבוצה קיימת
     //{

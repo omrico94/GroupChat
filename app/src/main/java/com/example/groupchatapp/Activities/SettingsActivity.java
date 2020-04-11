@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.R;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -97,7 +98,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             if(imageUri!=null)
             {
-                uploadImageToStorage(currentUserID);
+                uploadImageToStorage();
             }
 
             m_LoginManager.getLoggedInUser().getValue().setStatus(setStatus);
@@ -154,16 +155,25 @@ public class SettingsActivity extends AppCompatActivity {
         finish();
     }
 
-    private void uploadImageToStorage(String groupId) {
-        StorageReference filePath = UserProfileImageRef.child(groupId + ".jpg");
-        filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+    private void uploadImageToStorage() {
+        StorageReference filePath = UserProfileImageRef.child(currentUserID + ".jpg");
+        filePath.putFile(imageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+                return filePath.getDownloadUrl();
+            }
+        }).
+                addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
 
-                if (task.isSuccessful())
-                {
-                    Toast.makeText(SettingsActivity.this,"profile image uploaded successfully",Toast.LENGTH_SHORT).show();
-                    final String downloadUrl = task.getResult().getDownloadUrl().toString();
+                        if (task.isSuccessful())
+                        {
+                            Toast.makeText(SettingsActivity.this,"Profile image uploaded successfully",Toast.LENGTH_SHORT).show();
+                            final String downloadUrl = task.getResult().toString();
                     RootRef.child("Users").child(currentUserID).child("photoUrl")
                             .setValue(downloadUrl);
                     m_LoginManager.getLoggedInUser().getValue().setPhotoUrl(downloadUrl);
@@ -176,6 +186,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

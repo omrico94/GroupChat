@@ -263,7 +263,7 @@ public class ChatActivity extends AppCompatActivity {
                             final Map  messageTextBody  = new HashMap(){
                                 {
                                     put("mid",messagePushId);
-                                    put("message", task.getResult().getDownloadUrl().toString());
+                                    put("message", task.getResult().getStorage().getDownloadUrl().toString());
                                     put("name", fileUri.getLastPathSegment());
                                     put("type", checker);
                                     put("from", userSenderId);
