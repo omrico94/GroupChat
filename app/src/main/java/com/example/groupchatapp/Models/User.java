@@ -1,7 +1,7 @@
 package com.example.groupchatapp.Models;
-import java.util.ArrayList;
+import java.util.HashMap;
 
-    public class User {
+public class User {
 
         private String photoUrl;
         private String name;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
         private String token;
         private String status;
 
-        private ArrayList<String> groupsId = new ArrayList<>();
+        private HashMap<String,String> groupsId = new HashMap<>();
 
         private String m_CountryCode;
 
@@ -18,7 +18,7 @@ import java.util.ArrayList;
         }
 
         //new user c'tor
-        public User(String uid, String displayName, String token, String photoUrl, String status ,ArrayList<String> groupsId) {
+        public User(String uid, String displayName, String token, String photoUrl, String status ,HashMap<String,String> groupsId) {
             this.uid = uid;
             this.name = displayName;
             this.token = token;
@@ -47,7 +47,7 @@ import java.util.ArrayList;
             return status;
         }
 
-        public ArrayList<String> getGroupsId() {
+        public HashMap<String,String> getGroupsId() {
             return groupsId;
         }
 
