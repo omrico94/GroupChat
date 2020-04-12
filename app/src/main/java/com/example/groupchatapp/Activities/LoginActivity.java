@@ -151,10 +151,4 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(registerIntent);
     }
 
-    private boolean isNewUser()
-    {
-        //צריך לחכות ולחשוב האם ביטול של המשתמש בשלב הסטטינג אחרי ההרשמה מוחקת את המשתמש שהוא יצר או לא. אם לא אז צריך לחשוב כאן על מטודה טובה
-        return true;
-
-    }
 }

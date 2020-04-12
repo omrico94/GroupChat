@@ -62,7 +62,7 @@ public class MyGroupsActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                        String groupId = dataSnapshotGroupId.getValue().toString();
+                        String groupId = dataSnapshotGroupId.getKey();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.add(group);
 
@@ -89,7 +89,7 @@ public class MyGroupsActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                        String groupId = dataSnapshotGroupId.getValue().toString();
+                        String groupId = dataSnapshotGroupId.getKey();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.remove(group);
                         m_GroupsAdapter.notifyDataSetChanged();
