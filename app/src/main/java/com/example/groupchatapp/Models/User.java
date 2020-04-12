@@ -12,6 +12,8 @@ public class User {
         private HashMap<String,String> groupsId = new HashMap<>();
 
         private String m_CountryCode;
+        private double m_Latitude;
+        private double m_Longitude;
 
         //keep empty c'tor for firebase downloading the user
         public User() {
@@ -67,6 +69,13 @@ public class User {
         public void setCountryCode(String CountryCode) { this.m_CountryCode = CountryCode; }
 
         public String getCountryCode() { return m_CountryCode; }
-    }
+
+        public double getLatitude() { return m_Latitude; }
+        public double getLongitude() { return m_Longitude; }
+
+        public void setLatitude(double latitude) { this.m_Latitude = latitude; }
+        public void setLongitude(double longitude) { this.m_Longitude = longitude; }
+
+}
 
 

@@ -65,7 +65,7 @@ public class MyGroupsAdapter extends GroupsAdapter {
 
                 AlertDialog dialogAlert = new AlertDialog.Builder(mContext, R.style.MyDialogTheme)
                         .setTitle("Confirm")
-                        .setMessage("remove " + group.getName() + " from MyGroups?")
+                        .setMessage("Remove " + group.getName() + " from MyGroups?")
                         .setPositiveButton("Yes",dialogClickListener)
                         .setNegativeButton("No", dialogClickListener)
                         .create();

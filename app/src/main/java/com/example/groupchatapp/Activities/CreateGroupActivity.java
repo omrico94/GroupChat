@@ -108,8 +108,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("gid", groupId);
                 profileMap.put("name", setGroupName);
                 profileMap.put("description", setGroupDescription);
-                profileMap.put("latitude", getIntent().getExtras().get("latitude").toString());
-                profileMap.put("longitude", getIntent().getExtras().get("longitude").toString());
+                profileMap.put("latitude", String.valueOf(m_LoginManager.getLoggedInUser().getValue().getLatitude()));
+                profileMap.put("longitude", String.valueOf(m_LoginManager.getLoggedInUser().getValue().getLongitude()));
                 profileMap.put("usersId", usersIdMap);
                 if (!setGroupPassword.isEmpty()) {
                     profileMap.put("password", setGroupPassword);
