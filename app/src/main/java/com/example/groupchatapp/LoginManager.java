@@ -95,15 +95,14 @@ public class LoginManager {
 
     public void addNewGroupIdToCurrentUser(String groupId)
     {
-        m_CurrentUser.getValue().getGroupsId().add(groupId);
-        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").setValue( m_CurrentUser.getValue().getGroupsId());
-
+        m_CurrentUser.getValue().getGroupsId().put(groupId,groupId);
+        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).setValue(groupId);
     }
 
     public void removeGroupIdFromCurrentUser(String groupId)
     {
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
-        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").setValue( m_CurrentUser.getValue().getGroupsId());
+        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).removeValue();
     }
 
 }

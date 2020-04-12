@@ -196,27 +196,20 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.main_logout_option) {
             m_LoginManager.Logout();
             SendUserToLoginActivity();
-        }
-
-        if (item.getItemId() == R.id.main_settings_option) {
+        } else if (item.getItemId() == R.id.main_settings_option) {
             SendUserToSettingsActivity();
-        }
-
-        if (item.getItemId() == R.id.main_find_friends_option) {
+        } else if (item.getItemId() == R.id.main_find_friends_option) {
             SendUserToFindFriendsActivity();
-        }
-
-        if (item.getItemId() == R.id.main_Create_Group_option) {
+        } else if (item.getItemId() == R.id.main_Create_Group_option) {
             SendUserToCreateGroupActivity();
-        }
+        } else if (item.getItemId() == R.id.main_my_groups_option) {
 
-        if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
-            if (item.getItemId() == R.id.main_my_groups_option) {
+            if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
                 SendUserToMyGroupsActivity();
+            } else {
+                Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
+                return false;
             }
-        } else {
-            Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
-            return false;
         }
 
         return true;
@@ -331,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
 
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(groupToAdd.getGid())) {
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
                     groupsToDisplay.add(dataSnapshot.getValue(Group.class));
                     m_GroupsAdapter.notifyDataSetChanged();
                 }
@@ -345,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
 
                 int indexToChange = Utils.findIndexOfGroup(groupsToDisplay,changedGroup);
 
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(changedGroup.getGid())) {
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
 
 
                     if (indexToChange == -1) {

@@ -92,15 +92,16 @@ public class MyGroupsActivity extends AppCompatActivity {
                         String groupId = dataSnapshotGroupId.getValue().toString();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.remove(group);
+                        m_GroupsAdapter.notifyDataSetChanged();
+
                         if(dataSnapshot.child(groupId).child("usersId").getChildrenCount()==1) // only current user was in group
                         {
                             m_GroupsRef.child(groupId).removeValue();
                         }
-                      else
-                          {
+                      else {
                             m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
                         }
-                        m_GroupsAdapter.notifyDataSetChanged();
+
                     }
 
                     @Override
@@ -137,15 +138,9 @@ public class MyGroupsActivity extends AppCompatActivity {
                 }
             }
 
-            //כנראה לא צריך כאן קוד
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Group group = dataSnapshot.getValue(Group.class);
-                int index = Utils.findIndexOfGroup(groupsToDisplay,group);
-                if (index != -1) {
-                    groupsToDisplay.remove(index);
-                    m_GroupsAdapter.notifyDataSetChanged();
-                }
+
             }
 
             @Override
