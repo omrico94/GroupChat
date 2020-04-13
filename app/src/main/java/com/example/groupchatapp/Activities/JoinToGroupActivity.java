@@ -48,7 +48,7 @@ public class JoinToGroupActivity extends AppCompatActivity {
         joinGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
+                if (m_LoginManager.getLocationManager().isLocationOn()) {
                     joinGroup();
                 } else {
                     Toast.makeText(JoinToGroupActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
@@ -65,7 +65,7 @@ public class JoinToGroupActivity extends AppCompatActivity {
         {
             m_LoginManager.addNewGroupIdToCurrentUser(groupId);
             String uid=m_LoginManager.getLoggedInUser().getValue().getUid();
-            String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
+            String countryCode = m_LoginManager.getLocationManager().getCountryCode();
             RootRef.child("Groups").child(countryCode).child(groupId).child("usersId").child(uid).setValue(uid);
             SendUserToChatActivity();
         }

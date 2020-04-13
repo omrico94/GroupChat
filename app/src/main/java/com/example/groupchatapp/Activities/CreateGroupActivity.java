@@ -73,8 +73,8 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     private void UpdateSettings() {
 
-        String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
-        if (countryCode != null) {
+        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
+        if (m_LoginManager.getLocationManager().isLocationOn()) {
             String setGroupName = groupName.getText().toString();
 
             String setGroupDescription = groupDescription.getText().toString();
@@ -108,8 +108,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("gid", groupId);
                 profileMap.put("name", setGroupName);
                 profileMap.put("description", setGroupDescription);
-                profileMap.put("latitude", String.valueOf(m_LoginManager.getLoggedInUser().getValue().getLatitude()));
-                profileMap.put("longitude", String.valueOf(m_LoginManager.getLoggedInUser().getValue().getLongitude()));
+                profileMap.put("latitude", String.valueOf(m_LoginManager.getLocationManager().getLatitude()));
+                profileMap.put("longitude", String.valueOf(m_LoginManager.getLocationManager().getLongitude()));
                 profileMap.put("usersId", usersIdMap);
                 if (!setGroupPassword.isEmpty()) {
                     profileMap.put("password", setGroupPassword);
@@ -144,7 +144,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
                 if (task.isSuccessful())
                 {
-                    String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
+                    String countryCode = m_LoginManager.getLocationManager().getCountryCode();
                     Toast.makeText(CreateGroupActivity.this,"Group image uploaded successfully",Toast.LENGTH_SHORT).show();
                     final String downloadUrl = task.getResult().getDownloadUrl().toString();
                     RootRef.child("Groups").child(countryCode).child(groupId).child("photoUrl")

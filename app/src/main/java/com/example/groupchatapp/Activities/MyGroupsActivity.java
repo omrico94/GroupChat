@@ -44,7 +44,7 @@ public class MyGroupsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("My Groups");
         m_GroupsAdapter = new MyGroupsAdapter(groupsToDisplay, this);
         m_GroupList.setLayoutManager(new LinearLayoutManager(this));
-        String countryCode = LoginManager.getInstance().getLoggedInUser().getValue().getCountryCode();
+        String countryCode = LoginManager.getInstance().getLocationManager().getCountryCode();
 
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 

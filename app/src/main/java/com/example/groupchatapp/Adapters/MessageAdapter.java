@@ -38,7 +38,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     {
         this.groupMessagesList = groupMessagesList;
         this.currentGroup=currentGroup;
-        this.m_CountryCode = LoginManager.getInstance().getLoggedInUser().getValue().getCountryCode();
+        this.m_CountryCode = LoginManager.getInstance().getLocationManager().getCountryCode();
     }
 
 
