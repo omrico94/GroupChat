@@ -11,6 +11,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class LoginManager {
 
     private static LoginManager Instance = null;
@@ -95,15 +98,17 @@ public class LoginManager {
 
     public void addNewGroupIdToCurrentUser(String groupId)
     {
-        m_CurrentUser.getValue().getGroupsId().add(groupId);
-        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").setValue( m_CurrentUser.getValue().getGroupsId());
-
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        String dateStr=formatter.format(date);
+        m_CurrentUser.getValue().getGroupsId().put(groupId,dateStr);
+        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).setValue(dateStr);
     }
 
     public void removeGroupIdFromCurrentUser(String groupId)
     {
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
-        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").setValue( m_CurrentUser.getValue().getGroupsId());
+        userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).removeValue();
     }
 
 }

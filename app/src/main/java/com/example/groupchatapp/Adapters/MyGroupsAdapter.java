@@ -50,8 +50,10 @@ public class MyGroupsAdapter extends GroupsAdapter {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                LoginManager.getInstance().removeGroupIdFromCurrentUser(group.getGid());
+                                //  צריך לבדוק למה חייב את השורה הבאה כדי שהקבוצה תרד מהמסך בצורה מיידית
                                 mGroups.remove(position);
+                                LoginManager.getInstance().removeGroupIdFromCurrentUser(group.getGid());
+
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -63,7 +65,7 @@ public class MyGroupsAdapter extends GroupsAdapter {
 
                 AlertDialog dialogAlert = new AlertDialog.Builder(mContext, R.style.MyDialogTheme)
                         .setTitle("Confirm")
-                        .setMessage("remove " + group.getName() + " from MyGroups?")
+                        .setMessage("Remove " + group.getName() + " from MyGroups?")
                         .setPositiveButton("Yes",dialogClickListener)
                         .setNegativeButton("No", dialogClickListener)
                         .create();

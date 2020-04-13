@@ -1,7 +1,7 @@
 package com.example.groupchatapp.Models;
-import java.util.ArrayList;
+import java.util.HashMap;
 
-    public class User {
+public class User {
 
         private String photoUrl;
         private String name;
@@ -9,16 +9,18 @@ import java.util.ArrayList;
         private String token;
         private String status;
 
-        private ArrayList<String> groupsId = new ArrayList<>();
+        private HashMap<String,String> groupsId = new HashMap<>();
 
         private String m_CountryCode;
+        private double m_Latitude;
+        private double m_Longitude;
 
         //keep empty c'tor for firebase downloading the user
         public User() {
         }
 
         //new user c'tor
-        public User(String uid, String displayName, String token, String photoUrl, String status ,ArrayList<String> groupsId) {
+        public User(String uid, String displayName, String token, String photoUrl, String status ,HashMap<String,String> groupsId) {
             this.uid = uid;
             this.name = displayName;
             this.token = token;
@@ -47,7 +49,7 @@ import java.util.ArrayList;
             return status;
         }
 
-        public ArrayList<String> getGroupsId() {
+        public HashMap<String,String> getGroupsId() {
             return groupsId;
         }
 
@@ -67,6 +69,13 @@ import java.util.ArrayList;
         public void setCountryCode(String CountryCode) { this.m_CountryCode = CountryCode; }
 
         public String getCountryCode() { return m_CountryCode; }
-    }
+
+        public double getLatitude() { return m_Latitude; }
+        public double getLongitude() { return m_Longitude; }
+
+        public void setLatitude(double latitude) { this.m_Latitude = latitude; }
+        public void setLongitude(double longitude) { this.m_Longitude = longitude; }
+
+}
 
 

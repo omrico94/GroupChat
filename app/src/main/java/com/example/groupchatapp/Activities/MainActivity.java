@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private AllGroupsAdapter m_GroupsAdapter;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
 
-    private double m_latitude, m_longitude;
-
     private LoginManager m_LoginManager;
 
     private LocationListener m_LocationListener;
@@ -88,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
-
     }
 
 
@@ -96,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
         m_LocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                m_latitude = location.getLatitude();
-                m_longitude = location.getLongitude();
+                m_LoginManager.getLoggedInUser().getValue().setLatitude(location.getLatitude());
+                m_LoginManager.getLoggedInUser().getValue().setLongitude(location.getLongitude());
                 getFromLocationGeocoder();
                 Toast.makeText(MainActivity.this, "Location Changed!", Toast.LENGTH_SHORT).show();
             }
@@ -115,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onProviderDisabled(String provider) {
-                m_latitude = 0;
-                m_longitude = 0;
+                m_LoginManager.getLoggedInUser().getValue().setLatitude(0);
+                m_LoginManager.getLoggedInUser().getValue().setLongitude(0);
                 m_LoginManager.getLoggedInUser().getValue().setCountryCode(null);
                 Toast.makeText(MainActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
             }
@@ -134,7 +131,9 @@ public class MainActivity extends AppCompatActivity {
     private void getFromLocationGeocoder() {
         if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() == null) {
             try {
-                List<Address> lstAdd = m_Geocoder.getFromLocation(m_latitude, m_longitude, 1);
+                List<Address> lstAdd = m_Geocoder.getFromLocation(
+                        m_LoginManager.getLoggedInUser().getValue().getLatitude(),
+                        m_LoginManager.getLoggedInUser().getValue().getLongitude(), 1);
                 if (lstAdd.size() > 0) {
                     String countryCode = lstAdd.get(0).getCountryCode();
                     m_LoginManager.getLoggedInUser().getValue().setCountryCode(countryCode);
@@ -196,31 +195,25 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.main_logout_option) {
             m_LoginManager.Logout();
             SendUserToLoginActivity();
-        }
-
-        if (item.getItemId() == R.id.main_settings_option) {
+        } else if (item.getItemId() == R.id.main_settings_option) {
             SendUserToSettingsActivity();
-        }
-
-        if (item.getItemId() == R.id.main_find_friends_option) {
+        } else if (item.getItemId() == R.id.main_find_friends_option) {
             SendUserToFindFriendsActivity();
-        }
-
-        if (item.getItemId() == R.id.main_Create_Group_option) {
+        } else if (item.getItemId() == R.id.main_Create_Group_option) {
             SendUserToCreateGroupActivity();
+
         }
-        if (item.getItemId() == R.id.map_option) {
+        else if (item.getItemId() == R.id.map_option) {
             SendUserToMapsActivity();
         }
 
-        if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
-            if (item.getItemId() == R.id.main_my_groups_option) {
+            if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
                 SendUserToMyGroupsActivity();
+            } else {
+                Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
+                return false;
             }
-        } else {
-            Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
-            return false;
-        }
+
 
         return true;
     }
@@ -232,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void SendUserToCreateGroupActivity() {
         Intent createGroupIntent = new Intent(MainActivity.this, CreateGroupActivity.class);
-        createGroupIntent.putExtra("longitude", m_longitude);
-        createGroupIntent.putExtra("latitude", m_latitude);
         startActivity(createGroupIntent);
     }
 
@@ -248,8 +239,6 @@ public class MainActivity extends AppCompatActivity {
 
         Intent mapIntent = new Intent(MainActivity.this,MapsActivity.class);
         mapIntent.putExtra("groups",groupsToDisplay);
-        mapIntent.putExtra("latitude",m_latitude);
-        mapIntent.putExtra("longitude",m_longitude);
         startActivity(mapIntent);
     }
 
@@ -296,10 +285,10 @@ public class MainActivity extends AppCompatActivity {
                                 .removeLocationUpdates(this);
                         if (locationResult != null && locationResult.getLocations().size() > 0) {
                             int latestLocationIndex = locationResult.getLocations().size() - 1;
-                            m_latitude =
-                                    locationResult.getLocations().get(latestLocationIndex).getLatitude();
-                            m_longitude =
-                                    locationResult.getLocations().get(latestLocationIndex).getLongitude();
+                            m_LoginManager.getLoggedInUser().getValue().setLatitude(
+                                    locationResult.getLocations().get(latestLocationIndex).getLatitude());
+                            m_LoginManager.getLoggedInUser().getValue().setLongitude(
+                                    locationResult.getLocations().get(latestLocationIndex).getLongitude());
                             getFromLocationGeocoder();
                         }
                     }
@@ -343,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
 
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(groupToAdd.getGid())) {
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
                     groupsToDisplay.add(dataSnapshot.getValue(Group.class));
                     m_GroupsAdapter.notifyDataSetChanged();
                 }
@@ -357,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
 
                 int indexToChange = Utils.findIndexOfGroup(groupsToDisplay,changedGroup);
 
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().contains(changedGroup.getGid())) {
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
 
 
                     if (indexToChange == -1) {

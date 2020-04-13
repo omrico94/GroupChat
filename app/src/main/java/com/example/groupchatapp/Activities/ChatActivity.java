@@ -23,9 +23,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.groupchatapp.Adapters.MessageAdapter;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Message;
-import com.example.groupchatapp.Adapters.MessageAdapter;
 import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,9 +43,11 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,9 +166,9 @@ public class ChatActivity extends AppCompatActivity {
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
                     {
                         Message messages = dataSnapshot.getValue(Message.class);
-
-                        messagesList.add(messages);
-
+                        if(messageReceivedAfterUserJoin(messages)) {
+                            messagesList.add(messages);
+                        }
                         messageAdapter.notifyDataSetChanged();
 
                         userMessagesList.smoothScrollToPosition(userMessagesList.getAdapter().getItemCount());
@@ -193,6 +195,22 @@ public class ChatActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    private boolean messageReceivedAfterUserJoin(Message message) {
+
+        //צריך לשפר.. לא אוהב את הקטע שמחזיר false בסוף
+        String timeUserJoinToGroup=m_LoginManager.getLoggedInUser().getValue().getGroupsId().get(groupId);
+        try {
+                Date joinDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(timeUserJoinToGroup);
+                Date messageDate= new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(message.getDate() + " " + message.getTime());
+                return joinDate.compareTo(messageDate)<=0;
+            }
+            catch (ParseException e) {
+
+        }
+
+        return false;
     }
 
     private void initializeControllers() {
@@ -223,10 +241,10 @@ public class ChatActivity extends AppCompatActivity {
         userMessagesList.setAdapter(messageAdapter);
 
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        SimpleDateFormat currentDate = new SimpleDateFormat("dd/MM/yyyy");
         saveCurrentDate = currentDate.format(calendar.getTime());
 
-        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss");
         saveCurrentTime = currentTime.format(calendar.getTime());
 
     }
