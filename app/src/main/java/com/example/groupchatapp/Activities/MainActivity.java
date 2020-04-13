@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void OnGroupRefProvide() {
+    public void OnGroupRefProvide() {
 
         groupsToDisplay.clear();
         m_GroupsAdapter.notifyDataSetChanged();

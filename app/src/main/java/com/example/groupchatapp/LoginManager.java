@@ -2,8 +2,6 @@ package com.example.groupchatapp;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.groupchatapp.Activities.LocationManager;
-
 import com.example.groupchatapp.Models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
