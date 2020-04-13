@@ -201,18 +201,16 @@ public class MainActivity extends AppCompatActivity {
             SendUserToFindFriendsActivity();
         } else if (item.getItemId() == R.id.main_Create_Group_option) {
             SendUserToCreateGroupActivity();
-
-        }
-        else if (item.getItemId() == R.id.map_option) {
+        } else if (item.getItemId() == R.id.map_option){
             SendUserToMapsActivity();
-        }
-
+        }else if (item.getItemId() == R.id.main_my_groups_option) {
             if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
                 SendUserToMyGroupsActivity();
             } else {
                 Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
                 return false;
             }
+        }
 
 
         return true;

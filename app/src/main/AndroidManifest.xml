@@ -21,7 +21,8 @@
 
         <activity
             android:name=".Activities.MapsActivity"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_maps"
+            android:launchMode="singleTop">
 
         </activity>
         <activity
@@ -48,8 +49,8 @@
             android:parentActivityName=".Activities.MainActivity" />
         <activity android:name=".Activities.RegisterActivity" />
         <activity
-            android:name=".Activities.MainActivity"
-            android:launchMode="singleTop" />
+            android:name=".Activities.MainActivity"/>
+
         <activity android:name=".Activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
