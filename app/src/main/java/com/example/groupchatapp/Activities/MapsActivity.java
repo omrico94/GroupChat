@@ -2,6 +2,7 @@ package com.example.groupchatapp.Activities;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -26,6 +27,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.util.ArrayMap;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,14 +64,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-   // private ArrayList<Group> groups;
     private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton;
     private double m_latitude, m_longitude;
     private LatLng m_currentLocation;
@@ -81,8 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager m_LocationManager;
     private OnLoggedIn m_OnLoggedInListener;
     private Geocoder m_Geocoder;
-    private Map<String,Marker> groups;
-
+    private ArrayMap<String,Marker> groups = new ArrayMap<String, Marker>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,8 +104,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
-
-        //groups = (ArrayList<Group>) getIntent().getSerializableExtra("groups");
         m_latitude = 31.8784;
         m_longitude = 35.0078;
         m_currentLocation = new LatLng(m_latitude, m_longitude);
@@ -128,84 +128,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_currentLocation, 15.0f));
 
     }
-
-
-
-    public void OnGroupRefProvide() {
-
-        groupsToDisplay.clear();
-        m_GroupsAdapter.notifyDataSetChanged();
-
-        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
-        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
-        m_GroupsRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                Group groupToAdd = dataSnapshot.getValue(Group.class);
-                LatLng group = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
-                Marker m =  mMap.addMarker(new MarkerOptions().position(group).title(groupToAdd.getName()).snippet(groupToAdd.getPhotoUrl()));
-                groups.put(groupToAdd.getGid(),m);
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
-                    groupsToDisplay.add(dataSnapshot.getValue(Group.class));
-                    m_GroupsAdapter.notifyDataSetChanged();
-                }
-            }
-
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                Group changedGroup = dataSnapshot.getValue(Group.class);
-
-                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay, changedGroup);
-
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
-
-
-                    if (indexToChange == -1) {
-
-                        groupsToDisplay.add(changedGroup);
-                    } else {
-                        groupsToDisplay.set(indexToChange, changedGroup);
-
-                    }
-
-                } else {
-                    if (indexToChange != -1) {
-                        groupsToDisplay.remove(indexToChange);
-                    }
-                }
-
-                m_GroupsAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Group groupToRemove = dataSnapshot.getValue(Group.class);
-
-                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay, groupToRemove);
-                if (indexToRemove != -1) {
-                    groupsToDisplay.remove(indexToRemove);
-                    m_GroupsAdapter.notifyDataSetChanged();
-                    groups.remove(groupToRemove.getGid());
-                }
-            }
-
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-        });
-    }
-
 
     private void bindButtons() {
         m_settingsButton = findViewById(R.id.settings_button);
@@ -268,6 +190,79 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         };
+    }
+
+    public void OnGroupRefProvide() {
+
+        groupsToDisplay.clear();
+        m_GroupsAdapter.notifyDataSetChanged();
+
+        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
+        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
+
+        m_GroupsRef.addChildEventListener(new ChildEventListener() {
+
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                Group groupToAdd = dataSnapshot.getValue(Group.class);
+                LatLng group = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
+                Marker m =  mMap.addMarker(new MarkerOptions().position(group).title(groupToAdd.getName()).snippet(groupToAdd.getPhotoUrl()));
+                groups.put(groupToAdd.getGid(),m);
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
+                    groupsToDisplay.add(dataSnapshot.getValue(Group.class));
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
+            }
+
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                Group changedGroup = dataSnapshot.getValue(Group.class);
+
+                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay, changedGroup);
+
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
+
+                    if (indexToChange == -1) {
+                        groupsToDisplay.add(changedGroup);
+                    } else {
+                        groupsToDisplay.set(indexToChange, changedGroup);
+                    }
+                } else {
+                    if (indexToChange != -1) {
+                        groupsToDisplay.remove(indexToChange);
+                    }
+                }
+
+                m_GroupsAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Group groupToRemove = dataSnapshot.getValue(Group.class);
+
+                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay, groupToRemove);
+                if (indexToRemove != -1) {
+                    groupsToDisplay.remove(indexToRemove);
+                    Marker markerToRemove = groups.get(groupToRemove.getGid());
+                    markerToRemove.remove();
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
     }
 
     @Override
