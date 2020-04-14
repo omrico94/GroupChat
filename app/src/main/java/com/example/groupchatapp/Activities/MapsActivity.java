@@ -64,11 +64,12 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ArrayList<Group> groups;
+   // private ArrayList<Group> groups;
     private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton;
     private double m_latitude, m_longitude;
     private LatLng m_currentLocation;
@@ -80,6 +81,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager m_LocationManager;
     private OnLoggedIn m_OnLoggedInListener;
     private Geocoder m_Geocoder;
+    private Map<String,Marker> groups;
 
 
     @Override
@@ -101,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-        groups = (ArrayList<Group>) getIntent().getSerializableExtra("groups");
+        //groups = (ArrayList<Group>) getIntent().getSerializableExtra("groups");
         m_latitude = 31.8784;
         m_longitude = 35.0078;
         m_currentLocation = new LatLng(m_latitude, m_longitude);
@@ -143,7 +145,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
                 LatLng group = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
                 Marker m =  mMap.addMarker(new MarkerOptions().position(group).title(groupToAdd.getName()).snippet(groupToAdd.getPhotoUrl()));
-
+                groups.put(groupToAdd.getGid(),m);
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
                     groupsToDisplay.add(dataSnapshot.getValue(Group.class));
                     m_GroupsAdapter.notifyDataSetChanged();
@@ -186,6 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (indexToRemove != -1) {
                     groupsToDisplay.remove(indexToRemove);
                     m_GroupsAdapter.notifyDataSetChanged();
+                    groups.remove(groupToRemove.getGid());
                 }
             }
 
