@@ -94,10 +94,11 @@ public class LocationManager {
                 Toast.makeText(m_Context, "Your location is off", Toast.LENGTH_SHORT).show();
             }
         };
+
         m_LocationManager = (android.location.LocationManager) m_Context.getSystemService(LOCATION_SERVICE);
 
         try {
-            m_LocationManager.requestLocationUpdates(android.location.LocationManager.GPS_PROVIDER, 200, 1, m_LocationListener);
+            m_LocationManager.requestLocationUpdates(android.location.LocationManager.GPS_PROVIDER, 1000, 10, m_LocationListener);
         } catch (SecurityException e) { }
     }
 

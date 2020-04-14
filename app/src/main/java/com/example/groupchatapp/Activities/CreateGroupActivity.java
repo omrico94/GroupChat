@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,6 +38,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     private Button updateGroupButton;
     private EditText groupName, groupDescription,groupPassword;
+    private TextView groupRadius; // Need to be seek bar.
     private CircleImageView groupImage;
     private DatabaseReference RootRef;
     private StorageReference groupImageRef;
@@ -82,10 +84,22 @@ public class CreateGroupActivity extends AppCompatActivity {
 
             String setGroupPassword = groupPassword.getText().toString();
 
+            ///Need to be Seekbar!
+            String setGroupRadius = groupRadius.getText().toString();
+
             if (TextUtils.isEmpty(setGroupName)) {
                 Toast.makeText(this, "Please write your group name first", Toast.LENGTH_SHORT).show();
             }
 
+            ///When it will be Seekbar we don't need this because there will be default radops.
+            else if (TextUtils.isEmpty(setGroupRadius)) {
+                Toast.makeText(this, "Please write your group radius first", Toast.LENGTH_SHORT).show();
+            }
+
+            ///When it will be Seekbar we don't need this because there will be default radops.
+            else if (Double.valueOf(setGroupRadius) < 100) {
+                Toast.makeText(this, "The radius has to be 100 or grader", Toast.LENGTH_SHORT).show();
+            }
             //  if(TextUtils.isEmpty(setGroupCode))
             //  {
             //      Toast.makeText(this,"Please write your status",Toast.LENGTH_SHORT).show();
@@ -112,6 +126,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("latitude", String.valueOf(m_LoginManager.getLocationManager().getLatitude()));
                 profileMap.put("longitude", String.valueOf(m_LoginManager.getLocationManager().getLongitude()));
                 profileMap.put("usersId", usersIdMap);
+                profileMap.put("radius", setGroupRadius);
                 if (!setGroupPassword.isEmpty()) {
                     profileMap.put("password", setGroupPassword);
                 }
@@ -216,6 +231,9 @@ public class CreateGroupActivity extends AppCompatActivity {
         updateGroupButton =findViewById(R.id.update_group_button);
         groupName = findViewById(R.id.set_group_name);
         groupPassword = findViewById(R.id.set_group_password);
+
+        ///Need to change is to seekBar.... RONI!!
+        groupRadius = findViewById(R.id.set_Group_Radius);
 
         groupDescription = findViewById(R.id.set_group_description);
         groupImage = findViewById(R.id.set_group_image);
