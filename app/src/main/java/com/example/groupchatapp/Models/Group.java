@@ -2,19 +2,18 @@ package com.example.groupchatapp.Models;
 
 import java.util.HashMap;
 
-//אולי בהמשך נשנה את שם המחלקה לקבוצה
 public class Group {
 
     private String name, photoUrl, gid, description;
 
-    private String longitude, latitude,password;
+    private String longitude, latitude,password, radius;
 
     private HashMap<String,String> usersId = new HashMap<>();
 
     public Group() {
     }
 
-    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password) {
+    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password, String radius) {
         this.name = name;
         this.photoUrl = photoUrl;
         this.gid = groupId;
@@ -22,8 +21,11 @@ public class Group {
         this.latitude = latitude;
         this.description =description;
         this.usersId = usersId;
-        this.password=password;
+        this.password = password;
+        this.radius = radius;
     }
+
+    public String getRadius() { return radius; }
 
     public String getName() {
         return name;

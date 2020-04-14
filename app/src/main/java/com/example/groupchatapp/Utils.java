@@ -1,5 +1,7 @@
 package com.example.groupchatapp;
 
+import android.location.Location;
+
 import com.example.groupchatapp.Models.Group;
 
 import java.util.ArrayList;
@@ -20,5 +22,14 @@ public class Utils {
         }
 
         return i;
+    }
+
+    public static boolean isGroupInMyLocation(Group group) {
+        float[] result = new float[1];
+        Location.distanceBetween(LoginManager.getInstance().getLocationManager().getLatitude(),
+                LoginManager.getInstance().getLocationManager().getLongitude(),
+                Double.valueOf(group.getLatitude()), Double.valueOf(group.getLongitude()), result);
+
+        return result[0] < Float.valueOf(group.getRadius());
     }
 }

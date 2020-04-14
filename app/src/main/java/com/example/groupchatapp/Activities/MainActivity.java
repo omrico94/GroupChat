@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
-        finish();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     private void SendUserToSettingsActivity() {
@@ -163,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
         m_GroupsRef.addChildEventListener(new ChildEventListener() {
+
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -180,39 +181,34 @@ public class MainActivity extends AppCompatActivity {
 
                 Group changedGroup = dataSnapshot.getValue(Group.class);
 
-                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay,changedGroup);
+                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay, changedGroup);
 
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
 
-
                     if (indexToChange == -1) {
-
                         groupsToDisplay.add(changedGroup);
                     } else {
                         groupsToDisplay.set(indexToChange, changedGroup);
-
                     }
-
                 } else {
                     if (indexToChange != -1) {
                         groupsToDisplay.remove(indexToChange);
+                        }
                     }
-                }
 
-                m_GroupsAdapter.notifyDataSetChanged();
-            }
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Group groupToRemove = dataSnapshot.getValue(Group.class);
 
-                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay,groupToRemove);
+                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay, groupToRemove);
                 if (indexToRemove != -1) {
                     groupsToDisplay.remove(indexToRemove);
                     m_GroupsAdapter.notifyDataSetChanged();
                 }
             }
-
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
@@ -240,15 +236,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    public float isGroupInMyLocation(Group group) {
-        float[] result = new float[1];
-        Location.distanceBetween(m_LoginManager.getLocationManager().getLatitude(),
-                m_LoginManager.getLocationManager().getLongitude(),
-                Double.valueOf(group.getLatitude()), Double.valueOf(group.getLongitude()), result);
-
-        return result[0]; // return true if (result < distance).....
     }
 }
 
