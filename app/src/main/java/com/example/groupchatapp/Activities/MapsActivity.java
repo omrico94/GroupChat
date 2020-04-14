@@ -49,6 +49,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -86,15 +87,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         m_Geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        //OnGroupRefProvide();
 
         m_GroupsAdapter = new AllGroupsAdapter(groupsToDisplay, this);
-
-       // CheckPermissionLocation();
 
         m_LoginManager = LoginManager.getInstance();
 
@@ -104,7 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-        //groups = (ArrayList<Group>) getIntent().getSerializableExtra("groups");
+        groups = (ArrayList<Group>) getIntent().getSerializableExtra("groups");
         m_latitude = 31.8784;
         m_longitude = 35.0078;
         m_currentLocation = new LatLng(m_latitude, m_longitude);
@@ -125,26 +122,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_currentLocation, 15.0f));
-        if (groupsToDisplay.size() != 0)
-        {
-            addGroupsToMap();
-        }
+
     }
 
-    private void addGroupsToMap() {
-        LatLng group;
-        int i = 0;
 
-        group = new LatLng(Double.valueOf(groupsToDisplay.get(0).getLatitude()), Double.valueOf(groupsToDisplay.get(0).getLongitude()));
-        mMap.addMarker(new MarkerOptions().position(group).title(groupsToDisplay.get(i).getName()));
-        for (i = 1; i < groupsToDisplay.size(); i++) {
-            group = new LatLng(Double.valueOf(groupsToDisplay.get(i).getLatitude()), Double.valueOf(groupsToDisplay.get(i).getLongitude()));
-            mMap.addMarker(new MarkerOptions().position(group).title(groupsToDisplay.get(i).getName()).snippet(groupsToDisplay.get(i).getPhotoUrl()));
-        }
-
-        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(group,15.0f));//מעביר את המפה לאיפה שעלתה הקבוצה האחרונה רק לבדיקות בפועל זה יראה את המיקום הנוכחי
-    }
 
     private void OnGroupRefProvide() {
 
@@ -153,14 +136,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
-
         m_GroupsRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
                 LatLng group = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
-                mMap.addMarker(new MarkerOptions().position(group).title(groupToAdd.getName()).snippet(groupToAdd.getPhotoUrl()));
+                Marker m =  mMap.addMarker(new MarkerOptions().position(group).title(groupToAdd.getName()).snippet(groupToAdd.getPhotoUrl()));
 
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
                     groupsToDisplay.add(dataSnapshot.getValue(Group.class));
