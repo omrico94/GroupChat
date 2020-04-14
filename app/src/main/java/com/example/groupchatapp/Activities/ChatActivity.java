@@ -86,7 +86,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
         m_LoginManager = LoginManager.getInstance();
-        m_CountryCode = LoginManager.getInstance().getLoggedInUser().getValue().getCountryCode();
+        m_CountryCode = LoginManager.getInstance().getLocationManager().getCountryCode();
 
         userSenderId = m_LoginManager.getLoggedInUser().getValue().getUid();
         rootRef= FirebaseDatabase.getInstance().getReference();

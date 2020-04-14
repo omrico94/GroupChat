@@ -19,7 +19,10 @@ public class LoginManager {
     private static LoginManager Instance = null;
     private boolean isLoggedIn;
     private DatabaseReference userRef;
-     private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
+
+    private LocationManager m_LocationManager;
+
 
      //יש מצב שאפשר לעשות אותו פשוט user
     private MutableLiveData<User> m_CurrentUser;
@@ -47,6 +50,7 @@ public class LoginManager {
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();
         isLoggedIn = false;
+        m_LocationManager = new LocationManager();
 
     }
 
@@ -110,5 +114,7 @@ public class LoginManager {
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
         userRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).removeValue();
     }
+
+    public LocationManager getLocationManager() { return m_LocationManager; }
 
 }

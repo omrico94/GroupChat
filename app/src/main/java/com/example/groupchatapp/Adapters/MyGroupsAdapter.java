@@ -25,7 +25,7 @@ public class MyGroupsAdapter extends GroupsAdapter {
 
     @Override
     void onClickItem(View view, Group currentGroup, String groupPhoto) {
-        if (LoginManager.getInstance().getLoggedInUser().getValue().getCountryCode() != null) {
+        if (LoginManager.getInstance().getLocationManager().isLocationOn()) {
             Intent chatIntent = new Intent(mContext, ChatActivity.class);
             chatIntent.putExtra("group_id", currentGroup.getGid());
             chatIntent.putExtra("group_name", currentGroup.getName());

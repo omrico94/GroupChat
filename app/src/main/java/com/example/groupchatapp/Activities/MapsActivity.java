@@ -129,12 +129,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-    private void OnGroupRefProvide() {
+    public void OnGroupRefProvide() {
 
-        //groupsToDisplay.clear();
+        groupsToDisplay.clear();
         m_GroupsAdapter.notifyDataSetChanged();
 
-        String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
+        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
         m_GroupsRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -251,7 +251,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onSuccess() {
 
                 //new Thread(()->CheckPermissionLocation()).start();
-                CheckPermissionLocation();
+                m_LoginManager.getLocationManager().CheckPermissionLocation(MapsActivity.this);
             }
 
             @Override
@@ -267,101 +267,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         };
     }
 
-    private void createLocationManagerAndListener() {
-        m_LocationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                m_LoginManager.getLoggedInUser().getValue().setLatitude(location.getLatitude());
-                m_LoginManager.getLoggedInUser().getValue().setLongitude(location.getLongitude());
-                getFromLocationGeocoder();
-                Toast.makeText(MapsActivity.this, "Location Changed!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                getCurrentLocation();
-                Toast.makeText(MapsActivity.this, "Searching your location", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                m_LoginManager.getLoggedInUser().getValue().setLatitude(0);
-                m_LoginManager.getLoggedInUser().getValue().setLongitude(0);
-                m_LoginManager.getLoggedInUser().getValue().setCountryCode(null);
-                Toast.makeText(MapsActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        m_LocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        try {
-            m_LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 200, 1, m_LocationListener);
-        } catch (SecurityException e) {
-
-        }
-    }
-
-    private void getFromLocationGeocoder() {
-        if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() == null) {
-            try {
-                List<Address> lstAdd = m_Geocoder.getFromLocation(
-                        m_LoginManager.getLoggedInUser().getValue().getLatitude(),
-                        m_LoginManager.getLoggedInUser().getValue().getLongitude(), 1);
-                if (lstAdd.size() > 0) {
-                    String countryCode = lstAdd.get(0).getCountryCode();
-                    m_LoginManager.getLoggedInUser().getValue().setCountryCode(countryCode);
-                    OnGroupRefProvide();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    private void EnableLocationIfNeeded() {
-
-        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (!provider.contains("gps")) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this, R.style.MyDialogTheme);
-            builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
-                    .setCancelable(false)
-                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, final int id) {
-                            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        }
-                    })
-                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, final int id) {
-                            dialog.cancel();
-                        }
-                    });
-            final AlertDialog alert = builder.create();
-            alert.setTitle("GROUPI");
-            alert.show();
-        }
-    }
-
-    private void SendUserToLoginActivity() {
-        Intent loginIntent = new Intent(MapsActivity.this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
-        finish();
-    }
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1 && grantResults.length > 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                createLocationManagerAndListener(); //App can use location!
-                getCurrentLocation();
+                m_LoginManager.getLocationManager().createLocationManagerAndListener(); //App can use location!
+                m_LoginManager.getLocationManager().getCurrentLocation();
             } else {
                 //Can't use the app message.
                 //For Using the app you need to go to setting and enable location permissions to the app.
@@ -369,44 +281,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-
-    private void CheckPermissionLocation() {
-        if (ContextCompat.checkSelfPermission(
-                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    MapsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        } else {
-            createLocationManagerAndListener(); //App can use location!
-            getCurrentLocation();
-        }
-    }
-
-    private void getCurrentLocation() {
-        EnableLocationIfNeeded();
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(3000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationServices.getFusedLocationProviderClient(MapsActivity.this)
-                .requestLocationUpdates(locationRequest, new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        super.onLocationResult(locationResult);
-                        LocationServices.getFusedLocationProviderClient(MapsActivity.this)
-                                .removeLocationUpdates(this);
-                        if (locationResult != null && locationResult.getLocations().size() > 0) {
-                            int latestLocationIndex = locationResult.getLocations().size() - 1;
-                            m_LoginManager.getLoggedInUser().getValue().setLatitude(
-                                    locationResult.getLocations().get(latestLocationIndex).getLatitude());
-                            m_LoginManager.getLoggedInUser().getValue().setLongitude(
-                                    locationResult.getLocations().get(latestLocationIndex).getLongitude());
-                            getFromLocationGeocoder();
-                        }
-                    }
-                }, Looper.getMainLooper());
-    }
-
-
 }

@@ -1,27 +1,20 @@
 package com.example.groupchatapp.Activities;
 
-import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
+
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.provider.Settings;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,20 +24,14 @@ import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
+
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
@@ -56,14 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
     private LoginManager m_LoginManager;
 
-    private LocationListener m_LocationListener;
-    private LocationManager m_LocationManager;
-    private Geocoder m_Geocoder;
+
     private OnLoggedIn m_OnLoggedInListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        m_Geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -86,87 +70,6 @@ public class MainActivity extends AppCompatActivity {
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
-    }
-
-
-    private void createLocationManagerAndListener() {
-        m_LocationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                m_LoginManager.getLoggedInUser().getValue().setLatitude(location.getLatitude());
-                m_LoginManager.getLoggedInUser().getValue().setLongitude(location.getLongitude());
-                getFromLocationGeocoder();
-                Toast.makeText(MainActivity.this, "Location Changed!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                getCurrentLocation();
-                Toast.makeText(MainActivity.this, "Searching your location", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                m_LoginManager.getLoggedInUser().getValue().setLatitude(0);
-                m_LoginManager.getLoggedInUser().getValue().setLongitude(0);
-                m_LoginManager.getLoggedInUser().getValue().setCountryCode(null);
-                Toast.makeText(MainActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        m_LocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        try {
-            m_LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 200, 1, m_LocationListener);
-        } catch (SecurityException e) {
-
-        }
-    }
-
-    private void getFromLocationGeocoder() {
-        if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() == null) {
-            try {
-                List<Address> lstAdd = m_Geocoder.getFromLocation(
-                        m_LoginManager.getLoggedInUser().getValue().getLatitude(),
-                        m_LoginManager.getLoggedInUser().getValue().getLongitude(), 1);
-                if (lstAdd.size() > 0) {
-                    String countryCode = lstAdd.get(0).getCountryCode();
-                    m_LoginManager.getLoggedInUser().getValue().setCountryCode(countryCode);
-                    OnGroupRefProvide();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    private void EnableLocationIfNeeded() {
-
-        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (!provider.contains("gps")) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
-            builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
-                    .setCancelable(false)
-                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, final int id) {
-                            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        }
-                    })
-                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, final int id) {
-                            dialog.cancel();
-                        }
-                    });
-            final AlertDialog alert = builder.create();
-            alert.setTitle("GROUPI");
-            alert.show();
-        }
     }
 
     private void SendUserToLoginActivity() {
@@ -201,17 +104,18 @@ public class MainActivity extends AppCompatActivity {
             SendUserToFindFriendsActivity();
         } else if (item.getItemId() == R.id.main_Create_Group_option) {
             SendUserToCreateGroupActivity();
-        } else if (item.getItemId() == R.id.map_option){
+
+        } else if (item.getItemId() == R.id.map_option) {
             SendUserToMapsActivity();
-        }else if (item.getItemId() == R.id.main_my_groups_option) {
-            if (m_LoginManager.getLoggedInUser().getValue().getCountryCode() != null) {
+        } else if (item.getItemId() == R.id.main_my_groups_option) {
+
+            if (m_LoginManager.getLocationManager().isLocationOn()) {
                 SendUserToMyGroupsActivity();
             } else {
                 Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
-
 
         return true;
     }
@@ -232,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(findFriendsIntent);
     }
 
+
     private void SendUserToMapsActivity()
     {
 
@@ -240,67 +145,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(mapIntent);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1 && grantResults.length > 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                createLocationManagerAndListener(); //App can use location!
-                getCurrentLocation();
-            } else {
-                //Can't use the app message.
-                //For Using the app you need to go to setting and enable location permissions to the app.
-                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void CheckPermissionLocation() {
-        if (ContextCompat.checkSelfPermission(
-                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        } else {
-            createLocationManagerAndListener(); //App can use location!
-            getCurrentLocation();
-        }
-    }
-
-    private void getCurrentLocation() {
-        EnableLocationIfNeeded();
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(3000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationServices.getFusedLocationProviderClient(MainActivity.this)
-                .requestLocationUpdates(locationRequest, new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        super.onLocationResult(locationResult);
-                        LocationServices.getFusedLocationProviderClient(MainActivity.this)
-                                .removeLocationUpdates(this);
-                        if (locationResult != null && locationResult.getLocations().size() > 0) {
-                            int latestLocationIndex = locationResult.getLocations().size() - 1;
-                            m_LoginManager.getLoggedInUser().getValue().setLatitude(
-                                    locationResult.getLocations().get(latestLocationIndex).getLatitude());
-                            m_LoginManager.getLoggedInUser().getValue().setLongitude(
-                                    locationResult.getLocations().get(latestLocationIndex).getLongitude());
-                            getFromLocationGeocoder();
-                        }
-                    }
-                }, Looper.getMainLooper());
-    }
-
 
     private void initLoggedInListener() {
         m_OnLoggedInListener = new OnLoggedIn() {
             @Override
             public void onSuccess() {
-
-                //new Thread(()->CheckPermissionLocation()).start();
-                CheckPermissionLocation();
+                m_LoginManager.getLocationManager().CheckPermissionLocation(MainActivity.this);
             }
 
             @Override
@@ -316,12 +166,12 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void OnGroupRefProvide() {
+    public void OnGroupRefProvide() {
 
         groupsToDisplay.clear();
         m_GroupsAdapter.notifyDataSetChanged();
 
-        String countryCode = m_LoginManager.getLoggedInUser().getValue().getCountryCode();
+        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
         m_GroupsRef.addChildEventListener(new ChildEventListener() {
@@ -389,5 +239,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 && grantResults.length > 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                m_LoginManager.getLocationManager().createLocationManagerAndListener(); //App can use location!
+                m_LoginManager.getLocationManager().getCurrentLocation();
+            } else {
+                //Can't use the app message.
+                //For Using the app you need to go to setting and enable location permissions to the app.
+                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public float isGroupInMyLocation(Group group) {
+        float[] result = new float[1];
+        Location.distanceBetween(m_LoginManager.getLocationManager().getLatitude(),
+                m_LoginManager.getLocationManager().getLongitude(),
+                Double.valueOf(group.getLatitude()), Double.valueOf(group.getLongitude()), result);
+
+        return result[0]; // return true if (result < distance).....
+    }
 }
 
