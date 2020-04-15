@@ -65,9 +65,7 @@ public class MyGroupsActivity extends AppCompatActivity {
                         String groupId = dataSnapshotGroupId.getKey();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.add(group);
-
                         m_GroupsAdapter.notifyDataSetChanged();
-                        m_GroupsAdapter.getItemCount();
                     }
 
                     @Override
