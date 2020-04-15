@@ -2,29 +2,25 @@ package com.example.groupchatapp.Activities;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-
-import android.location.Location;
 import android.os.Bundle;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupchatapp.Adapters.AllGroupsAdapter;
-import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.OnLocationInit;
+import com.example.groupchatapp.OnLocationLimitChange;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
-
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private OnLoggedIn m_OnLoggedInListener;
+    private OnLocationInit m_OnLocationInit;
+    private OnLocationLimitChange m_OnLocationLimitChange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +64,39 @@ public class MainActivity extends AppCompatActivity {
 
         if (!m_LoginManager.IsLoggedIn()) {
 
+            //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
             initLoggedInListener();
+            initLocationInitListener();
+            initLocationLimitChange();
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
 
+    }
+
+    private void initLocationLimitChange() {
+
+        m_OnLocationLimitChange=new OnLocationLimitChange() {
+            @Override
+            public void onLimitChange() {
+          //כאן צריך לשים את הפונקציה שאתה רוצה שתעבור על הקבוצות. שים לב שצריך לקרוא למטודת האתחול שנמצאת במחלקה של המיקום לפני
+            }
+        };
+    }
+
+    private void initLocationInitListener() {
+
+        m_OnLocationInit=new OnLocationInit() {
+            @Override
+            public void onSuccess() {
+                OnLocationProvide();
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
     }
 
     private void SendUserToLoginActivity() {
@@ -138,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         m_OnLoggedInListener = new OnLoggedIn() {
             @Override
             public void onSuccess() {
-                m_LoginManager.getLocationManager().CheckPermissionLocation(MainActivity.this);
+                m_LoginManager.getLocationManager().CheckPermissionLocation(MainActivity.this , m_OnLocationInit);
             }
 
             @Override
@@ -154,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    public void OnGroupRefProvide() {
+    public void OnLocationProvide() {
 
         groupsToDisplay.clear();
         m_GroupsAdapter.notifyDataSetChanged();
@@ -223,19 +249,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1 && grantResults.length > 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                m_LoginManager.getLocationManager().createLocationManagerAndListener(); //App can use location!
-                m_LoginManager.getLocationManager().getCurrentLocation();
-            } else {
-                //Can't use the app message.
-                //For Using the app you need to go to setting and enable location permissions to the app.
-                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+  @Override
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+      if (requestCode == 1 && grantResults.length > 0) {
+          if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+              m_LoginManager.getLocationManager().createLocationManagerAndListener(); //App can use location!
+              m_LoginManager.getLocationManager().getCurrentLocation();
+          } else {
+              //Can't use the app message.
+              //For Using the app you need to go to setting and enable location permissions to the app.
+              Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
+          }
+      }
+  }
 }
 
