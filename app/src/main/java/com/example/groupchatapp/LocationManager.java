@@ -42,6 +42,10 @@ public class LocationManager {
     private Context m_Context;
     private int m_LimitOfMeters;
 
+    public void Logout() {
+        this.m_CountryCode = null;
+    }
+
     public LocationManager() {
         m_CountryCode = null;
         m_Latitude = 0;
