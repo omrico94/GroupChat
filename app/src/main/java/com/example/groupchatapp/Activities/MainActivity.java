@@ -26,8 +26,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
@@ -43,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
     private OnLoggedIn m_OnLoggedInListener;
     private OnLocationInit m_OnLocationInit;
     private OnLocationLimitChange m_OnLocationLimitChange;
+
+
+    private HashMap<DatabaseReference, ValueEventListener> m_RemoveListenersMap;
+    private ChildEventListener m_newGroupsRefChildValueListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
         m_LoginManager = LoginManager.getInstance();
 
+        m_RemoveListenersMap=new HashMap<>();
+
         if (!m_LoginManager.IsLoggedIn()) {
 
             //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
@@ -72,6 +80,68 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void initGroupsChildEventListener() {
+
+        m_newGroupsRefChildValueListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                Group groupToAdd = dataSnapshot.getValue(Group.class);
+
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
+                    groupsToDisplay.add(dataSnapshot.getValue(Group.class));
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
+            }
+
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                Group changedGroup = dataSnapshot.getValue(Group.class);
+
+                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay, changedGroup);
+
+                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
+
+                    if (indexToChange == -1) {
+                        groupsToDisplay.add(changedGroup);
+                    } else {
+                        groupsToDisplay.set(indexToChange, changedGroup);
+                    }
+                } else {
+                    if (indexToChange != -1) {
+                        groupsToDisplay.remove(indexToChange);
+                    }
+                }
+
+                m_GroupsAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Group groupToRemove = dataSnapshot.getValue(Group.class);
+
+                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay, groupToRemove);
+                if (indexToRemove != -1) {
+                    groupsToDisplay.remove(indexToRemove);
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        };
     }
 
     private void initLocationLimitChange() {
@@ -100,10 +170,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SendUserToLoginActivity() {
+
+        m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
         Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
-        android.os.Process.killProcess(android.os.Process.myPid());
+        finish();
     }
 
     private void SendUserToSettingsActivity() {
@@ -164,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
         m_OnLoggedInListener = new OnLoggedIn() {
             @Override
             public void onSuccess() {
+                initGroupsChildEventListener();
                 m_LoginManager.getLocationManager().CheckPermissionLocation(MainActivity.this , m_OnLocationInit);
             }
 
@@ -188,65 +261,7 @@ public class MainActivity extends AppCompatActivity {
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
-        m_GroupsRef.addChildEventListener(new ChildEventListener() {
-
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                Group groupToAdd = dataSnapshot.getValue(Group.class);
-
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
-                    groupsToDisplay.add(dataSnapshot.getValue(Group.class));
-                    m_GroupsAdapter.notifyDataSetChanged();
-                }
-            }
-
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                Group changedGroup = dataSnapshot.getValue(Group.class);
-
-                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay, changedGroup);
-
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
-
-                    if (indexToChange == -1) {
-                        groupsToDisplay.add(changedGroup);
-                    } else {
-                        groupsToDisplay.set(indexToChange, changedGroup);
-                    }
-                } else {
-                    if (indexToChange != -1) {
-                        groupsToDisplay.remove(indexToChange);
-                        }
-                    }
-
-                    m_GroupsAdapter.notifyDataSetChanged();
-                }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Group groupToRemove = dataSnapshot.getValue(Group.class);
-
-                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay, groupToRemove);
-                if (indexToRemove != -1) {
-                    groupsToDisplay.remove(indexToRemove);
-                    m_GroupsAdapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-        });
+        m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
     }
 
   @Override
