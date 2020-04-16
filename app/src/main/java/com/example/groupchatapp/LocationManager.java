@@ -28,6 +28,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -50,6 +51,8 @@ public class LocationManager {
         m_CountryCode = null;
         m_Latitude = 0;
         m_Longitude = 0;
+
+
     }
 
     public boolean isLocationOn() {
@@ -179,5 +182,10 @@ public class LocationManager {
             alert.setTitle("GROUPI");
             alert.show();
         }
+    }
+
+    public LatLng GetLocationInLatLang()
+    {
+        return new LatLng(m_Latitude,m_Longitude);
     }
 }
