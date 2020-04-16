@@ -1,6 +1,7 @@
 package com.example.groupchatapp.Activities;
 
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class MyGroupsActivity extends AppCompatActivity {
@@ -50,7 +52,6 @@ public class MyGroupsActivity extends AppCompatActivity {
 
         m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
 
-
         m_GroupList.setAdapter(m_GroupsAdapter);
 
 
@@ -65,7 +66,6 @@ public class MyGroupsActivity extends AppCompatActivity {
                         String groupId = dataSnapshotGroupId.getKey();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.add(group);
-
                         m_GroupsAdapter.notifyDataSetChanged();
                         m_GroupsAdapter.getItemCount();
                     }

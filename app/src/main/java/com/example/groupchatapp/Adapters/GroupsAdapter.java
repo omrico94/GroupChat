@@ -60,7 +60,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
         public GroupsViewHolder(@NonNull View itemView) {
             super(itemView);
-
             groupName = itemView.findViewById(R.id.user_profile_name);
             groupPhoto = itemView.findViewById(R.id.users_profile_image);
         }
