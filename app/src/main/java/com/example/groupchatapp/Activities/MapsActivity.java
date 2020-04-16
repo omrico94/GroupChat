@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Picture;
 import android.location.Address;
 import android.location.Geocoder;
@@ -49,7 +50,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -60,6 +64,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.collection.LLRBNode;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -73,18 +78,18 @@ import java.util.Set;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton;
-    private double m_latitude, m_longitude;
+    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroup,m_exitGroup;
     private LatLng m_currentLocation;
     private DatabaseReference m_GroupsRef;
     private AllGroupsAdapter m_GroupsAdapter;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private LoginManager m_LoginManager;
-    private LocationListener m_LocationListener;
-    private LocationManager m_LocationManager;
     private OnLoggedIn m_OnLoggedInListener;
     private Geocoder m_Geocoder;
-    private ArrayMap<String,Marker> groups = new ArrayMap<String, Marker>();
+    private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
+    private ArrayMap<String,Group> groupsID = new ArrayMap<String,Group>();
+    private Group currentGroup;
+    Circle m_radiusCircle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        m_GroupsAdapter = new AllGroupsAdapter(groupsToDisplay, this);
+        //m_GroupsAdapter = new AllGroupsAdapter(groupsToDisplay, this);
 
         m_LoginManager = LoginManager.getInstance();
 
@@ -104,70 +109,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
-        m_latitude = 31.8784;
-        m_longitude = 35.0078;
-        m_currentLocation = new LatLng(m_latitude, m_longitude);
         bindButtons();
+
+        hideJoinAndExitGroupButtons();
 
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_currentLocation, 15.0f));
+        mMap.setMyLocationEnabled(true);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
 
-    }
-
-    private void bindButtons() {
-        m_settingsButton = findViewById(R.id.settings_button);
-        m_settingsButton.setOnClickListener(new View.OnClickListener() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public void onClick(View v) {
-                SendUserToSettingsActivity();
+            public boolean onMarkerClick(Marker marker) {
+                currentGroup = groupsID.get(marker.getId());
+                if(m_radiusCircle!=null) {
+                    m_radiusCircle.remove();
+                }
+
+                    m_radiusCircle = mMap.addCircle(new CircleOptions()
+                        .center(marker.getPosition())
+                        .radius(Double.parseDouble(currentGroup.getRadius()))
+                        .strokeColor(Color.BLUE));
+
+                if(!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(marker.getTag()))
+                {
+                    m_joinGroup.setVisibility(View.VISIBLE);
+                    m_exitGroup.setVisibility(View.GONE);
+                }else
+                {
+                    m_joinGroup.setVisibility(View.GONE);
+                    m_exitGroup.setVisibility(View.VISIBLE);
+                }
+
+                return false;
             }
         });
-        m_myGroupsButton = findViewById(R.id.my_groups_button);
-        m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
-            public void onClick(View v) {
-                SendUserToMyGroupsActivity();
+            public void onMapClick(LatLng latLng) {
+                hideJoinAndExitGroupButtons();
+                m_radiusCircle.remove();
             }
         });
-        m_addGroupsButton = findViewById(R.id.add_group_button);
-        m_addGroupsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SendUserToCreateGroupActivity();
-            }
-        });
-    }
 
-    private void SendUserToSettingsActivity() {
-        Intent settingsIntent = new Intent(MapsActivity.this, SettingsActivity.class);
-        startActivity(settingsIntent);
-    }
-
-    private void SendUserToMyGroupsActivity() {
-        Intent myGroupsIntent = new Intent(MapsActivity.this, MyGroupsActivity.class);
-        startActivity(myGroupsIntent);
-    }
-
-    private void SendUserToCreateGroupActivity() {
-        Intent createGroupIntent = new Intent(MapsActivity.this, CreateGroupActivity.class);
-        createGroupIntent.putExtra("longitude", m_longitude);
-        createGroupIntent.putExtra("latitude", m_latitude);
-        startActivity(createGroupIntent);
     }
 
     private void initLoggedInListener() {
@@ -195,7 +185,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void OnGroupRefProvide() {
 
         groupsToDisplay.clear();
-        m_GroupsAdapter.notifyDataSetChanged();
+        //m_GroupsAdapter.notifyDataSetChanged();
 
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
@@ -205,14 +195,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+                Marker groupMarker;
+                float BMColor = 0;
+
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
-                LatLng group = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
-                Marker m =  mMap.addMarker(new MarkerOptions().position(group).title(groupToAdd.getName()).snippet(groupToAdd.getPhotoUrl()));
-                groups.put(groupToAdd.getGid(),m);
+                LatLng groupLocation = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
+
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
                     groupsToDisplay.add(dataSnapshot.getValue(Group.class));
-                    m_GroupsAdapter.notifyDataSetChanged();
+                    //m_GroupsAdapter.notifyDataSetChanged();
                 }
+                else
+                {
+                    BMColor = 150;
+                }
+
+                groupMarker =  mMap.addMarker(new MarkerOptions().position(groupLocation).icon(BitmapDescriptorFactory.defaultMarker(BMColor)).title(groupToAdd.getName()).snippet(groupToAdd.getDescription()));
+                groupMarker.setTag(groupToAdd.getGid());
+                markers.put(groupToAdd.getGid(),groupMarker);
+                groupsID.put(groupMarker.getId(),groupToAdd);
             }
 
 
@@ -227,16 +228,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     if (indexToChange == -1) {
                         groupsToDisplay.add(changedGroup);
+                        Marker markerToChange = markers.get(changedGroup.getGid());
+                        markerToChange.setIcon(BitmapDescriptorFactory.defaultMarker());
                     } else {
                         groupsToDisplay.set(indexToChange, changedGroup);
                     }
                 } else {
                     if (indexToChange != -1) {
                         groupsToDisplay.remove(indexToChange);
+                        Marker markerToChange = markers.get(changedGroup.getGid());
+                        markerToChange.setIcon(BitmapDescriptorFactory.defaultMarker(150f));
                     }
                 }
 
-                m_GroupsAdapter.notifyDataSetChanged();
+               // m_GroupsAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -246,10 +251,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay, groupToRemove);
                 if (indexToRemove != -1) {
                     groupsToDisplay.remove(indexToRemove);
-                    Marker markerToRemove = groups.get(groupToRemove.getGid());
-                    markerToRemove.remove();
-                    m_GroupsAdapter.notifyDataSetChanged();
+                    //m_GroupsAdapter.notifyDataSetChanged();
                 }
+
+                removeMarkerByGroup(groupToRemove.getGid());
             }
 
             @Override
@@ -263,6 +268,93 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         });
+    }
+
+    private void removeMarkerByGroup(String groupId)
+    {
+        Marker markerToRemove = markers.get(groupId);
+        markerToRemove.remove();
+    }
+
+    private void bindButtons() {
+        m_settingsButton = findViewById(R.id.settings_button);
+        m_settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SendUserToSettingsActivity();
+            }
+        });
+        m_myGroupsButton = findViewById(R.id.my_groups_button);
+        m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SendUserToMyGroupsActivity();
+            }
+        });
+        m_addGroupsButton = findViewById(R.id.add_group_button);
+        m_addGroupsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SendUserToCreateGroupActivity();
+            }
+        });
+
+        m_joinGroup = findViewById(R.id.join_group);
+        m_joinGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showExitGroupButton();
+                SendUserToJoinToGroupActivity();
+            }
+        });
+
+        m_exitGroup = findViewById(R.id.exit_group);
+        m_exitGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showJoinGroupButton();
+            }
+        });
+    }
+
+    private void showExitGroupButton() {
+        m_joinGroup.setVisibility(View.GONE);
+        m_exitGroup.setVisibility(View.VISIBLE);
+    }
+    private void showJoinGroupButton() {
+        m_joinGroup.setVisibility(View.VISIBLE);
+        m_exitGroup.setVisibility(View.GONE);
+    }
+    private void hideJoinAndExitGroupButtons(){
+        m_joinGroup.setVisibility(View.GONE);
+        m_exitGroup.setVisibility(View.GONE);
+    }
+
+    private void SendUserToSettingsActivity() {
+        Intent settingsIntent = new Intent(MapsActivity.this, SettingsActivity.class);
+        startActivity(settingsIntent);
+    }
+
+    private void SendUserToMyGroupsActivity() {
+        Intent myGroupsIntent = new Intent(MapsActivity.this, MyGroupsActivity.class);
+        startActivity(myGroupsIntent);
+    }
+
+    private void SendUserToCreateGroupActivity() {
+        Intent createGroupIntent = new Intent(MapsActivity.this, CreateGroupActivity.class);
+        createGroupIntent.putExtra("longitude", m_LoginManager.getLocationManager().getLatitude());
+        createGroupIntent.putExtra("latitude", m_LoginManager.getLocationManager().getLongitude());
+        startActivity(createGroupIntent);
+    }
+
+    private void SendUserToJoinToGroupActivity()
+    {
+        Intent joinGroupIntent = new Intent(MapsActivity.this, JoinToGroupActivity.class);
+        joinGroupIntent.putExtra("group_id", currentGroup.getGid());
+        joinGroupIntent.putExtra("group_name",currentGroup.getName());
+        joinGroupIntent.putExtra("group_image",currentGroup.getPhotoUrl());
+        joinGroupIntent.putExtra("group_password", currentGroup.getPassword());
+        startActivity(joinGroupIntent);
     }
 
     @Override
@@ -279,4 +371,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
+
+
 }

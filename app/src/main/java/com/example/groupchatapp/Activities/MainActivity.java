@@ -25,6 +25,7 @@ import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -204,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if (indexToChange != -1) {
                         groupsToDisplay.remove(indexToChange);
+
                         }
                     }
 
@@ -248,5 +250,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 }
 

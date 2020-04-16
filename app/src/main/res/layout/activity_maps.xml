@@ -37,6 +37,22 @@
         android:layout_toRightOf="@id/my_groups_button"
         android:src="@drawable/add_group" />
 
+    <ImageButton
+        android:id="@+id/exit_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="105dp"
+        android:layout_marginTop="575dp"
+        android:layout_toRightOf="@id/settings_button"
+        android:src="@drawable/exitgroup" />
 
+    <ImageButton
+        android:id="@+id/join_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="105dp"
+        android:layout_marginTop="575dp"
+        android:layout_toRightOf="@id/settings_button"
+        android:src="@drawable/joingroup" />
 
 </RelativeLayout>

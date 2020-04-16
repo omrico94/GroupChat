@@ -40,7 +40,9 @@ public class JoinToGroupActivity extends AppCompatActivity {
         RootRef= FirebaseDatabase.getInstance().getReference();
         groupId =getIntent().getExtras().get("group_id").toString();
         groupName =getIntent().getExtras().get("group_name").toString();
-        groupImageStr =getIntent().getExtras().get("group_image").toString();
+        if(getIntent().getExtras().get("group_image")!= null) {//maybe their is a better way to handle this
+            groupImageStr = getIntent().getExtras().get("group_image").toString();
+        }
 
 
         initializeFields();
