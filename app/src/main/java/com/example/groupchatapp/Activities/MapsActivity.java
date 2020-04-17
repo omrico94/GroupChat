@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -39,6 +40,8 @@ import android.widget.Toast;
 import com.example.groupchatapp.Adapters.AllGroupsAdapter;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.OnLocationInit;
+import com.example.groupchatapp.OnLocationLimitChange;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
@@ -70,30 +73,35 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroup,m_exitGroup;
-    private LatLng m_currentLocation;
+    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton;
     private DatabaseReference m_GroupsRef;
     private AllGroupsAdapter m_GroupsAdapter;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private LoginManager m_LoginManager;
     private OnLoggedIn m_OnLoggedInListener;
-    private Geocoder m_Geocoder;
+    private OnLocationInit m_OnLocationInit;
+    private OnLocationLimitChange m_OnLocationLimitChange;
+
     private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
     private ArrayMap<String,Group> groupsID = new ArrayMap<String,Group>();
     private Group currentGroup;
-    Circle m_radiusCircle;
+    private  Circle m_radiusCircle;
+
+    private HashMap<DatabaseReference, ValueEventListener> m_RemoveListenersMap;
+    private ChildEventListener m_newGroupsRefChildValueListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        m_Geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -104,15 +112,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         m_LoginManager = LoginManager.getInstance();
 
+        m_RemoveListenersMap=new HashMap<>();
+
         if (!m_LoginManager.IsLoggedIn()) {
+
+            //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
             initLoggedInListener();
+            initLocationInitListener();
+            initLocationLimitChange();
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
-        bindButtons();
+        initializeFields();
+        setOnClickButtons();
 
-        hideJoinAndExitGroupButtons();//כל הפונקציות האלו לא עובדות נכון באמת אני בונה על זה שיהיה כפתורים במסך מידע
+        hideJoinAndExitGroupButtons();//כל הפונקציות האלו לא עובדות נכון  אני בונה על זה שיהיה כפתורים במסך מידע
 
+    }
+
+    private void initializeFields() {
+
+        m_settingsButton = findViewById(R.id.settings_button);
+        m_myGroupsButton = findViewById(R.id.my_groups_button);
+        m_addGroupsButton = findViewById(R.id.add_group_button);
+        m_joinGroupButton = findViewById(R.id.join_group);
+        m_exitGroupButton = findViewById(R.id.exit_group);
     }
 
     @Override
@@ -138,12 +162,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if(!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(marker.getTag()))
                 {
-                    m_joinGroup.setVisibility(View.VISIBLE);
-                    m_exitGroup.setVisibility(View.GONE);
+                    m_joinGroupButton.setVisibility(View.VISIBLE);
+                    m_exitGroupButton.setVisibility(View.GONE);
                 }else
                 {
-                    m_joinGroup.setVisibility(View.GONE);
-                    m_exitGroup.setVisibility(View.VISIBLE);
+                    m_joinGroupButton.setVisibility(View.GONE);
+                    m_exitGroupButton.setVisibility(View.VISIBLE);
                 }
 
                 return false;
@@ -154,7 +178,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(LatLng latLng) {
                 hideJoinAndExitGroupButtons();
-                m_radiusCircle.remove();
+                if(m_radiusCircle!=null) {
+                    m_radiusCircle.remove();
+                }
             }
         });
 
@@ -164,9 +190,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         m_OnLoggedInListener = new OnLoggedIn() {
             @Override
             public void onSuccess() {
-
-                //new Thread(()->CheckPermissionLocation()).start();
-                m_LoginManager.getLocationManager().CheckPermissionLocation(MapsActivity.this);
+                initGroupsChildEventListener();
+                m_LoginManager.getLocationManager().CheckPermissionLocation(MapsActivity.this , m_OnLocationInit);
             }
 
             @Override
@@ -181,17 +206,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         };
     }
+    public void  initGroupsChildEventListener() {
 
-    public void OnGroupRefProvide() {
-
-        groupsToDisplay.clear();
-        //m_GroupsAdapter.notifyDataSetChanged();
-
-        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
-        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
-
-        m_GroupsRef.addChildEventListener(new ChildEventListener() {
-
+        m_newGroupsRefChildValueListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -204,7 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //m_GroupsAdapter.notifyDataSetChanged();
                 }
 
-                createMarkerforGroup(groupToAdd,isInGroup);
+                createMarkerforGroup(groupToAdd, isInGroup);
             }
 
 
@@ -228,8 +245,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
 
-               // m_GroupsAdapter.notifyDataSetChanged();
-                changeMarkerColor(isInGroup,changedGroup.getGid());
+                // m_GroupsAdapter.notifyDataSetChanged();
+                changeMarkerColor(isInGroup, changedGroup.getGid());
             }
 
             @Override
@@ -255,7 +272,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
 
-        });
+
+        };
+
     }
 
     private void changeMarkerColor(boolean isInGroup,String groupID) {
@@ -290,22 +309,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markerToRemove.remove();
     }
 
-    private void bindButtons() {
-        m_settingsButton = findViewById(R.id.settings_button);
+    private void setOnClickButtons() {
+
         m_settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SendUserToSettingsActivity();
             }
         });
-        m_myGroupsButton = findViewById(R.id.my_groups_button);
+
         m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SendUserToMyGroupsActivity();
             }
         });
-        m_addGroupsButton = findViewById(R.id.add_group_button);
+
         m_addGroupsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -313,8 +332,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        m_joinGroup = findViewById(R.id.join_group);
-        m_joinGroup.setOnClickListener(new View.OnClickListener() {
+        m_joinGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showExitGroupButton();
@@ -322,8 +340,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        m_exitGroup = findViewById(R.id.exit_group);
-        m_exitGroup.setOnClickListener(new View.OnClickListener() {
+        m_exitGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showJoinGroupButton();
@@ -332,16 +349,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void showExitGroupButton() {
-        m_joinGroup.setVisibility(View.GONE);
-        m_exitGroup.setVisibility(View.VISIBLE);
+        m_joinGroupButton.setVisibility(View.GONE);
+        m_exitGroupButton.setVisibility(View.VISIBLE);
     }
     private void showJoinGroupButton() {
-        m_joinGroup.setVisibility(View.VISIBLE);
-        m_exitGroup.setVisibility(View.GONE);
+        m_joinGroupButton.setVisibility(View.VISIBLE);
+        m_exitGroupButton.setVisibility(View.GONE);
     }
     private void hideJoinAndExitGroupButtons(){
-        m_joinGroup.setVisibility(View.GONE);
-        m_exitGroup.setVisibility(View.GONE);
+        m_joinGroupButton.setVisibility(View.GONE);
+        m_exitGroupButton.setVisibility(View.GONE);
     }
 
     private void SendUserToSettingsActivity() {
@@ -370,6 +387,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         joinGroupIntent.putExtra("group_password", currentGroup.getPassword());
         startActivity(joinGroupIntent);
     }
+
+    private void initLocationLimitChange() {
+
+        m_OnLocationLimitChange=new OnLocationLimitChange() {
+            @Override
+            public void onLimitChange() {
+                //כאן צריך לשים את הפונקציה שאתה רוצה שתעבור על הקבוצות. שים לב שצריך לקרוא למטודת האתחול שנמצאת במחלקה של המיקום לפני
+            }
+        };
+    }
+
+    private void initLocationInitListener() {
+
+        m_OnLocationInit=new OnLocationInit() {
+            @Override
+            public void onSuccess() {
+                OnLocationProvide();
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+    }
+
+    public void OnLocationProvide() {
+
+        groupsToDisplay.clear();
+      //  m_GroupsAdapter.notifyDataSetChanged();
+
+        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
+        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
+
+        m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

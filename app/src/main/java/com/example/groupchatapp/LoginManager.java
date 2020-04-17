@@ -20,6 +20,7 @@ public class LoginManager {
     private boolean isLoggedIn;
     private DatabaseReference userRef;
     private FirebaseAuth mAuth;
+    private ValueEventListener m_LoginValueListener;
 
     private LocationManager m_LocationManager;
 
@@ -51,7 +52,6 @@ public class LoginManager {
         mAuth = FirebaseAuth.getInstance();
         isLoggedIn = false;
         m_LocationManager = new LocationManager();
-
     }
 
 
@@ -69,16 +69,15 @@ public class LoginManager {
         //אפשר אולי להוסיף כאן משהו שישמור את כל המידע בדאטה בייס, למקרה שיש משהו לא שמור
         m_CurrentUser.setValue(null);
         isLoggedIn=false;
+        m_LocationManager.Logout();
     }
 
     public void Login(OnLoggedIn listener) {
 
         listener.onStart();
-
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        m_LoginValueListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 isLoggedIn = true;
                 m_CurrentUser = new MutableLiveData<>();
                 m_CurrentUser.setValue(dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue(User.class));
@@ -88,10 +87,10 @@ public class LoginManager {
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
-                listener.onFailure();
             }
-        });
+        };
 
+        userRef.addListenerForSingleValueEvent(m_LoginValueListener);
     }
 
     public boolean isUserExist()

@@ -2,37 +2,34 @@ package com.example.groupchatapp.Activities;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-
-import android.location.Location;
 import android.os.Bundle;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupchatapp.Adapters.AllGroupsAdapter;
-import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.OnLocationInit;
+import com.example.groupchatapp.OnLocationLimitChange;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
-
-import com.google.android.gms.maps.GoogleMap;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
@@ -44,7 +41,14 @@ public class MainActivity extends AppCompatActivity {
 
     private LoginManager m_LoginManager;
 
+
     private OnLoggedIn m_OnLoggedInListener;
+    private OnLocationInit m_OnLocationInit;
+    private OnLocationLimitChange m_OnLocationLimitChange;
+
+
+    private HashMap<DatabaseReference, ValueEventListener> m_RemoveListenersMap;
+    private ChildEventListener m_newGroupsRefChildValueListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,118 +68,23 @@ public class MainActivity extends AppCompatActivity {
 
         m_LoginManager = LoginManager.getInstance();
 
+        m_RemoveListenersMap=new HashMap<>();
+
         if (!m_LoginManager.IsLoggedIn()) {
 
+            //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
             initLoggedInListener();
+            initLocationInitListener();
+            initLocationLimitChange();
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
+
     }
 
-    private void SendUserToLoginActivity() {
-        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
-        android.os.Process.killProcess(android.os.Process.myPid());
-    }
+    private void initGroupsChildEventListener() {
 
-    private void SendUserToSettingsActivity() {
-        Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
-        startActivity(settingsIntent);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.options_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
-        if (item.getItemId() == R.id.main_logout_option) {
-            m_LoginManager.Logout();
-            SendUserToLoginActivity();
-        } else if (item.getItemId() == R.id.main_settings_option) {
-            SendUserToSettingsActivity();
-        } else if (item.getItemId() == R.id.main_find_friends_option) {
-            SendUserToFindFriendsActivity();
-        } else if (item.getItemId() == R.id.main_Create_Group_option) {
-            SendUserToCreateGroupActivity();
-
-        } else if (item.getItemId() == R.id.map_option) {
-            SendUserToMapsActivity();
-        } else if (item.getItemId() == R.id.main_my_groups_option) {
-
-            if (m_LoginManager.getLocationManager().isLocationOn()) {
-                SendUserToMyGroupsActivity();
-            } else {
-                Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private void SendUserToMyGroupsActivity() {
-        Intent myGroupsIntent = new Intent(MainActivity.this, MyGroupsActivity.class);
-        startActivity(myGroupsIntent);
-    }
-
-    private void SendUserToCreateGroupActivity() {
-        Intent createGroupIntent = new Intent(MainActivity.this, CreateGroupActivity.class);
-        startActivity(createGroupIntent);
-    }
-
-    private void SendUserToFindFriendsActivity() {
-
-        Intent findFriendsIntent = new Intent(MainActivity.this, FindFriendsActivity.class);
-        startActivity(findFriendsIntent);
-    }
-
-
-    private void SendUserToMapsActivity()
-    {
-
-        Intent mapIntent = new Intent(MainActivity.this,MapsActivity.class);
-        mapIntent.putExtra("groups",groupsToDisplay);
-        startActivity(mapIntent);
-    }
-
-
-    private void initLoggedInListener() {
-        m_OnLoggedInListener = new OnLoggedIn() {
-            @Override
-            public void onSuccess() {
-                m_LoginManager.getLocationManager().CheckPermissionLocation(MainActivity.this);
-            }
-
-            @Override
-            public void onStart() {
-
-            }
-
-            @Override
-            public void onFailure() {
-
-            }
-
-        };
-    }
-
-    public void OnGroupRefProvide() {
-
-        groupsToDisplay.clear();
-        m_GroupsAdapter.notifyDataSetChanged();
-
-        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
-        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
-
-        m_GroupsRef.addChildEventListener(new ChildEventListener() {
-
+        m_newGroupsRefChildValueListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -205,12 +114,11 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if (indexToChange != -1) {
                         groupsToDisplay.remove(indexToChange);
-
-                        }
                     }
-
-                    m_GroupsAdapter.notifyDataSetChanged();
                 }
+
+                m_GroupsAdapter.notifyDataSetChanged();
+            }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
@@ -233,7 +141,127 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-        });
+        };
+    }
+
+    private void initLocationLimitChange() {
+
+        m_OnLocationLimitChange=new OnLocationLimitChange() {
+            @Override
+            public void onLimitChange() {
+                //כאן צריך לשים את הפונקציה שאתה רוצה שתעבור על הקבוצות. שים לב שצריך לקרוא למטודת האתחול שנמצאת במחלקה של המיקום לפני
+            }
+        };
+    }
+
+    private void initLocationInitListener() {
+
+        m_OnLocationInit=new OnLocationInit() {
+            @Override
+            public void onSuccess() {
+                OnLocationProvide();
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+    }
+
+    private void SendUserToLoginActivity() {
+
+        m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
+        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(loginIntent);
+        finish();
+    }
+
+    private void SendUserToSettingsActivity() {
+        Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(settingsIntent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.main_logout_option) {
+            m_LoginManager.Logout();
+            SendUserToLoginActivity();
+        } else if (item.getItemId() == R.id.main_settings_option) {
+            SendUserToSettingsActivity();
+        } else if (item.getItemId() == R.id.main_find_friends_option) {
+            SendUserToFindFriendsActivity();
+        } else if (item.getItemId() == R.id.main_Create_Group_option) {
+            SendUserToCreateGroupActivity();
+        } else if (item.getItemId() == R.id.main_my_groups_option) {
+
+            if (m_LoginManager.getLocationManager().isLocationOn()) {
+                SendUserToMyGroupsActivity();
+            } else {
+                Toast.makeText(this, "Turn on Location!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void SendUserToMyGroupsActivity() {
+        Intent myGroupsIntent = new Intent(MainActivity.this, MyGroupsActivity.class);
+        startActivity(myGroupsIntent);
+    }
+
+    private void SendUserToCreateGroupActivity() {
+        Intent createGroupIntent = new Intent(MainActivity.this, CreateGroupActivity.class);
+        startActivity(createGroupIntent);
+    }
+
+    private void SendUserToFindFriendsActivity() {
+
+        Intent findFriendsIntent = new Intent(MainActivity.this, FindFriendsActivity.class);
+        startActivity(findFriendsIntent);
+    }
+
+    private void initLoggedInListener() {
+        m_OnLoggedInListener = new OnLoggedIn() {
+            @Override
+            public void onSuccess() {
+                initGroupsChildEventListener();
+                m_LoginManager.getLocationManager().CheckPermissionLocation(MainActivity.this , m_OnLocationInit);
+            }
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+
+        };
+    }
+
+    public void OnLocationProvide() {
+
+        groupsToDisplay.clear();
+        m_GroupsAdapter.notifyDataSetChanged();
+
+        String countryCode = m_LoginManager.getLocationManager().getCountryCode();
+        m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
+
+        m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
     }
 
     @Override
@@ -250,6 +278,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 }
-

@@ -70,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         if (m_LoginManager.isUserExist()) {
 
             SendUserToMapsActivity();
+            //SendUserToMainActivity();
 
         }
     }
@@ -109,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                         if(task.isSuccessful())
                                         {
-                                                //SendUserToMainActivity();
+                                              //  SendUserToMainActivity();
                                             SendUserToMapsActivity();
                                             Toast.makeText(LoginActivity.this,"Logged in successful",Toast.LENGTH_SHORT).show();
                                             loadingBar.dismiss();
@@ -153,9 +154,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void SendUserToMapsActivity()
     {
-
         Intent mapIntent = new Intent(LoginActivity.this,MapsActivity.class);
-        //mapIntent.putExtra("groups",groupsToDisplay);
         startActivity(mapIntent);
     }
 

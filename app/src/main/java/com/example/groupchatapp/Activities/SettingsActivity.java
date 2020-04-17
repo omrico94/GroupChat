@@ -35,7 +35,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private Button updateAccountSettings;
+    private Button updateAccountSettings, logOutButton;
     private EditText userName,userStatus;
     private CircleImageView userProfileImage;
     private String currentUserID;
@@ -63,6 +63,14 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 UpdateSettings();
+            }
+        });
+
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                m_LoginManager.Logout();
+               // SendUserToLoginActivity();
             }
         });
 
@@ -138,6 +146,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void initializeFields() {
 
         updateAccountSettings=findViewById(R.id.upadte_settings_button);
+        logOutButton=findViewById(R.id.log_out_button);
         userName = findViewById(R.id.set_user_name);
         userStatus = findViewById(R.id.set_profile_status);
         userProfileImage = findViewById(R.id.set_profile_image);
@@ -215,4 +224,13 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
     }
+
+   // private void SendUserToLoginActivity() {
+//
+   //     m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
+   //     Intent loginIntent = new Intent(SettingsActivity.this, LoginActivity.class);
+   //     loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+   //     startActivity(loginIntent);
+   //     finish();
+   // }
 }

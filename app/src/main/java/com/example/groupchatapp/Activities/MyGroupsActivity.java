@@ -9,11 +9,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.groupchatapp.Models.Group;
-import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Adapters.MyGroupsAdapter;
+import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.R;
-import com.example.groupchatapp.Utils;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -67,7 +66,6 @@ public class MyGroupsActivity extends AppCompatActivity {
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.add(group);
                         m_GroupsAdapter.notifyDataSetChanged();
-                        m_GroupsAdapter.getItemCount();
                     }
 
                     @Override
@@ -94,11 +92,10 @@ public class MyGroupsActivity extends AppCompatActivity {
                         groupsToDisplay.remove(group);
                         m_GroupsAdapter.notifyDataSetChanged();
 
-                        if(dataSnapshot.child(groupId).child("usersId").getChildrenCount()==1) // only current user was in group
+                        if (dataSnapshot.child(groupId).child("usersId").getChildrenCount() == 1) // only current user was in group
                         {
                             m_GroupsRef.child(groupId).removeValue();
-                        }
-                      else {
+                        } else {
                             m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
                         }
 
@@ -122,38 +119,38 @@ public class MyGroupsActivity extends AppCompatActivity {
             }
         });
 
-        m_GroupsRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Group group = dataSnapshot.getValue(Group.class);
-                int index = Utils.findIndexOfGroup(groupsToDisplay,group);
-                if (index != -1) {
-                    groupsToDisplay.set(index, group);
-                    m_GroupsAdapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        //      m_GroupsRef.addChildEventListener(new ChildEventListener() {
+        //          @Override
+        //          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//
+        //          }
+//
+        //          @Override
+        //          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        //              Group group = dataSnapshot.getValue(Group.class);
+        //              int index = Utils.findIndexOfGroup(groupsToDisplay,group);
+        //              if (index != -1) {
+        //                  groupsToDisplay.set(index, group);
+        //                  m_GroupsAdapter.notifyDataSetChanged();
+        //              }
+        //          }
+//
+        //          @Override
+        //          public void onChildRemoved(DataSnapshot dataSnapshot) {
+//
+        //          }
+//
+        //          @Override
+        //          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//
+        //          }
+//
+        //          @Override
+        //          public void onCancelled(DatabaseError databaseError) {
+//
+        //          }
+        //      });
+        //  }
     }
-
 }
 

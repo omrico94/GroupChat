@@ -2,13 +2,10 @@ package com.example.groupchatapp;
 
 import android.Manifest;
 import android.app.Activity;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-
 import android.content.pm.PackageManager;
-
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -19,18 +16,15 @@ import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.groupchatapp.R;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -41,11 +35,17 @@ public class LocationManager {
     private LocationListener m_LocationListener;
     private android.location.LocationManager m_LocationManager;
     private Geocoder m_Geocoder;
-
+    private OnLocationInit m_OnLocationInit;
+    private OnLocationLimitChange m_OnLocationLimitChange;
     private String m_CountryCode;
     private double m_Latitude;
     private double m_Longitude;
     private Context m_Context;
+    private int m_LimitOfMeters;
+
+    public void Logout() {
+        this.m_CountryCode = null;
+    }
 
     public LocationManager() {
         m_CountryCode = null;
@@ -73,9 +73,10 @@ public class LocationManager {
         m_LocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                //ממליץ לשים את זה בתוך פונקציה, מכיוון שהאתחול הזה קורה כמה פעמים במחלקה
                 m_Latitude = location.getLatitude();
                 m_Longitude = location.getLongitude();
-                getFromLocationGeocoder();
+ //               m_OnLocationLimitChange.onLimitChange();//   להכניס לתוך תנאי שמשתמש בדאטה ממבר של הלימיט מטר
                 Toast.makeText(m_Context, "Location Changed!", Toast.LENGTH_SHORT).show();
             }
 
@@ -87,6 +88,8 @@ public class LocationManager {
             @Override
             public void onProviderEnabled(String provider) {
                 getCurrentLocation();
+                //               m_OnLocationLimitChange.onLimitChange();//   להכניס לתוך תנאי שמשתמש בדאטה ממבר של הלימיט מטר
+
                 Toast.makeText(m_Context, "Searching for your location...", Toast.LENGTH_LONG).show();
             }
 
@@ -112,19 +115,21 @@ public class LocationManager {
                 if (lstAdd.size() > 0) {
                     String countryCode = lstAdd.get(0).getCountryCode();
                     m_CountryCode = countryCode;
-                    Method method = m_Context.getClass().getDeclaredMethod("OnGroupRefProvide");
-                    method.invoke(m_Context);
+                    m_OnLocationInit.onSuccess();
+                   // Method method = m_Context.getClass().getDeclaredMethod("OnLocationProvide");
+                    //method.invoke(m_Context);
                 }
             } catch (Exception ex) {
+                m_OnLocationInit.onFailure();
             }
         }
     }
 
-
-
-    public void CheckPermissionLocation(Context context) {
+    public void CheckPermissionLocation(Context context , OnLocationInit lictener) {
         m_Context = context;
         m_Geocoder = new Geocoder(m_Context);
+        m_OnLocationInit=lictener;
+
         if (ContextCompat.checkSelfPermission(
                 m_Context, Manifest.permission.ACCESS_FINE_LOCATION
         ) != PackageManager.PERMISSION_GRANTED) {
@@ -188,4 +193,12 @@ public class LocationManager {
     {
         return new LatLng(m_Latitude,m_Longitude);
     }
+
+    //לא ידעתי בדיוק איפה להכניס את הקריאה לכאן במיין אקטיביטי. צריך לעשות את זה איפשהו באתחול
+    public void setOnLocationLimitChange(OnLocationLimitChange listener , int limitOfMeters)
+    {
+        m_OnLocationLimitChange=listener;
+        m_LimitOfMeters=limitOfMeters;
+    }
+
 }
