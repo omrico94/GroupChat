@@ -42,6 +42,7 @@ import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.OnLocationInit;
 import com.example.groupchatapp.OnLocationLimitChange;
+import com.example.groupchatapp.OnLogOut;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
@@ -90,6 +91,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private OnLoggedIn m_OnLoggedInListener;
     private OnLocationInit m_OnLocationInit;
     private OnLocationLimitChange m_OnLocationLimitChange;
+    private OnLogOut m_OnLogOutListener;
 
     private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
     private ArrayMap<String,Group> groupsID = new ArrayMap<String,Group>();
@@ -120,15 +122,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             initLoggedInListener();
             initLocationInitListener();
             initLocationLimitChange();
+
             m_LoginManager.Login(m_OnLoggedInListener);
         }
-
+        initLogOutListener();
         initializeFields();
         setOnClickButtons();
 
         hideJoinAndExitGroupButtons();//כל הפונקציות האלו לא עובדות נכון  אני בונה על זה שיהיה כפתורים במסך מידע
 
     }
+
+    private void initLogOutListener() {
+
+
+        m_OnLogOutListener = new OnLogOut() {
+            @Override
+            public void OnClickLogOut() {
+                SendUserToLoginActivity();
+            }
+        };
+    }
+
 
     private void initializeFields() {
 
@@ -150,7 +165,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                currentGroup = groupsID.get(marker.getId());
+                currentGroup = groupsID.get(marker.getTag().getClass());
                 if(m_radiusCircle!=null) {
                     m_radiusCircle.remove();
                 }
@@ -296,7 +311,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //move the creation of marker option to group class
         groupMarker =  mMap.addMarker(new MarkerOptions().position(groupLocation).title(groupToAdd.getName()).snippet(groupToAdd.getDescription()));
-        groupMarker.setTag(groupToAdd.getGid());
+        groupMarker.setTag(groupToAdd);
         markers.put(groupToAdd.getGid(),groupMarker);
         groupsID.put(groupMarker.getId(),groupToAdd);
 
@@ -388,6 +403,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(joinGroupIntent);
     }
 
+    private void SendUserToLoginActivity() {
+
+             m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
+             Intent loginIntent = new Intent(MapsActivity.this, LoginActivity.class);
+             loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+             startActivity(loginIntent);
+             finish();
+         }
+
     private void initLocationLimitChange() {
 
         m_OnLocationLimitChange=new OnLocationLimitChange() {
@@ -421,6 +445,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
+        m_LoginManager.InitLogOutListener(m_OnLogOutListener);
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
     }
 

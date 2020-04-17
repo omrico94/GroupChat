@@ -125,10 +125,10 @@ public class LocationManager {
         }
     }
 
-    public void CheckPermissionLocation(Context context , OnLocationInit lictener) {
+    public void CheckPermissionLocation(Context context , OnLocationInit listener) {
         m_Context = context;
         m_Geocoder = new Geocoder(m_Context);
-        m_OnLocationInit=lictener;
+        m_OnLocationInit=listener;
 
         if (ContextCompat.checkSelfPermission(
                 m_Context, Manifest.permission.ACCESS_FINE_LOCATION
