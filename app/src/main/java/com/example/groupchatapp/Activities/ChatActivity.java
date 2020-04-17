@@ -94,7 +94,6 @@ public class ChatActivity extends AppCompatActivity {
         groupName =getIntent().getExtras().get("group_name").toString();
         groupImageStr =getIntent().getExtras().get("group_image").toString();
 
-        Toast.makeText(ChatActivity.this, groupId,Toast.LENGTH_SHORT).show();
         Toast.makeText(ChatActivity.this, groupName,Toast.LENGTH_SHORT).show();
 
         initializeControllers();

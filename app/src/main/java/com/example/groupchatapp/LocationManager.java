@@ -53,12 +53,7 @@ public class LocationManager {
     }
 
     public boolean isLocationOn() {
-        boolean res = true;
-        if (m_Latitude == 0|| m_Longitude == 0) {
-            res = false;
-        }
-
-        return res;
+        return m_Latitude != 0 && m_Longitude != 0;
     }
 
     public String getCountryCode() { return m_CountryCode; }
