@@ -111,7 +111,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         bindButtons();
 
-        hideJoinAndExitGroupButtons();
+        hideJoinAndExitGroupButtons();//כל הפונקציות האלו לא עובדות נכון באמת אני בונה על זה שיהיה כפתורים במסך מידע
 
     }
 
@@ -195,53 +195,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                Marker groupMarker;
-                float BMColor = 0;
-
+                boolean isInGroup = true;
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
-                LatLng groupLocation = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
 
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
                     groupsToDisplay.add(dataSnapshot.getValue(Group.class));
+                    isInGroup = false;
                     //m_GroupsAdapter.notifyDataSetChanged();
                 }
-                else
-                {
-                    BMColor = 150;
-                }
 
-                groupMarker =  mMap.addMarker(new MarkerOptions().position(groupLocation).icon(BitmapDescriptorFactory.defaultMarker(BMColor)).title(groupToAdd.getName()).snippet(groupToAdd.getDescription()));
-                groupMarker.setTag(groupToAdd.getGid());
-                markers.put(groupToAdd.getGid(),groupMarker);
-                groupsID.put(groupMarker.getId(),groupToAdd);
+                createMarkerforGroup(groupToAdd,isInGroup);
             }
 
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                boolean isInGroup = true;
                 Group changedGroup = dataSnapshot.getValue(Group.class);
-
                 int indexToChange = Utils.findIndexOfGroup(groupsToDisplay, changedGroup);
 
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
 
                     if (indexToChange == -1) {
                         groupsToDisplay.add(changedGroup);
-                        Marker markerToChange = markers.get(changedGroup.getGid());
-                        markerToChange.setIcon(BitmapDescriptorFactory.defaultMarker());
+                        isInGroup = false;
                     } else {
                         groupsToDisplay.set(indexToChange, changedGroup);
                     }
                 } else {
                     if (indexToChange != -1) {
                         groupsToDisplay.remove(indexToChange);
-                        Marker markerToChange = markers.get(changedGroup.getGid());
-                        markerToChange.setIcon(BitmapDescriptorFactory.defaultMarker(150f));
                     }
                 }
 
                // m_GroupsAdapter.notifyDataSetChanged();
+                changeMarkerColor(isInGroup,changedGroup.getGid());
             }
 
             @Override
@@ -254,7 +242,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //m_GroupsAdapter.notifyDataSetChanged();
                 }
 
-                removeMarkerByGroup(groupToRemove.getGid());
+                removeMarkerByGroupID(groupToRemove.getGid());
             }
 
             @Override
@@ -270,7 +258,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private void removeMarkerByGroup(String groupId)
+    private void changeMarkerColor(boolean isInGroup,String groupID) {
+
+        float markerColor = 0;
+
+        if(isInGroup)
+        {
+            markerColor = 150;
+        }
+
+        markers.get(groupID).setIcon(BitmapDescriptorFactory.defaultMarker(markerColor));
+    }
+
+    private void createMarkerforGroup(Group groupToAdd, boolean isInGroup) {
+
+        Marker groupMarker;
+        LatLng groupLocation = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
+
+        //move the creation of marker option to group class
+        groupMarker =  mMap.addMarker(new MarkerOptions().position(groupLocation).title(groupToAdd.getName()).snippet(groupToAdd.getDescription()));
+        groupMarker.setTag(groupToAdd.getGid());
+        markers.put(groupToAdd.getGid(),groupMarker);
+        groupsID.put(groupMarker.getId(),groupToAdd);
+
+        changeMarkerColor(isInGroup,groupToAdd.getGid());
+    }
+
+    private void removeMarkerByGroupID(String groupId)
     {
         Marker markerToRemove = markers.get(groupId);
         markerToRemove.remove();
