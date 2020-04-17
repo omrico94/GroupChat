@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.OnLogOut;
 import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -70,7 +71,6 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 m_LoginManager.Logout();
-               // SendUserToLoginActivity();
             }
         });
 
@@ -225,12 +225,4 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-   // private void SendUserToLoginActivity() {
-//
-   //     m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
-   //     Intent loginIntent = new Intent(SettingsActivity.this, LoginActivity.class);
-   //     loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-   //     startActivity(loginIntent);
-   //     finish();
-   // }
 }
