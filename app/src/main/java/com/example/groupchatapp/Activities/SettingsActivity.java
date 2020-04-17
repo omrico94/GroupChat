@@ -105,6 +105,11 @@ public class SettingsActivity extends AppCompatActivity {
             m_LoginManager.getLoggedInUser().getValue().setName(setUserName);
 
             profileMap.put("name",setUserName);
+
+            if (setStatus.isEmpty()) {
+                setStatus = "Available";
+            }
+
             profileMap.put("status",setStatus);
 
             RootRef.child("Users").child(currentUserID).updateChildren(profileMap).addOnCompleteListener(task -> {
