@@ -72,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (!m_LoginManager.IsLoggedIn()) {
 
-            //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
             initLoggedInListener();
             initLocationInitListener();
             initLocationLimitChange();
+            m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 

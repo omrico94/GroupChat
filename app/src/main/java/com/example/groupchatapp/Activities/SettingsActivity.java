@@ -95,10 +95,11 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(this,"Please write your user name first",Toast.LENGTH_SHORT).show();
         }
 
-        if(TextUtils.isEmpty(setStatus))
-        {
-            Toast.makeText(this,"Please write your status",Toast.LENGTH_SHORT).show();
-        }
+//        Status is not mandatory!!!
+//        if(TextUtils.isEmpty(setStatus))
+//        {
+//            Toast.makeText(this,"Please write your status",Toast.LENGTH_SHORT).show();
+//        }
 
         else
         {
@@ -113,6 +114,11 @@ public class SettingsActivity extends AppCompatActivity {
             m_LoginManager.getLoggedInUser().getValue().setName(setUserName);
 
             profileMap.put("name",setUserName);
+
+            if (setStatus.isEmpty()) {
+                setStatus = "Available";
+            }
+
             profileMap.put("status",setStatus);
 
             RootRef.child("Users").child(currentUserID).updateChildren(profileMap).addOnCompleteListener(task -> {

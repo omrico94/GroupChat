@@ -119,7 +119,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             initLoggedInListener();
             initLocationInitListener();
             initLocationLimitChange();
-
+            m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
@@ -408,12 +408,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void SendUserToLoginActivity() {
-             m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
-             Intent loginIntent = new Intent(MapsActivity.this, LoginActivity.class);
-             loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-             startActivity(loginIntent);
-             finish();
-         }
+        m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
+        Intent loginIntent = new Intent(MapsActivity.this, LoginActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(loginIntent);
+        finish();
+    }
 
     private void initLocationLimitChange() {
 
@@ -442,8 +442,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void OnLocationProvide() {
-
-        //groupsToDisplay.clear();
 
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);

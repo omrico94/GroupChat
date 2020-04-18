@@ -50,7 +50,7 @@
         android:layout_marginEnd="15dp"
         android:background="@drawable/textedit_round"
         android:drawableStart="@drawable/edit_status"
-        android:hint="hey,i am available now."
+        android:hint="Available"
         android:inputType="textMultiLine"
         android:padding="6dp"
         android:textAlignment="center"
