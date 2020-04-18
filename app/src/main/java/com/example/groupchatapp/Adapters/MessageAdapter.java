@@ -147,6 +147,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
          if(fromUserId.equals(currentUserId))
          {
              messageViewHolder.messageSenderPicture.setVisibility(View.VISIBLE);
+             //Ron Add this two lines.. Don't know if both are needed, but it works with both.
+             messageViewHolder.messageSenderPicture.setVisibility(View.VISIBLE);
+             messageViewHolder.messageSenderPicture.setBackgroundResource(R.drawable.file);
              //Picasso.get().load()
 
              messageViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
