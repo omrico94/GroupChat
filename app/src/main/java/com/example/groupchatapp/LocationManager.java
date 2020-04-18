@@ -77,7 +77,7 @@ public class LocationManager {
                 m_Latitude = location.getLatitude();
                 m_Longitude = location.getLongitude();
 
-                if (distance[0] > 5) {
+                if (distance[0] > m_LimitOfMeters) {
                     m_OnLocationLimitChange.onLimitChange();
                 }
 

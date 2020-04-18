@@ -97,8 +97,8 @@ public class CreateGroupActivity extends AppCompatActivity {
             }
 
             ///When it will be Seekbar we don't need this because there will be default radops.
-            else if (Double.valueOf(setGroupRadius) < 100) {
-                Toast.makeText(this, "The radius has to be 100 or grader", Toast.LENGTH_SHORT).show();
+            else if (Double.valueOf(setGroupRadius) < 40 || Double.valueOf(setGroupRadius) > 200){
+                Toast.makeText(this, "The radius has to be between 40 to 20 meters.", Toast.LENGTH_SHORT).show();
             }
             //  if(TextUtils.isEmpty(setGroupCode))
             //  {
