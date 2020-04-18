@@ -72,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (!m_LoginManager.IsLoggedIn()) {
 
-            //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
             initLoggedInListener();
             initLocationInitListener();
             initLocationLimitChange();
+            m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         m_OnLocationLimitChange=new OnLocationLimitChange() {
             @Override
             public void onLimitChange() {
-          //כאן צריך לשים את הפונקציה שאתה רוצה שתעבור על הקבוצות. שים לב שצריך לקרוא למטודת האתחול שנמצאת במחלקה של המיקום לפני
+                //כאן צריך לשים את הפונקציה שאתה רוצה שתעבור על הקבוצות. שים לב שצריך לקרוא למטודת האתחול שנמצאת במחלקה של המיקום לפני
             }
         };
     }
@@ -264,19 +264,19 @@ public class MainActivity extends AppCompatActivity {
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
     }
 
-  @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-      super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-      if (requestCode == 1 && grantResults.length > 0) {
-          if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-              m_LoginManager.getLocationManager().createLocationManagerAndListener(); //App can use location!
-              m_LoginManager.getLocationManager().getCurrentLocation();
-          } else {
-              //Can't use the app message.
-              //For Using the app you need to go to setting and enable location permissions to the app.
-              Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
-          }
-      }
-  }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 && grantResults.length > 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                m_LoginManager.getLocationManager().createLocationManagerAndListener(); //App can use location!
+                m_LoginManager.getLocationManager().getCurrentLocation();
+            } else {
+                //Can't use the app message.
+                //For Using the app you need to go to setting and enable location permissions to the app.
+                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }
 

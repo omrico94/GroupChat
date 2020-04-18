@@ -66,9 +66,18 @@ public class LocationManager {
             @Override
             public void onLocationChanged(Location location) {
                 //ממליץ לשים את זה בתוך פונקציה, מכיוון שהאתחול הזה קורה כמה פעמים במחלקה
+
+                float [] distance = new float[1];
+                Location.distanceBetween(m_Latitude, m_Longitude,
+                        location.getLatitude(), location.getLongitude(), distance);
+
                 m_Latitude = location.getLatitude();
                 m_Longitude = location.getLongitude();
- //               m_OnLocationLimitChange.onLimitChange();//   להכניס לתוך תנאי שמשתמש בדאטה ממבר של הלימיט מטר
+
+                if (distance[0] > 5) {
+                    m_OnLocationLimitChange.onLimitChange();
+                }
+
                 Toast.makeText(m_Context, "Location Changed!", Toast.LENGTH_SHORT).show();
             }
 
@@ -80,7 +89,7 @@ public class LocationManager {
             @Override
             public void onProviderEnabled(String provider) {
                 getCurrentLocation();
-                //               m_OnLocationLimitChange.onLimitChange();//   להכניס לתוך תנאי שמשתמש בדאטה ממבר של הלימיט מטר
+                m_OnLocationLimitChange.onLimitChange();
 
                 Toast.makeText(m_Context, "Searching for your location...", Toast.LENGTH_LONG).show();
             }
@@ -108,8 +117,6 @@ public class LocationManager {
                     String countryCode = lstAdd.get(0).getCountryCode();
                     m_CountryCode = countryCode;
                     m_OnLocationInit.onSuccess();
-                   // Method method = m_Context.getClass().getDeclaredMethod("OnLocationProvide");
-                    //method.invoke(m_Context);
                 }
             } catch (Exception ex) {
                 m_OnLocationInit.onFailure();
@@ -181,7 +188,6 @@ public class LocationManager {
         }
     }
 
-    //לא ידעתי בדיוק איפה להכניס את הקריאה לכאן במיין אקטיביטי. צריך לעשות את זה איפשהו באתחול
     public void setOnLocationLimitChange(OnLocationLimitChange listener , int limitOfMeters)
     {
         m_OnLocationLimitChange=listener;
