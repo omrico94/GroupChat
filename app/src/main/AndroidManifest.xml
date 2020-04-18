@@ -27,30 +27,27 @@
         </activity>
         <activity
             android:name=".Activities.MyGroupsActivity"
-            android:parentActivityName=".Activities.MainActivity"
+            android:parentActivityName=".Activities.MapsActivity"
             android:launchMode="singleTop">
         </activity>
         <activity
             android:name=".Activities.JoinToGroupActivity"
-            android:parentActivityName=".Activities.MainActivity" />
+            android:parentActivityName=".Activities.MapsActivity" />
         <activity
             android:name=".Activities.CreateGroupActivity"
-            android:parentActivityName=".Activities.MainActivity" />
+            android:parentActivityName=".Activities.MapsActivity" />
         <activity
             android:name=".Activities.ChatActivity"
             android:parentActivityName=".Activities.MyGroupsActivity" />
         <activity android:name=".Activities.ProfileActivity" />
         <activity
             android:name=".Activities.FindFriendsActivity"
-            android:parentActivityName=".Activities.MainActivity" />
+            android:parentActivityName=".Activities.MapsActivity" />
         <activity android:name=".Activities.GroupChatActivity" />
         <activity
             android:name=".Activities.SettingsActivity"
-            android:parentActivityName=".Activities.MainActivity" />
+            android:parentActivityName=".Activities.MapsActivity" />
         <activity android:name=".Activities.RegisterActivity" />
-        <activity
-            android:name=".Activities.MainActivity"
-            android:launchMode="singleTop"/>
 
         <activity android:name=".Activities.LoginActivity">
             <intent-filter>

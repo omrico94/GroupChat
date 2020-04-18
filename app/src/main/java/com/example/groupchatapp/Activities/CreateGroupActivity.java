@@ -245,13 +245,15 @@ public class CreateGroupActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Create New Group");
     }
 
-    private void SendUserToMainActivity()
-    {
-        //     Intent mainIntent = new Intent(CreateGroupActivity.this,MainActivity.class);
-        //     mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        //     startActivity(mainIntent);
-        finish();
-    }
+
+        private void SendUserToMapsActivity()
+        {
+            //Intent mapsIntent = new Intent(CreateGroupActivity.this,MapsActivity.class);
+           // mapsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            //startActivity(mapsIntent);
+            finish();
+        }
+
 
 
     private void SendUserToMyGroupsActivity() {

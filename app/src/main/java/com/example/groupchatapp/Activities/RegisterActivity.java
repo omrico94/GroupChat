@@ -95,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity
                         RootRef.child("Users").child(currentUserID).child("name").setValue(email);
                         RootRef.child("Users").child(currentUserID).child("uid").setValue(currentUserID);
 
-                        SendUserToMainActivity();
+                        SendUserToMapsActivity();
                         Toast.makeText(RegisterActivity.this,"Account created successfully",Toast.LENGTH_SHORT).show();
                         loadingBar.dismiss();
                     }
@@ -128,11 +128,11 @@ public class RegisterActivity extends AppCompatActivity
         finish();
     }
 
-    private void SendUserToMainActivity()
+    private void SendUserToMapsActivity()
     {
-        Intent mainIntent = new Intent(RegisterActivity.this,MainActivity.class);
-        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(mainIntent);
+        Intent mapsIntent = new Intent(RegisterActivity.this,MapsActivity.class);
+        mapsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(mapsIntent);
         finish();
     }
 
