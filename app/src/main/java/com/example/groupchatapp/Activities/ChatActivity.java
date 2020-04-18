@@ -56,7 +56,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private String groupId, groupName, groupImageStr, userSenderId;
+    private String groupId, groupName, groupImageStr, userSenderId, userSenderName;
     private TextView groupNameTextView;//בסרטון יש כאן גם נראה לאחורנה
     private CircleImageView groupCircleImageView;
     private Toolbar chatToolBar;
@@ -89,6 +89,7 @@ public class ChatActivity extends AppCompatActivity {
         m_CountryCode = LoginManager.getInstance().getLocationManager().getCountryCode();
 
         userSenderId = m_LoginManager.getLoggedInUser().getValue().getUid();
+        userSenderName = m_LoginManager.getLoggedInUser().getValue().getName();
         rootRef= FirebaseDatabase.getInstance().getReference();
         groupId =getIntent().getExtras().get("group_id").toString();
         groupName =getIntent().getExtras().get("group_name").toString();
@@ -286,7 +287,7 @@ public class ChatActivity extends AppCompatActivity {
                                     put("from", userSenderId);
                                     put("time", saveCurrentTime);
                                     put("date", saveCurrentDate);
-
+                                    put("senderName", userSenderName);
                                 }};
 
                             Map  messageBodyDetails  = new HashMap(){
@@ -354,7 +355,7 @@ public class ChatActivity extends AppCompatActivity {
                                     put("from", userSenderId);
                                     put("time", saveCurrentTime);
                                     put("date", saveCurrentDate);
-
+                                    put("senderName", userSenderName);
                                 }};
 
                             Map  messageBodyDetails  = new HashMap(){
@@ -424,7 +425,7 @@ public class ChatActivity extends AppCompatActivity {
                         put("from", userSenderId);
                         put("time", saveCurrentTime);
                         put("date", saveCurrentDate);
-
+                        put("senderName", userSenderName);
                     }};
 
                 Map  messageBodyDetails  = new HashMap(){

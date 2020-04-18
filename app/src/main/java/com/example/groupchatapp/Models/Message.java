@@ -2,14 +2,14 @@ package com.example.groupchatapp.Models;
 
 public class Message
 {
-    private String from, message, type, time, date, name, mid;
+    private String from, message, type, time, date, name, mid, senderName;
 
     public Message()
     {
 
     }
 
-    public Message(String id, String from, String message, String type, String time, String date, String name) {
+    public Message(String id, String from, String message, String type, String time, String date, String nameת, String senderName) {
         this.from = from;
         this.message = message;
         this.type = type;
@@ -17,6 +17,7 @@ public class Message
         this.time = time;
         this.date = date;
         this.name = name;
+        this.senderName = senderName;
     }
 
     public String getId() {
@@ -50,4 +51,9 @@ public class Message
     public String getName() {
         return name;
     }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
 }

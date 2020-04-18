@@ -44,7 +44,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public class MessageViewHolder extends RecyclerView.ViewHolder
     {
-        public TextView senderMessageText, receiverMessageText,receiverName;
+        public TextView senderMessageText, receiverMessageText;
         public CircleImageView receiverProfileImage;
         public ImageView messageReceiverPicture,messageSenderPicture;
         public MessageViewHolder(@NonNull View itemView)
@@ -54,7 +54,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             senderMessageText =  itemView.findViewById(R.id.sender_message_text);
             receiverMessageText =  itemView.findViewById(R.id.receiver_message_text);
             receiverProfileImage =  itemView.findViewById(R.id.message_profile_image);
-            receiverName =  itemView.findViewById(R.id.receiver_name);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
             messageSenderPicture = itemView.findViewById(R.id.message_sender_image_view);
             groupRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(m_CountryCode).child(currentGroup);
@@ -81,7 +80,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         String fromUserId = message.getFrom();
         String fromMessageType = message.getType();
 
-
         usersRef.child(fromUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
@@ -92,8 +90,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
                             Picasso.get().load(receiverImage).placeholder(R.drawable.profile_image).into(messageViewHolder.receiverProfileImage);
                         }
-
-                        messageViewHolder.receiverName.setText(dataSnapshot.child("name").getValue().toString());
             }
 
             @Override
@@ -116,7 +112,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
              messageViewHolder.senderMessageText.setBackgroundResource(R.drawable.sender_messages_layout);
              messageViewHolder.senderMessageText.setTextColor(Color.BLACK);
-             messageViewHolder.senderMessageText.setText(message.getMessage() + "\n\n" + message.getTime() + " - " + message.getDate());
+             messageViewHolder.senderMessageText.setText(message.getTime().substring(0,5) + "\n\n" + message.getMessage());
          }
          else
          {
@@ -125,7 +121,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
              messageViewHolder.receiverMessageText.setBackgroundResource(R.drawable.receiver_messages_layout);
              messageViewHolder.receiverMessageText.setTextColor(Color.BLACK);
-             messageViewHolder.receiverMessageText.setText(message.getMessage() + "\n\n" + message.getTime() + " - " + message.getDate());
+             messageViewHolder.receiverMessageText.setText(message.getSenderName() + " - " +message.getTime().substring(0,5) + "\n\n" + message.getMessage());
          }
      }
      else if(fromMessageType.equals("image"))
