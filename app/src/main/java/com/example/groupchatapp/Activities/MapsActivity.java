@@ -430,8 +430,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_OnLocationInit=new OnLocationInit() {
             @Override
             public void onSuccess() {
-                OnLocationProvide();
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+                OnLocationProvide();
             }
 
             @Override
