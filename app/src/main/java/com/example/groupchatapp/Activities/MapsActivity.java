@@ -3,7 +3,6 @@ package com.example.groupchatapp.Activities;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -13,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -84,8 +84,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton;
-    private DatabaseReference m_GroupsRef;
-    private AllGroupsAdapter m_GroupsAdapter;
+    private DatabaseReference m_GroupsRef,m_UsersGroupsRef;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private LoginManager m_LoginManager;
     private OnLoggedIn m_OnLoggedInListener;
@@ -94,7 +93,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private OnLogOut m_OnLogOutListener;
 
     private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
-    private ArrayMap<String,Group> groupsID = new ArrayMap<String,Group>();
+
     private Group currentGroup;
     private  Circle m_radiusCircle;
 
@@ -103,14 +102,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //m_GroupsAdapter = new AllGroupsAdapter(groupsToDisplay, this);
 
         m_LoginManager = LoginManager.getInstance();
 
@@ -125,6 +122,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             m_LoginManager.Login(m_OnLoggedInListener);
         }
+
+
+
         initLogOutListener();
         initializeFields();
         setOnClickButtons();
@@ -160,12 +160,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                currentGroup = groupsID.get(marker.getTag().getClass());
+                currentGroup = (Group) marker.getTag();
                 if(m_radiusCircle!=null) {
                     m_radiusCircle.remove();
                 }
@@ -175,7 +175,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .radius(Double.parseDouble(currentGroup.getRadius()))
                         .strokeColor(Color.BLUE));
 
-                if(!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(marker.getTag()))
+                if(!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(((Group) marker.getTag()).getGid()))
                 {
                     m_joinGroupButton.setVisibility(View.VISIBLE);
                     m_exitGroupButton.setVisibility(View.GONE);
@@ -221,6 +221,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         };
     }
+
+
     public void  initGroupsChildEventListener() {
 
         m_newGroupsRefChildValueListener = new ChildEventListener() {
@@ -231,49 +233,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
 
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
-                    groupsToDisplay.add(dataSnapshot.getValue(Group.class));
+
                     isInGroup = false;
-                    //m_GroupsAdapter.notifyDataSetChanged();
                 }
 
                 createMarkerforGroup(groupToAdd, isInGroup);
             }
 
-
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
                 boolean isInGroup = true;
                 Group changedGroup = dataSnapshot.getValue(Group.class);
-                int indexToChange = Utils.findIndexOfGroup(groupsToDisplay, changedGroup);
 
                 if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
 
-                    if (indexToChange == -1) {
-                        groupsToDisplay.add(changedGroup);
-                        isInGroup = false;
-                    } else {
-                        groupsToDisplay.set(indexToChange, changedGroup);
-                    }
-                } else {
-                    if (indexToChange != -1) {
-                        groupsToDisplay.remove(indexToChange);
-                    }
+                    isInGroup = false;
                 }
 
-                // m_GroupsAdapter.notifyDataSetChanged();
                 changeMarkerColor(isInGroup, changedGroup.getGid());
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+
                 Group groupToRemove = dataSnapshot.getValue(Group.class);
-
-                int indexToRemove = Utils.findIndexOfGroup(groupsToDisplay, groupToRemove);
-                if (indexToRemove != -1) {
-                    groupsToDisplay.remove(indexToRemove);
-                    //m_GroupsAdapter.notifyDataSetChanged();
-                }
-
                 removeMarkerByGroupID(groupToRemove.getGid());
             }
 
@@ -286,11 +270,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onCancelled(DatabaseError databaseError) {
 
             }
-
-
         };
-
     }
+
 
     private void changeMarkerColor(boolean isInGroup,String groupID) {
 
@@ -309,11 +291,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Marker groupMarker;
         LatLng groupLocation = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
 
-        //move the creation of marker option to group class
         groupMarker =  mMap.addMarker(new MarkerOptions().position(groupLocation).title(groupToAdd.getName()).snippet(groupToAdd.getDescription()));
         groupMarker.setTag(groupToAdd);
         markers.put(groupToAdd.getGid(),groupMarker);
-        groupsID.put(groupMarker.getId(),groupToAdd);
 
         changeMarkerColor(isInGroup,groupToAdd.getGid());
     }
@@ -358,7 +338,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_exitGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showJoinGroupButton();
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                LoginManager.getInstance().removeGroupIdFromCurrentUser(currentGroup.getGid());
+                                showJoinGroupButton();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+
+                android.app.AlertDialog dialogAlert = new AlertDialog.Builder(MapsActivity.this, R.style.MyDialogTheme)
+                        .setTitle("Confirm")
+                        .setMessage("Remove " + currentGroup.getName() + " from MyGroups?")
+                        .setPositiveButton("Yes",dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener)
+                        .create();
+                dialogAlert.show();
+
             }
         });
     }
@@ -404,7 +408,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void SendUserToLoginActivity() {
-
              m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
              Intent loginIntent = new Intent(MapsActivity.this, LoginActivity.class);
              loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -428,6 +431,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onSuccess() {
                 OnLocationProvide();
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
             }
 
             @Override
@@ -439,16 +443,65 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void OnLocationProvide() {
 
-        groupsToDisplay.clear();
-      //  m_GroupsAdapter.notifyDataSetChanged();
+        //groupsToDisplay.clear();
 
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
-        m_LoginManager.InitLogOutListener(m_OnLogOutListener);
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
-    }
+        m_LoginManager.InitLogOutListener(m_OnLogOutListener);
 
+        m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
+
+        m_UsersGroupsRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshotGroupId, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshotGroupId) {
+                m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
+
+                        String groupId = dataSnapshotGroupId.getKey();
+
+                        if (dataSnapshot.child(groupId).child("usersId").getChildrenCount() == 1) // only current user was in group
+                        {
+                            m_GroupsRef.child(groupId).removeValue();
+
+                        } else {
+                            m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

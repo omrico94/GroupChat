@@ -173,7 +173,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                             Toast.makeText(CreateGroupActivity.this,"Profile image uploaded successfully",Toast.LENGTH_SHORT).show();
                             final String downloadUrl = task.getResult().toString();
                             RootRef.child("Groups").child(countryCode).child(groupId).child("photoUrl")
-
                             .setValue(downloadUrl);
                 }
                 else

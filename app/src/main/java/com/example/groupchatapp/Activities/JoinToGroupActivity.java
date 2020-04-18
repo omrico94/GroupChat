@@ -68,7 +68,10 @@ public class JoinToGroupActivity extends AppCompatActivity {
             m_LoginManager.addNewGroupIdToCurrentUser(groupId);
             String uid=m_LoginManager.getLoggedInUser().getValue().getUid();
             String countryCode = m_LoginManager.getLocationManager().getCountryCode();
+            m_LoginManager.addNewGroupIdToCurrentUser(groupId);
             RootRef.child("Groups").child(countryCode).child(groupId).child("usersId").child(uid).setValue(uid);
+            //RootRef.child("Users").child(uid).child("groupsId").setValue(groupId);//אולי
+            //אולי להוסיף פה את ההכנסה של הקבוצה למערך של הקבוצות של היוזר
             SendUserToChatActivity();
         }
 

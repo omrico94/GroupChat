@@ -92,12 +92,12 @@ public class MyGroupsActivity extends AppCompatActivity {
                         groupsToDisplay.remove(group);
                         m_GroupsAdapter.notifyDataSetChanged();
 
-                        if (dataSnapshot.child(groupId).child("usersId").getChildrenCount() == 1) // only current user was in group
-                        {
-                            m_GroupsRef.child(groupId).removeValue();
-                        } else {
-                            m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
-                        }
+                     //   if (dataSnapshot.child(groupId).child("usersId").getChildrenCount() == 1) // only current user was in group
+                     //   {
+                     //       m_GroupsRef.child(groupId).removeValue();
+                     //   } else {
+                     //       m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
+                     //   }
 
                     }
 
