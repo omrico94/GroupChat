@@ -1,42 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.CreateGroupActivity"
-    tools:layout_editor_absoluteX="-1dp"
-    tools:layout_editor_absoluteY="17dp">
+    tools:context=".Activities.CreateGroupActivity">
 
     <include
 
-        android:id="@+id/create_group_toolbar"
-        layout="@layout/app_bar_layout"></include>
+        layout="@layout/app_bar_layout"
+        android:id="@+id/create_group_toolbar">
+    </include>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/set_group_image"
-        android:layout_width="320dp"
-        android:layout_height="270dp"
-        android:layout_marginStart="75dp"
-        android:layout_marginTop="66dp"
-        android:layout_marginEnd="75dp"
-        android:layout_marginBottom="17dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="90dp"
         android:src="@drawable/profile_image"
         app:civ_border_color="#A5AFA9"
-        app:civ_border_width="3dp"
-        app:layout_constraintBottom_toTopOf="@+id/set_group_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:civ_border_width="3dp" />
 
     <EditText
         android:id="@+id/set_group_name"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="11dp"
-        android:layout_marginEnd="11dp"
-        android:layout_marginBottom="7dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/set_group_image"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
         android:background="@drawable/textedit_round"
         android:drawableStart="@drawable/edit_profile"
         android:hint="group name"
@@ -44,19 +38,16 @@
         android:padding="6dp"
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/set_group_description"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/set_group_image" />
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/set_group_description"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="11dp"
-        android:layout_marginEnd="11dp"
-        android:layout_marginBottom="7dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/set_group_name"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
         android:background="@drawable/textedit_round"
         android:drawableStart="@drawable/edit_status"
         android:hint="description"
@@ -64,19 +55,16 @@
         android:padding="6dp"
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/set_group_password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/set_group_name" />
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/set_group_password"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="11dp"
-        android:layout_marginEnd="11dp"
-        android:layout_marginBottom="9dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/set_group_description"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
         android:background="@drawable/textedit_round"
         android:drawableStart="@drawable/key"
         android:hint="Password"
@@ -84,18 +72,16 @@
         android:padding="6dp"
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/set_Group_Radius"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/set_group_description" />
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/update_group_button"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="62dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/set_group_password"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
         android:background="@drawable/button_round"
         android:inputType="textMultiLine"
         android:padding="6dp"
@@ -104,26 +90,22 @@
         android:textAllCaps="false"
         android:textColor="@android:color/background_light"
         android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/set_group_password"
-        app:layout_constraintTop_toBottomOf="@+id/set_Group_Radius" />
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/set_Group_Radius"
-        android:layout_width="221dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="13dp"
-        android:background="@drawable/textedit_round"
-        android:drawableStart="@drawable/map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="101dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="97dp"
         android:ems="10"
         android:gravity="center|center_horizontal|center_vertical"
         android:hint="Radius"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/update_group_button"
-        app:layout_constraintStart_toStartOf="@+id/set_group_password"
-        app:layout_constraintTop_toBottomOf="@+id/set_group_password" />
+        android:inputType="textPersonName" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
