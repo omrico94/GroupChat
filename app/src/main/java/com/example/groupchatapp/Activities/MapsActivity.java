@@ -326,6 +326,7 @@ mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickLis
     {
         Marker markerToRemove = markers.get(groupId);
         markerToRemove.remove();
+        markers.remove(groupId);
     }
 
     private void setOnClickButtons() {
