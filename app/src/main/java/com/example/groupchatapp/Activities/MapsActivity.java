@@ -23,7 +23,6 @@ import android.graphics.Picture;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
@@ -42,11 +41,13 @@ import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.OnLocationInit;
 import com.example.groupchatapp.OnLocationLimitChange;
+import com.example.groupchatapp.OnLocationPermissionChange;
 import com.example.groupchatapp.OnLogOut;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -83,7 +84,7 @@ import java.util.Set;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton;
+    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton,m_myLocationButton;
     private DatabaseReference m_GroupsRef,m_UsersGroupsRef;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private LoginManager m_LoginManager;
@@ -91,6 +92,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private OnLocationInit m_OnLocationInit;
     private OnLocationLimitChange m_OnLocationLimitChange;
     private OnLogOut m_OnLogOutListener;
+    private OnLocationPermissionChange m_OnLocationpermissionChange;
 
     private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
 
@@ -111,7 +113,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         m_LoginManager = LoginManager.getInstance();
 
-        m_RemoveListenersMap=new HashMap<>();
+        m_RemoveListenersMap = new HashMap<>();
 
         if (!m_LoginManager.IsLoggedIn()) {
 
@@ -123,8 +125,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
-
-
+        initOnLocationPermissionChange();
         initLogOutListener();
         initializeFields();
         setOnClickButtons();
@@ -133,9 +134,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    private void initOnLocationPermissionChange() {
+        m_OnLocationpermissionChange = new OnLocationPermissionChange() {
+            @Override
+            public void onChange() {
+                if(!m_LoginManager.getLocationManager().isLocationOn())
+                {
+                    mMap.setMyLocationEnabled(false);
+                }else{
+                    mMap.setMyLocationEnabled(true);
+                }
+            }
+        };
+    }
+
     private void initLogOutListener() {
-
-
         m_OnLogOutListener = new OnLogOut() {
             @Override
             public void OnClickLogOut() {
@@ -147,6 +160,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void initializeFields() {
 
+       // m_myLocationButton=findViewById(R.id.my_location_button); // אני משאיר את זה בנתיים אם נחליט שאנחנו רוצים כפתור כזה משלנו
         m_settingsButton = findViewById(R.id.settings_button);
         m_myGroupsButton = findViewById(R.id.my_groups_button);
         m_addGroupsButton = findViewById(R.id.add_group_button);
@@ -161,6 +175,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
 
+
+mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+    @Override
+    public boolean onMyLocationButtonClick() {
+        if(!m_LoginManager.getLocationManager().isLocationOn()) {
+            Toast.makeText(MapsActivity.this, "Your location is off", Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+});
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -313,6 +337,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+     //   m_myLocationButton.setOnClickListener(new View.OnClickListener() {
+     //       @Override
+     //       public void onClick(View v) {
+     //           if(m_LoginManager.getLocationManager().isLocationOn()) {
+     //               mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+     //           }else{
+     //               Toast.makeText(MapsActivity.this, "Your location is off", Toast.LENGTH_SHORT).show();
+     //           }
+     //       }
+     //   });
+
         m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -448,6 +483,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
         m_LoginManager.InitLogOutListener(m_OnLogOutListener);
+        m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
 
         m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
 

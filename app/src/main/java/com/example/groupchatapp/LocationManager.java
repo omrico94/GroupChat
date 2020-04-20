@@ -37,6 +37,7 @@ public class LocationManager {
     private Geocoder m_Geocoder;
     private OnLocationInit m_OnLocationInit;
     private OnLocationLimitChange m_OnLocationLimitChange;
+    private OnLocationPermissionChange m_OnLocationPermissionChange;
     private String m_CountryCode;
     private double m_Latitude;
     private double m_Longitude;
@@ -51,8 +52,6 @@ public class LocationManager {
         m_CountryCode = null;
         m_Latitude = 0;
         m_Longitude = 0;
-
-
     }
 
     public boolean isLocationOn() {
@@ -93,8 +92,10 @@ public class LocationManager {
             public void onProviderEnabled(String provider) {
                 getCurrentLocation();
                 m_OnLocationLimitChange.onLimitChange();
-
                 Toast.makeText(m_Context, "Searching for your location...", Toast.LENGTH_LONG).show();
+                if(m_OnLocationPermissionChange != null) {
+                    m_OnLocationPermissionChange.onChange();
+                }
             }
 
             @Override
@@ -102,6 +103,9 @@ public class LocationManager {
                 m_Latitude = 0;
                 m_Longitude = 0;
                 Toast.makeText(m_Context, "Your location is off", Toast.LENGTH_SHORT).show();
+                if(m_OnLocationPermissionChange != null) {
+                    m_OnLocationPermissionChange.onChange();
+                }
             }
         };
 
@@ -168,7 +172,7 @@ public class LocationManager {
                 }, Looper.getMainLooper());
     }
 
-    private void EnableLocationIfNeeded() {
+    public void EnableLocationIfNeeded() {
 
         String provider = Settings.Secure.getString(m_Context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (!provider.contains("gps")) {
@@ -203,5 +207,11 @@ public class LocationManager {
         m_OnLocationLimitChange=listener;
         m_LimitOfMeters=limitOfMeters;
     }
+
+    public void setOnLocationPermssionChange(OnLocationPermissionChange onLocationPermssionChange)
+    {
+        m_OnLocationPermissionChange = onLocationPermssionChange;
+    }
+
 
 }
