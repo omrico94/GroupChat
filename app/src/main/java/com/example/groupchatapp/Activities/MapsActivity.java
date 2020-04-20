@@ -302,6 +302,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     {
         Marker markerToRemove = markers.get(groupId);
         markerToRemove.remove();
+        markers.remove(groupId);
     }
 
     private void setOnClickButtons() {
