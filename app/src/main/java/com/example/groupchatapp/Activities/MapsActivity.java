@@ -72,7 +72,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
             m_LoginManager.Login(m_OnLoggedInListener);
         }
-
         initOnLocationPermissionChange();
         initializeFields();
         setOnClickButtons();
@@ -96,7 +95,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
-
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -143,7 +141,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onSuccess() {
                 initGroupsChildEventListener();
                 m_LoginManager.getLocationManager().CheckPermissionLocation(MapsActivity.this , m_OnLocationInit);
-
             }
 
             @Override
