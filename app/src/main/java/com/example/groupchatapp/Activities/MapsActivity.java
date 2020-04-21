@@ -38,6 +38,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.groupchatapp.Adapters.AllGroupsAdapter;
+import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.OnLocationInit;
@@ -85,20 +86,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton;
     private DatabaseReference m_GroupsRef,m_UsersGroupsRef;
-    private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private LoginManager m_LoginManager;
     private OnLoggedIn m_OnLoggedInListener;
     private OnLocationInit m_OnLocationInit;
     private OnLocationLimitChange m_OnLocationLimitChange;
-    private OnLogOut m_OnLogOutListener;
 
     private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
 
     private Group currentGroup;
     private  Circle m_radiusCircle;
-
-    private HashMap<DatabaseReference, ValueEventListener> m_RemoveListenersMap;
-    private ChildEventListener m_newGroupsRefChildValueListener;
+    private ChildEventListener m_newGroupsRefChildValueListener, m_UsersGroupsRefChildValueListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,15 +104,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
         m_LoginManager = LoginManager.getInstance();
-
-        m_RemoveListenersMap=new HashMap<>();
 
         if (!m_LoginManager.IsLoggedIn()) {
 
-            //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
             initLoggedInListener();
             initLocationInitListener();
             initLocationLimitChange();
@@ -123,25 +115,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             m_LoginManager.Login(m_OnLoggedInListener);
         }
 
-
-
-        initLogOutListener();
         initializeFields();
         setOnClickButtons();
 
         hideJoinAndExitGroupButtons();//כל הפונקציות האלו לא עובדות נכון  אני בונה על זה שיהיה כפתורים במסך מידע
 
-    }
-
-    private void initLogOutListener() {
-
-
-        m_OnLogOutListener = new OnLogOut() {
-            @Override
-            public void OnClickLogOut() {
-                SendUserToLoginActivity();
-            }
-        };
     }
 
 
@@ -406,14 +384,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(joinGroupIntent);
     }
 
-    private void SendUserToLoginActivity() {
-        m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
-        Intent loginIntent = new Intent(MapsActivity.this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
-        finish();
-    }
-
     private void initLocationLimitChange() {
 
         m_OnLocationLimitChange=new OnLocationLimitChange() {
@@ -446,12 +416,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_GroupsRef,m_newGroupsRefChildValueListener);
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
-        m_LoginManager.InitLogOutListener(m_OnLogOutListener);
 
         m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
 
-        m_UsersGroupsRef.addChildEventListener(new ChildEventListener() {
+        initUserGroupsIdListener();
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_UsersGroupsRef,m_UsersGroupsRefChildValueListener);
+        m_UsersGroupsRef.addChildEventListener(m_UsersGroupsRefChildValueListener);
+    }
+
+    private void initUserGroupsIdListener() {
+
+        m_UsersGroupsRefChildValueListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshotGroupId, String s) {
 
@@ -497,8 +474,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
-
+        };
     }
 
     @Override
@@ -515,6 +491,4 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
-
 }

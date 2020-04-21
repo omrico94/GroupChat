@@ -44,15 +44,16 @@ public class LocationManager {
     private int m_LimitOfMeters;
 
     public void Logout() {
+
         this.m_CountryCode = null;
+        //לבדוק אם זה מה שצריך לעשות
+        m_LocationListener=null;
     }
 
     public LocationManager() {
         m_CountryCode = null;
         m_Latitude = 0;
         m_Longitude = 0;
-
-
     }
 
     public boolean isLocationOn() {
