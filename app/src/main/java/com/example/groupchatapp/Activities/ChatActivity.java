@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupchatapp.Adapters.MessageAdapter;
+import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Message;
 import com.example.groupchatapp.R;
@@ -78,6 +79,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private LoginManager m_LoginManager;
     private String m_CountryCode;
+
+    private ChildEventListener m_MessageEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,8 +165,14 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        initMessageChildEventListener();
         rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Message")
-                .addChildEventListener(new ChildEventListener() {
+                .addChildEventListener(m_MessageEventListener);
+        FirebaseListenerService.addChildEventListenerToRemoveList( rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Message"),m_MessageEventListener);
+    }
+
+    private void initMessageChildEventListener() {
+        m_MessageEventListener= new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
                     {
@@ -196,7 +205,7 @@ public class ChatActivity extends AppCompatActivity {
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
-                });
+                };
     }
 
     private boolean messageReceivedAfterUserJoin(Message message) {

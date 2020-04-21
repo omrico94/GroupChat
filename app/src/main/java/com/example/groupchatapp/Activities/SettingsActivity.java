@@ -15,8 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
-import com.example.groupchatapp.OnLogOut;
 import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -71,6 +71,9 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 m_LoginManager.Logout();
+                FirebaseListenerService.removeAllChildListeners();
+                sendUserToLoginActivity();
+
             }
         });
 
@@ -83,6 +86,14 @@ public class SettingsActivity extends AppCompatActivity {
                     .setAspectRatio(1,1)
                     .start(this);
         });
+    }
+
+    private void sendUserToLoginActivity() {
+
+        Intent loginIntent = new Intent(SettingsActivity.this, LoginActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(loginIntent);
+        finish();
     }
 
     private void UpdateSettings() {

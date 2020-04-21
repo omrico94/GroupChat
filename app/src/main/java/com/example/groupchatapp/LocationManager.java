@@ -45,7 +45,10 @@ public class LocationManager {
     private int m_LimitOfMeters;
 
     public void Logout() {
+
         this.m_CountryCode = null;
+        //לבדוק אם זה מה שצריך לעשות
+        m_LocationListener=null;
     }
 
     public LocationManager() {

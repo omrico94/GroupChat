@@ -1,106 +1,59 @@
 package com.example.groupchatapp.Activities;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Picture;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.util.ArrayMap;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.groupchatapp.Adapters.AllGroupsAdapter;
+import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.OnLocationInit;
 import com.example.groupchatapp.OnLocationLimitChange;
 import com.example.groupchatapp.OnLocationPermissionChange;
-import com.example.groupchatapp.OnLogOut;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
-import com.example.groupchatapp.Utils;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.collection.LLRBNode;
-
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton;
     private DatabaseReference m_GroupsRef,m_UsersGroupsRef;
-    private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private LoginManager m_LoginManager;
     private OnLoggedIn m_OnLoggedInListener;
     private OnLocationInit m_OnLocationInit;
     private OnLocationLimitChange m_OnLocationLimitChange;
-    private OnLogOut m_OnLogOutListener;
     private OnLocationPermissionChange m_OnLocationpermissionChange;
-
     private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
 
     private Group currentGroup;
     private  Circle m_radiusCircle;
-
-    private HashMap<DatabaseReference, ValueEventListener> m_RemoveListenersMap;
-    private ChildEventListener m_newGroupsRefChildValueListener;
+    private ChildEventListener m_newGroupsRefChildValueListener, m_UsersGroupsRefChildValueListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,15 +62,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
         m_LoginManager = LoginManager.getInstance();
-
-        m_RemoveListenersMap = new HashMap<>();
 
         if (!m_LoginManager.IsLoggedIn()) {
 
-            //איפשהו בתוך התנאי כאן צריך להכניס את קריאת האתחול ללימיט ליסינר שנמצא במחלקה המיקום (כנראה לפני הלוגין אבל לא הייתי בטוח
             initLoggedInListener();
             initLocationInitListener();
             initLocationLimitChange();
@@ -126,7 +74,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         initOnLocationPermissionChange();
-        initLogOutListener();
         initializeFields();
         setOnClickButtons();
 
@@ -230,17 +177,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
     }
-
-    private void initLogOutListener() {
-        m_OnLogOutListener = new OnLogOut() {
-            @Override
-            public void OnClickLogOut() {
-                SendUserToLoginActivity();
-            }
-        };
-    }
-
-
 
     public void  initGroupsChildEventListener() {
 
@@ -428,14 +364,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(joinGroupIntent);
     }
 
-    private void SendUserToLoginActivity() {
-        m_GroupsRef.removeEventListener(m_newGroupsRefChildValueListener);
-        Intent loginIntent = new Intent(MapsActivity.this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
-        finish();
-    }
-
     private void initLocationLimitChange() {
 
         m_OnLocationLimitChange=new OnLocationLimitChange() {
@@ -466,13 +394,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_GroupsRef,m_newGroupsRefChildValueListener);
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
-        m_LoginManager.InitLogOutListener(m_OnLogOutListener);
 
 
         m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
 
-        m_UsersGroupsRef.addChildEventListener(new ChildEventListener() {
+        initUserGroupsIdListener();
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_UsersGroupsRef,m_UsersGroupsRefChildValueListener);
+        m_UsersGroupsRef.addChildEventListener(m_UsersGroupsRefChildValueListener);
+    }
+
+    private void initUserGroupsIdListener() {
+
+        m_UsersGroupsRefChildValueListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshotGroupId, String s) {
 
@@ -518,8 +453,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
-
+        };
     }
 
     @Override
@@ -536,6 +470,4 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
-
 }

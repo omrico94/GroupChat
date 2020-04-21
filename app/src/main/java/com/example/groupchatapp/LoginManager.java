@@ -23,7 +23,6 @@ public class LoginManager {
     private ValueEventListener m_LoginValueListener;
 
     private LocationManager m_LocationManager;
-    private OnLogOut m_OnLogOutListener;
 
      //יש מצב שאפשר לעשות אותו פשוט user
     private MutableLiveData<User> m_CurrentUser;
@@ -66,10 +65,8 @@ public class LoginManager {
     public void Logout()
     {
         mAuth.signOut();
-        //אפשר אולי להוסיף כאן משהו שישמור את כל המידע בדאטה בייס, למקרה שיש משהו לא שמור
         m_CurrentUser.setValue(null);
         isLoggedIn=false;
-        m_OnLogOutListener.OnClickLogOut();
         m_LocationManager.Logout();
     }
 
@@ -92,11 +89,6 @@ public class LoginManager {
         };
 
         userRef.addListenerForSingleValueEvent(m_LoginValueListener);
-    }
-
-    public void InitLogOutListener(OnLogOut logOutListemer)
-    {
-        m_OnLogOutListener =logOutListemer;
     }
 
     public boolean isUserExist()
