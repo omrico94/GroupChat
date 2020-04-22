@@ -84,7 +84,7 @@ import java.util.Set;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton,m_myLocationButton;
+    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton;
     private DatabaseReference m_GroupsRef,m_UsersGroupsRef;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private LoginManager m_LoginManager;
@@ -143,6 +143,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mMap.setMyLocationEnabled(false);
                 }else{
                     mMap.setMyLocationEnabled(true);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
                 }
             }
         };
@@ -159,8 +160,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     private void initializeFields() {
-
-       // m_myLocationButton=findViewById(R.id.my_location_button); // אני משאיר את זה בנתיים אם נחליט שאנחנו רוצים כפתור כזה משלנו
+        
         m_settingsButton = findViewById(R.id.settings_button);
         m_myGroupsButton = findViewById(R.id.my_groups_button);
         m_addGroupsButton = findViewById(R.id.add_group_button);
@@ -338,17 +338,6 @@ mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickLis
             }
         });
 
-     //   m_myLocationButton.setOnClickListener(new View.OnClickListener() {
-     //       @Override
-     //       public void onClick(View v) {
-     //           if(m_LoginManager.getLocationManager().isLocationOn()) {
-     //               mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
-     //           }else{
-     //               Toast.makeText(MapsActivity.this, "Your location is off", Toast.LENGTH_SHORT).show();
-     //           }
-     //       }
-     //   });
-
         m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -466,7 +455,6 @@ mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickLis
         m_OnLocationInit=new OnLocationInit() {
             @Override
             public void onSuccess() {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
                 OnLocationProvide();
             }
 
@@ -551,7 +539,6 @@ mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickLis
                 Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
             }
         }
-        mMap.setMyLocationEnabled(true);
     }
 
 
