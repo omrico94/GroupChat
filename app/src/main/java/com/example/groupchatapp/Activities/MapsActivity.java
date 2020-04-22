@@ -160,7 +160,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     private void initializeFields() {
-        
+
         m_settingsButton = findViewById(R.id.settings_button);
         m_myGroupsButton = findViewById(R.id.my_groups_button);
         m_addGroupsButton = findViewById(R.id.add_group_button);
