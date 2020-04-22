@@ -93,9 +93,7 @@ public class LocationManager {
                 getCurrentLocation();
                 m_OnLocationLimitChange.onLimitChange();
                 Toast.makeText(m_Context, "Searching for your location...", Toast.LENGTH_LONG).show();
-                if(m_OnLocationPermissionChange != null) {
-                    m_OnLocationPermissionChange.onChange();
-                }
+
             }
 
             @Override
@@ -167,6 +165,9 @@ public class LocationManager {
                             m_Longitude =
                                     locationResult.getLocations().get(latestLocationIndex).getLongitude();
                             getFromLocationGeocoder();
+                            if(m_OnLocationPermissionChange != null) {
+                                m_OnLocationPermissionChange.onChange();
+                            }
                         }
                     }
                 }, Looper.getMainLooper());

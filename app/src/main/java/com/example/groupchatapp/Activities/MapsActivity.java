@@ -173,8 +173,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        mMap.setMyLocationEnabled(true);
-
 
 mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
     @Override
@@ -231,6 +229,7 @@ mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickLis
             public void onSuccess() {
                 initGroupsChildEventListener();
                 m_LoginManager.getLocationManager().CheckPermissionLocation(MapsActivity.this , m_OnLocationInit);
+
             }
 
             @Override
@@ -327,6 +326,7 @@ mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickLis
         Marker markerToRemove = markers.get(groupId);
         markerToRemove.remove();
         markers.remove(groupId);
+        m_radiusCircle.remove();
     }
 
     private void setOnClickButtons() {
@@ -551,6 +551,7 @@ mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickLis
                 Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
             }
         }
+        mMap.setMyLocationEnabled(true);
     }
 
 
