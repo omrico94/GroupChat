@@ -134,30 +134,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void initOnLocationPermissionChange() {
-        m_OnLocationpermissionChange = new OnLocationPermissionChange() {
-            @Override
-            public void onChange() {
-                if(!m_LoginManager.getLocationManager().isLocationOn())
-                {
-                    mMap.setMyLocationEnabled(false);
-                }else{
-                    mMap.setMyLocationEnabled(true);
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
-                }
-            }
-        };
-    }
-
-    private void initLogOutListener() {
-        m_OnLogOutListener = new OnLogOut() {
-            @Override
-            public void OnClickLogOut() {
-                SendUserToLoginActivity();
-            }
-        };
-    }
-
 
     private void initializeFields() {
 
@@ -235,6 +211,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         };
     }
+
+
+    private void initOnLocationPermissionChange() {
+        m_OnLocationpermissionChange = new OnLocationPermissionChange() {
+            @Override
+            public void onChange() {
+                if(!m_LoginManager.getLocationManager().isLocationOn())
+                {
+                    mMap.setMyLocationEnabled(false);
+                    
+                }else{
+                    mMap.setMyLocationEnabled(true);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+
+                }
+            }
+        };
+
+        m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
+    }
+
+    private void initLogOutListener() {
+        m_OnLogOutListener = new OnLogOut() {
+            @Override
+            public void OnClickLogOut() {
+                SendUserToLoginActivity();
+            }
+        };
+    }
+
 
 
     public void  initGroupsChildEventListener() {
@@ -463,7 +469,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
         m_LoginManager.InitLogOutListener(m_OnLogOutListener);
-        m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
+
 
         m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
 
