@@ -174,15 +174,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
-mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-    @Override
-    public boolean onMyLocationButtonClick() {
-        if(!m_LoginManager.getLocationManager().isLocationOn()) {
-            Toast.makeText(MapsActivity.this, "Your location is off", Toast.LENGTH_SHORT).show();
-        }
-        return false;
-    }
-});
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
