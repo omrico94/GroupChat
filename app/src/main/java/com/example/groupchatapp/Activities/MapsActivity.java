@@ -1,16 +1,38 @@
 package com.example.groupchatapp.Activities;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Picture;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.util.ArrayMap;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -20,24 +42,44 @@ import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.OnLocationInit;
 import com.example.groupchatapp.OnLocationLimitChange;
 import com.example.groupchatapp.OnLocationPermissionChange;
+
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
+import com.example.groupchatapp.Utils;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.collection.LLRBNode;
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -109,15 +151,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .radius(Double.parseDouble(currentGroup.getRadius()))
                         .strokeColor(Color.BLUE));
 
-                if(!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(((Group) marker.getTag()).getGid()))
-                {
-                    m_joinGroupButton.setVisibility(View.VISIBLE);
-                    m_exitGroupButton.setVisibility(View.GONE);
-                }else
-                {
-                    m_joinGroupButton.setVisibility(View.GONE);
-                    m_exitGroupButton.setVisibility(View.VISIBLE);
-                }
+                decideIfJoinOrExitButton(marker);
 
                 return false;
             }
@@ -126,13 +160,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                hideJoinAndExitGroupButtons();
-                if(m_radiusCircle!=null) {
-                    m_radiusCircle.remove();
-                }
+                RestartMap();
             }
         });
 
+    }
+
+    private void decideIfJoinOrExitButton(Marker marker) {
+        if(!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(((Group) marker.getTag()).getGid())
+                && Utils.isGroupInMyLocation(currentGroup)) {
+            showJoinGroupButton();
+        }
+        else if (m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(((Group) marker.getTag()).getGid())) {
+            showExitGroupButton();
+        }
+        else {
+            hideJoinAndExitGroupButtons();
+        }
+    }
+
+    private void RestartMap() {
+        hideJoinAndExitGroupButtons();
+        if(m_radiusCircle!=null) {
+            m_radiusCircle.remove();
+        }
+        currentGroup = null;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (currentGroup != null && markers.containsKey(currentGroup.getGid())) {
+            decideIfJoinOrExitButton(markers.get(currentGroup.getGid()));
+        }
     }
 
     private void initLoggedInListener() {
@@ -181,29 +241,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                boolean isInGroup = true;
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
+                boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid());
 
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid())) {
+                boolean isGroupInMyLocation = Utils.isGroupInMyLocation(groupToAdd);
 
+                if (isInGroup && !isGroupInMyLocation) {
+                    //The user is in the group but not in its location....
+                    //Now we remove him from the group.
+                    LoginManager.getInstance().removeGroupIdFromCurrentUser(groupToAdd.getGid());
                     isInGroup = false;
                 }
 
-                createMarkerforGroup(groupToAdd, isInGroup);
+                createMarkerforGroup(groupToAdd, isInGroup, isGroupInMyLocation);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                boolean isInGroup = true;
                 Group changedGroup = dataSnapshot.getValue(Group.class);
+                boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid());
+                boolean isGroupInMyLocation = Utils.isGroupInMyLocation(changedGroup);
 
-                if (!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid())) {
-
-                    isInGroup = false;
-                }
-
-                changeMarkerColor(isInGroup, changedGroup.getGid());
+                changeMarkerColor(isInGroup, changedGroup.getGid(), isGroupInMyLocation);
             }
 
             @Override
@@ -226,19 +286,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private void changeMarkerColor(boolean isInGroup,String groupID) {
+    private void changeMarkerColor(boolean isInGroup,String groupID, boolean isGroupInMyLocation) {
 
-        float markerColor = 0;
+        float markerColor = 210.0f;//קבוצה שאני לא ברדיוס שלה ולא בה - כחול (עמרי על אחריותך שזה יהיה אפור!!!!)
 
-        if(isInGroup)
-        {
-            markerColor = 150;
+        if(isInGroup && isGroupInMyLocation) {
+            markerColor = 120.0f;//קבוצה שאני בה וגם ברדיוס שלה - ירוק
+        } else if (!isInGroup && isGroupInMyLocation) {
+            markerColor = 0.0f;//קבוצה שאני לא בה אבל בתוך הרדיוס שלה - אדום
         }
 
         markers.get(groupID).setIcon(BitmapDescriptorFactory.defaultMarker(markerColor));
     }
 
-    private void createMarkerforGroup(Group groupToAdd, boolean isInGroup) {
+    private void createMarkerforGroup(Group groupToAdd, boolean isInGroup, boolean isGroupInMyLocation) {
 
         Marker groupMarker;
         LatLng groupLocation = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
@@ -247,15 +308,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         groupMarker.setTag(groupToAdd);
         markers.put(groupToAdd.getGid(),groupMarker);
 
-        changeMarkerColor(isInGroup,groupToAdd.getGid());
+        changeMarkerColor(isInGroup,groupToAdd.getGid(),isGroupInMyLocation);
     }
 
     private void removeMarkerByGroupID(String groupId)
     {
+        if (currentGroup.getGid().equals(groupId)) {
+            if (m_radiusCircle != null) {
+                m_radiusCircle.remove();
+                hideJoinAndExitGroupButtons();
+            }
+        }
+
         Marker markerToRemove = markers.get(groupId);
         markerToRemove.remove();
         markers.remove(groupId);
-        m_radiusCircle.remove();
     }
 
     private void setOnClickButtons() {
@@ -270,7 +337,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SendUserToMyGroupsActivity();
+                if (LoginManager.getInstance().getLocationManager().isLocationOn()) {
+                    SendUserToMyGroupsActivity();
+                }
             }
         });
 
@@ -284,7 +353,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_joinGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showExitGroupButton();
+                //showExitGroupButton();
                 SendUserToJoinToGroupActivity();
             }
         });
@@ -366,7 +435,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_OnLocationLimitChange=new OnLocationLimitChange() {
             @Override
             public void onLimitChange() {
-                //כאן צריך לשים את הפונקציה שאתה רוצה שתעבור על הקבוצות. שים לב שצריך לקרוא למטודת האתחול שנמצאת במחלקה של המיקום לפני
+                Group group;
+                boolean isGroupInMyLocation, isGroupInMyGroups;
+                for (Map.Entry<String,Marker> pair : markers.entrySet()){
+
+                    group = (Group) pair.getValue().getTag();
+
+                    isGroupInMyLocation = Utils.isGroupInMyLocation(group);
+                    isGroupInMyGroups = m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(group.getGid());
+
+                    if (isGroupInMyGroups && !isGroupInMyLocation) {
+                        //The user is in the group but not in its location....
+                        //Now we remove him from the group.
+                        LoginManager.getInstance().removeGroupIdFromCurrentUser(group.getGid());
+                        isGroupInMyGroups = false;
+                    }
+
+                    if (currentGroup != null) {
+                        decideIfJoinOrExitButton(markers.get(group.getGid()));
+                    }
+
+                    changeMarkerColor(isGroupInMyGroups, group.getGid(), isGroupInMyLocation);
+                }
             }
         };
     }

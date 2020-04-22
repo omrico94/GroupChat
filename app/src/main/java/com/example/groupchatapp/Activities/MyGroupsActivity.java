@@ -56,7 +56,7 @@ public class MyGroupsActivity extends AppCompatActivity {
 
         m_GroupList.setAdapter(m_GroupsAdapter);
 
-    initMyGroupsChildEventListener();
+        initMyGroupsChildEventListener();
         m_UsersGroupsRef.addChildEventListener(m_MyGroupsChildEventListener);
         FirebaseListenerService.addChildEventListenerToRemoveList(m_UsersGroupsRef,m_MyGroupsChildEventListener);
 
@@ -126,23 +126,12 @@ public class MyGroupsActivity extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshotGroupId) {
-                m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(final DataSnapshot dataSnapshot) {
-
-                        String groupId = dataSnapshotGroupId.getKey();
-                        Group group = dataSnapshot.child(groupId).getValue(Group.class);
-                        int indexOfGroup = Utils.findIndexOfGroup(groupsToDisplay,group);
-                        groupsToDisplay.remove(group);
-                        m_GroupsAdapter.notifyItemRemoved(indexOfGroup);
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                String groupId = dataSnapshotGroupId.getKey();
+                int index = Utils.findIndexOfGroup(groupsToDisplay, groupId);
+                if (index != -1) {
+                    groupsToDisplay.remove(index);
+                    m_GroupsAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
