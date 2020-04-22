@@ -313,7 +313,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void removeMarkerByGroupID(String groupId)
     {
-        if (currentGroup.getGid().equals(groupId)) {
+        if (currentGroup != null && currentGroup.getGid().equals(groupId)) {
             if (m_radiusCircle != null) {
                 m_radiusCircle.remove();
                 hideJoinAndExitGroupButtons();
