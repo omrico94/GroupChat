@@ -212,7 +212,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
     }
 
-
     private void initOnLocationPermissionChange() {
         m_OnLocationpermissionChange = new OnLocationPermissionChange() {
             @Override
@@ -220,7 +219,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(!m_LoginManager.getLocationManager().isLocationOn())
                 {
                     mMap.setMyLocationEnabled(false);
-                    
+
                 }else{
                     mMap.setMyLocationEnabled(true);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
