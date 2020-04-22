@@ -81,6 +81,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private ChildEventListener m_MessageEventListener;
 
+    private DatabaseReference m_GroupRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +95,9 @@ public class ChatActivity extends AppCompatActivity {
         userSenderId = m_LoginManager.getLoggedInUser().getValue().getUid();
         userSenderName = m_LoginManager.getLoggedInUser().getValue().getName();
         rootRef= FirebaseDatabase.getInstance().getReference();
+
+        m_GroupRef = FirebaseDatabase.getInstance().getReference();
+
         groupId =getIntent().getExtras().get("group_id").toString();
         groupName =getIntent().getExtras().get("group_name").toString();
         if(getIntent().getExtras().get("group_image")!=null) {//maybe their is a better way to handle this
@@ -205,6 +210,45 @@ public class ChatActivity extends AppCompatActivity {
 
                     }
                 };
+
+
+
+        m_GroupRef.child("Groups").child(m_CountryCode).child(groupId).child("usersId")
+                .addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                String userId = dataSnapshot.getValue(String.class);
+
+                if (userId.equals(m_LoginManager.getLoggedInUser().getValue().getUid())) {
+                    //The user is out of group's radius.
+                    //Now we finish the chat activity.
+                    finish();
+                } else {
+                    //Someone is out from the group.
+                    //Can use for users in group.
+                }
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private boolean messageReceivedAfterUserJoin(Message message) {
