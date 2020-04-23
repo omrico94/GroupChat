@@ -14,6 +14,7 @@ import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.R;
+import com.example.groupchatapp.Utils;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -107,7 +108,7 @@ public class MyGroupsActivity extends AppCompatActivity {
                         String groupId = dataSnapshotGroupId.getKey();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
                         groupsToDisplay.add(group);
-                        m_GroupsAdapter.notifyDataSetChanged();
+                        m_GroupsAdapter.notifyItemInserted(groupsToDisplay.size()-1);
                     }
 
                     @Override
@@ -131,8 +132,9 @@ public class MyGroupsActivity extends AppCompatActivity {
 
                         String groupId = dataSnapshotGroupId.getKey();
                         Group group = dataSnapshot.child(groupId).getValue(Group.class);
+                        int indexOfGroup = Utils.findIndexOfGroup(groupsToDisplay,group);
                         groupsToDisplay.remove(group);
-                        m_GroupsAdapter.notifyDataSetChanged();
+                        m_GroupsAdapter.notifyItemRemoved(indexOfGroup);
 
                     }
 

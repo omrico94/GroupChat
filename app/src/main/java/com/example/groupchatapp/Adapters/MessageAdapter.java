@@ -29,16 +29,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder>
 {
     private List<Message> groupMessagesList;
-    private DatabaseReference groupRef,usersRef;
-    private String currentGroup;
+    private DatabaseReference usersRef;
 
-    private  String m_CountryCode;
 
-    public MessageAdapter(List<Message> groupMessagesList, String currentGroup)
+    public MessageAdapter(List<Message> groupMessagesList)
     {
         this.groupMessagesList = groupMessagesList;
-        this.currentGroup=currentGroup;
-        this.m_CountryCode = LoginManager.getInstance().getLocationManager().getCountryCode();
     }
 
 
@@ -56,7 +52,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             receiverProfileImage =  itemView.findViewById(R.id.message_profile_image);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
             messageSenderPicture = itemView.findViewById(R.id.message_sender_image_view);
-            groupRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(m_CountryCode).child(currentGroup);
             usersRef=FirebaseDatabase.getInstance().getReference().child("Users");
         }
 
@@ -80,7 +75,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         String fromUserId = message.getFrom();
         String fromMessageType = message.getType();
 
-        usersRef.child(fromUserId).addValueEventListener(new ValueEventListener() {
+        usersRef.child(fromUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
@@ -123,6 +118,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
              messageViewHolder.receiverMessageText.setTextColor(Color.BLACK);
              messageViewHolder.receiverMessageText.setText(message.getSenderName() + " - " +message.getTime().substring(0,5) + "\n\n" + message.getMessage());
          }
+
+
      }
      else if(fromMessageType.equals("image"))
      {
@@ -181,4 +178,5 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     {
         return groupMessagesList.size();
     }
+
 }
