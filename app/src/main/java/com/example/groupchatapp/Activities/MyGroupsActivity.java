@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupchatapp.Adapters.MyGroupsAdapter;
+import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.R;
@@ -31,6 +32,7 @@ public class MyGroupsActivity extends AppCompatActivity {
     private MyGroupsAdapter m_GroupsAdapter;
     private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
     private Toolbar mToolbar;
+    private ChildEventListener m_MyGroupsChildEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +55,48 @@ public class MyGroupsActivity extends AppCompatActivity {
 
         m_GroupList.setAdapter(m_GroupsAdapter);
 
+    initMyGroupsChildEventListener();
+        m_UsersGroupsRef.addChildEventListener(m_MyGroupsChildEventListener);
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_UsersGroupsRef,m_MyGroupsChildEventListener);
 
-        m_UsersGroupsRef.addChildEventListener(new ChildEventListener() {
+
+        //      m_GroupsRef.addChildEventListener(new ChildEventListener() {
+        //          @Override
+        //          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//
+        //          }
+//
+        //          @Override
+        //          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        //              Group group = dataSnapshot.getValue(Group.class);
+        //              int index = Utils.findIndexOfGroup(groupsToDisplay,group);
+        //              if (index != -1) {
+        //                  groupsToDisplay.set(index, group);
+        //                  m_GroupsAdapter.notifyDataSetChanged();
+        //              }
+        //          }
+//
+        //          @Override
+        //          public void onChildRemoved(DataSnapshot dataSnapshot) {
+//
+        //          }
+//
+        //          @Override
+        //          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//
+        //          }
+//
+        //          @Override
+        //          public void onCancelled(DatabaseError databaseError) {
+//
+        //          }
+        //      });
+        //  }
+    }
+
+    private void initMyGroupsChildEventListener() {
+
+        m_MyGroupsChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshotGroupId, String s) {
 
@@ -92,13 +134,6 @@ public class MyGroupsActivity extends AppCompatActivity {
                         groupsToDisplay.remove(group);
                         m_GroupsAdapter.notifyDataSetChanged();
 
-                     //   if (dataSnapshot.child(groupId).child("usersId").getChildrenCount() == 1) // only current user was in group
-                     //   {
-                     //       m_GroupsRef.child(groupId).removeValue();
-                     //   } else {
-                     //       m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
-                     //   }
-
                     }
 
                     @Override
@@ -117,40 +152,7 @@ public class MyGroupsActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
-
-        //      m_GroupsRef.addChildEventListener(new ChildEventListener() {
-        //          @Override
-        //          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//
-        //          }
-//
-        //          @Override
-        //          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        //              Group group = dataSnapshot.getValue(Group.class);
-        //              int index = Utils.findIndexOfGroup(groupsToDisplay,group);
-        //              if (index != -1) {
-        //                  groupsToDisplay.set(index, group);
-        //                  m_GroupsAdapter.notifyDataSetChanged();
-        //              }
-        //          }
-//
-        //          @Override
-        //          public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-        //          }
-//
-        //          @Override
-        //          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-        //          }
-//
-        //          @Override
-        //          public void onCancelled(DatabaseError databaseError) {
-//
-        //          }
-        //      });
-        //  }
+        };
     }
 }
 
