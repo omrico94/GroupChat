@@ -80,6 +80,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -97,13 +105,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private  Circle m_radiusCircle;
     private ChildEventListener m_newGroupsRefChildValueListener, m_UsersGroupsRefChildValueListener;
 
+
+
+    private ViewGroup infoWindow;
+    private TextView infoTitle;
+    private TextView infoSnippet;
+    private Button infoButton1, infoButton2;
+    private OnInfoWindowElemTouchListener infoButtonListener;
+
+    private MapWrapperLayout m_mapWrapperLayout;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        m_mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
         mapFragment.getMapAsync(this);
+
         m_LoginManager = LoginManager.getInstance();
 
         if (!m_LoginManager.IsLoggedIn()) {
@@ -161,6 +182,67 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(LatLng latLng) {
                 RestartMap();
+            }
+        });
+
+        // MapWrapperLayout initialization
+        // 39 - default marker height
+        // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
+        m_mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
+
+        // We want to reuse the info window for all the markers,
+        // so let's create only one class member instance
+        this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
+
+        this.infoTitle = (TextView)infoWindow.findViewById(R.id.nameTxt);
+        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.addressTxt);
+        this.infoButton1 = (Button)infoWindow.findViewById(R.id.btnOne);
+        this.infoButton2 = (Button)infoWindow.findViewById(R.id.btnTwo);
+
+        // Setting custom OnTouchListener which deals with the pressed state
+        // so it shows up
+        this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton1, getResources().getDrawable(R.drawable.joingroup), getResources().getDrawable(R.drawable.joingroup)){
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                // Here we can perform some action triggered after clicking the button
+                Toast.makeText(MapsActivity.this, "click on button 1", Toast.LENGTH_SHORT).show();
+            }
+        };
+        this.infoButton1.setOnTouchListener(infoButtonListener);
+
+        infoButtonListener = new OnInfoWindowElemTouchListener(infoButton2, getResources().getDrawable(R.drawable.exitgroup),getResources().getDrawable(R.drawable.exitgroup)){
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                Toast.makeText(getApplicationContext(), "click on button 2", Toast.LENGTH_LONG).show();
+            }
+        };
+        infoButton2.setOnTouchListener(infoButtonListener);
+
+        /*infoWindow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "click on infowindow", Toast.LENGTH_LONG).show();
+            }
+        });*/
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Setting up the infoWindow with current's marker info
+                infoSnippet.setText(marker.getTitle());
+                infoTitle.setText(marker.getSnippet());
+                infoButtonListener.setMarker(marker);
+
+
+                // We must call this to set the current marker and infoWindow references
+                // to the MapWrapperLayout
+                m_mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow);
+                return infoWindow;
             }
         });
 
@@ -233,6 +315,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
         m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
+    }
+
+    public static int getPixelsFromDp(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int)(dp * scale + 0.5f);
     }
 
     public void  initGroupsChildEventListener() {
