@@ -79,7 +79,7 @@ public class ChatActivity extends AppCompatActivity {
     private LoginManager m_LoginManager;
     private String m_CountryCode;
 
-    private ChildEventListener m_MessageEventListener;
+    private ChildEventListener m_MessageEventListener , m_GroupUsersIdEventListener;
 
     private DatabaseReference m_GroupRef;
 
@@ -169,13 +169,17 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        initMessageChildEventListener();
+        initChildEventListeners();
         rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages")
                 .addChildEventListener(m_MessageEventListener);
         FirebaseListenerService.addChildEventListenerToRemoveList( rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages"),m_MessageEventListener);
+        m_GroupRef.child("Groups").child(m_CountryCode).child(groupId).child("usersId")
+                .addChildEventListener(m_GroupUsersIdEventListener);
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_GroupRef.child("Groups").child(m_CountryCode).child(groupId).child("usersId"),m_GroupUsersIdEventListener);
+
     }
 
-    private void initMessageChildEventListener() {
+    private void initChildEventListeners() {
         m_MessageEventListener= new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
@@ -213,8 +217,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-        m_GroupRef.child("Groups").child(m_CountryCode).child(groupId).child("usersId")
-                .addChildEventListener(new ChildEventListener() {
+        m_GroupUsersIdEventListener= new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -247,7 +250,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
 
     }
 
