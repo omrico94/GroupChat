@@ -69,7 +69,6 @@ public class LocationManager {
         m_LocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                //ממליץ לשים את זה בתוך פונקציה, מכיוון שהאתחול הזה קורה כמה פעמים במחלקה
 
                 float [] distance = new float[1];
                 Location.distanceBetween(m_Latitude, m_Longitude,
@@ -78,9 +77,7 @@ public class LocationManager {
                 m_Latitude = location.getLatitude();
                 m_Longitude = location.getLongitude();
 
-                if (distance[0] > m_LimitOfMeters) {
-                    m_OnLocationLimitChange.onLimitChange();
-                }
+                m_OnLocationLimitChange.onLimitChange();
 
                 Toast.makeText(m_Context, "Location Changed!", Toast.LENGTH_SHORT).show();
             }

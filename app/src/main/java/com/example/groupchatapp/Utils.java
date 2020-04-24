@@ -13,11 +13,11 @@ import java.util.Map;
 
 public class Utils {
 
-    public static int findIndexOfGroup(ArrayList<Group> groupsArr, Group group)
+    public static int findIndexOfGroup(ArrayList<Group> groupsArr, String groupID)
     {
         int i;
         for (i = 0; i < groupsArr.size(); i++) {
-            if (groupsArr.get(i).getGid().equals(group.getGid())) {
+            if (groupsArr.get(i).getGid().equals(groupID)) {
                 break;
             }
         }
