@@ -166,7 +166,7 @@ public class SettingsActivity extends AppCompatActivity {
         logOutButton=findViewById(R.id.log_out_button);
         userName = findViewById(R.id.set_user_name);
         userStatus = findViewById(R.id.set_profile_status);
-        userProfileImage = findViewById(R.id.set_profile_image);
+        userProfileImage = findViewById(R.id.set_group_image);
         loadingBar = new ProgressDialog(this);
 
         settingsToolBar = findViewById(R.id.settings_toolbar);

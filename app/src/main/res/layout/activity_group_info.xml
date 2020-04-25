@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#66A8EEF8"
+    tools:context=".Activities.GroupInfoActivity"
+    tools:ignore="ExtraText"><![CDATA[
+
+    android:id="@+id/groupFriendsBarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+
+
+
+
+    ]]>
+
+    <Button
+        android:id="@+id/group_info_exit_group_button"
+        android:layout_width="89dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="312dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/exitgroup"
+        android:inputType="textMultiLine"
+        android:padding="6dp"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@android:color/background_light"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <include
+        android:id="@+id/group_friends_page_toolbar"
+        layout="@layout/app_bar_layout">
+
+    </include>
+    <!-- TODO: Update blank fragment layout -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/group_friends"
+        android:layout_width="match_parent"
+        android:layout_height="496dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="157dp"
+        android:background="#FFFFFF">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <TextView
+        android:id="@+id/group_desc"
+        android:layout_width="315dp"
+        android:layout_height="60dp"
+        android:layout_below="@+id/group_friends_page_toolbar"
+        android:layout_alignBottom="@+id/group_image_imageView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="2dp"
+        android:layout_toEndOf="@+id/group_image_imageView"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="normal" />
+
+    <TextView
+        android:id="@+id/participants_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="18dp"
+        android:layout_marginBottom="23dp"
+        android:text="Participants:"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/friends_counter_textView"
+        android:layout_width="83dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/participants_textView"
+        android:layout_alignBottom="@+id/participants_textView"
+        android:layout_alignParentStart="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="169dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="-1dp"
+        android:text="0"
+        android:textColor="#BA000000"
+        android:textSize="20sp" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/group_image_imageView"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_below="@+id/group_friends_page_toolbar"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="6dp"
+        android:src="@drawable/profile_image" />
+
+</RelativeLayout>

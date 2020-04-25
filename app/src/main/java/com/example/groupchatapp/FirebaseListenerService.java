@@ -41,10 +41,9 @@ public class FirebaseListenerService {
                 for (ChildEventListener listener : m_ChildListenerToRemove.get(ref)) {
                     ref.removeEventListener(listener);
                 }
-
             }
-
             m_ChildListenerToRemove.clear();
         }
     }
+
 }

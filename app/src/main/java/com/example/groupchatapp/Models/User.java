@@ -3,11 +3,11 @@ package com.example.groupchatapp.Models;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class User {
+public class User implements IDisplayable {
 
         private String photoUrl;
         private String name;
-        private String uid;
+        private String id;
         private String token;
         private String status;
 
@@ -19,7 +19,7 @@ public class User {
 
         //new user c'tor
         public User(String uid, String displayName, String token, String photoUrl, String status, HashMap<String, ArrayList<MyPair<String,String>>>  groupsId) {
-            this.uid = uid;
+            this.id = id;
             this.name = displayName;
             this.token = token;
             this.photoUrl = photoUrl;
@@ -27,16 +27,14 @@ public class User {
             this.status =status;
         }
 
+        @Override
         public String getPhotoUrl() {
             return photoUrl;
         }
 
+        @Override
         public String getName() {
             return name;
-        }
-
-        public String getUid() {
-            return uid;
         }
 
         public String getToken() {
@@ -51,7 +49,6 @@ public class User {
             return groupsId;
         }
 
-
         public void setName(String name) {
             this.name = name;
         }
@@ -63,6 +60,15 @@ public class User {
         public void setPhotoUrl(String photoUrl) {
             this.photoUrl = photoUrl;
         }
+
+        @Override
+        public String getId(){return id;}
+
+    public boolean isUserInGroup(String groupId)
+    {
+        return groupsId.get(groupId) != null &&
+               groupsId.get(groupId).get(getGroupsId().get(groupId).size() - 1).getSecond().isEmpty();
+    }
 }
 
 

@@ -6,9 +6,9 @@ import java.util.HashMap;
 
 //רק בשביל להעביר מידע למפות ימחק בהמשך serializable
 //   אולי בהמשך נשנה את שם המחלקה לקבוצה
-public class Group implements Serializable {
+public class Group implements Serializable ,IDisplayable {
 
-    private String name, photoUrl, gid, description;
+    private String name, photoUrl, id, description;
 
     private String longitude, latitude,password, radius;
 
@@ -20,7 +20,7 @@ public class Group implements Serializable {
     public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password, String radius) {
         this.name = name;
         this.photoUrl = photoUrl;
-        this.gid = groupId;
+        this.id = groupId;
         this.longitude = longitude;
         this.latitude = latitude;
         this.description =description;
@@ -31,16 +31,14 @@ public class Group implements Serializable {
 
     public String getRadius() { return radius; }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getPhotoUrl() {
         return photoUrl;
-    }
-
-    public String getGid() {
-        return gid;
     }
 
     public String getDescription() {
@@ -63,9 +61,12 @@ public class Group implements Serializable {
         return password;
     }
 
-    public boolean isWithPassword() {
+    public boolean isPrivateGroup() {
         return password!=null;
     }
+
+    @Override
+    public String getId() {return id;}
 }
 
 

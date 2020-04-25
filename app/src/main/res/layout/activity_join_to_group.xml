@@ -13,18 +13,18 @@
     </include>
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/set_profile_image"
+        android:id="@+id/set_group_image"
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="90dp"
-        android:src="@drawable/profile_image"
+        android:src="@drawable/groupicon"
         app:civ_border_color="#A5AFA9"
         app:civ_border_width="3dp" />
 
     <TextView
-        android:layout_below="@+id/set_profile_image"
+        android:layout_below="@+id/set_group_image"
         android:id="@+id/group_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

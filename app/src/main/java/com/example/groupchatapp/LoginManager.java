@@ -30,7 +30,7 @@ public class LoginManager {
     //   private HashMap<String,Group> m_MyGroupsMap;
     private LocationManager m_LocationManager;
 
-     //יש מצב שאפשר לעשות אותו פשוט user
+    //יש מצב שאפשר לעשות אותו פשוט user
     private MutableLiveData<User> m_CurrentUser;
 
     public MutableLiveData<User> getLoggedInUser(){
@@ -52,7 +52,7 @@ public class LoginManager {
 
     private LoginManager() {
 
- //       m_MyGroupsMap =new HashMap<>();
+        //       m_MyGroupsMap =new HashMap<>();
         m_UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         m_GroupsRef=FirebaseDatabase.getInstance().getReference().child("Groups");
         mAuth = FirebaseAuth.getInstance();
@@ -105,10 +105,10 @@ public class LoginManager {
     }
 
 
-    public void removeGroupIDFromCurrentUser(String groupId)
+    public void removeGroupIdFromCurrentUser(String groupId)
     {
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
-        m_UsersRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).removeValue();
+        m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).removeValue();
     }
 
     public LocationManager getLocationManager() { return m_LocationManager; }
@@ -129,7 +129,7 @@ public class LoginManager {
         values.add(new MyPair(enterDate, ""));
 
         m_CurrentUser.getValue().getGroupsId().put(groupId,values);
-        m_UsersRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).setValue(values);
+        m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).setValue(values);
     }
 
     public void exitFromGroup(String groupId)
@@ -142,44 +142,36 @@ public class LoginManager {
 
         values.get(values.size() - 1).setSecond(exitDate);
 
-        m_UsersRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).setValue(values);
+        m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).setValue(values);
     }
 
-    public boolean isUserInGroup(String groupId)
-    {
-        return getLoggedInUser().getValue().getGroupsId().get(groupId) != null &&
-                getLoggedInUser().getValue().getGroupsId().get(groupId).get(
-                getLoggedInUser().getValue().getGroupsId().get(groupId).size() - 1).getSecond().isEmpty();
-    }
+    //  private void initMyGroupsChildEventListener() {
 
+    //      for (String groupId : m_CurrentUser.getValue().getGroupsId().keySet()) {
+    //          m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+    //              @Override
+    //              public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
- //  private void initMyGroupsChildEventListener() {
+    //                  m_MyGroupsMap.put(groupId, dataSnapshot.getValue(Group.class));
+    //              }
 
- //      for (String groupId : m_CurrentUser.getValue().getGroupsId().keySet()) {
- //          m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
- //              @Override
- //              public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+    //              @Override
+    //              public void onCancelled(@NonNull DatabaseError databaseError) {
 
- //                  m_MyGroupsMap.put(groupId, dataSnapshot.getValue(Group.class));
- //              }
+    //              }
+    //          });
+    //      }
 
- //              @Override
- //              public void onCancelled(@NonNull DatabaseError databaseError) {
+    //  }
 
- //              }
- //          });
- //      }
+    //  public Map<String, Group> GetCurrentUserGroupsMap()
+    //  {
+    //      if(m_LocationManager.getCountryCode()==null)
+    //      {
+    //          throw new NullPointerException("Cannot fetch group user because location is disable");
+    //      }
 
- //  }
-
- //  public Map<String, Group> GetCurrentUserGroupsMap()
- //  {
- //      if(m_LocationManager.getCountryCode()==null)
- //      {
- //          throw new NullPointerException("Cannot fetch group user because location is disable");
- //      }
-
- //      initMyGroupsChildEventListener();
- //      return Collections.unmodifiableMap(m_MyGroupsMap);
- //  }
+    //      initMyGroupsChildEventListener();
+    //      return Collections.unmodifiableMap(m_MyGroupsMap);
+    //  }
 }

@@ -129,11 +129,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void decideIfJoinOrExitButton(Marker marker) {
-        if(!m_LoginManager.isUserInGroup(((Group) marker.getTag()).getGid())
+        if(!m_LoginManager.getLoggedInUser().getValue().isUserInGroup(((Group) marker.getTag()).getId())
                 && Utils.isGroupInMyLocation(currentGroup)) {
             showJoinGroupButton();
         }
-        else if (m_LoginManager.isUserInGroup(((Group) marker.getTag()).getGid())) {
+        else if (m_LoginManager.getLoggedInUser().getValue().isUserInGroup(((Group) marker.getTag()).getId())) {
             showExitGroupButton();
         }
         else {
@@ -152,8 +152,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onStart() {
         super.onStart();
-        if (currentGroup != null && markers.containsKey(currentGroup.getGid())) {
-            decideIfJoinOrExitButton(markers.get(currentGroup.getGid()));
+        if (currentGroup != null && markers.containsKey(currentGroup.getId())) {
+            decideIfJoinOrExitButton(markers.get(currentGroup.getId()));
         }
     }
 
@@ -204,14 +204,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
-                boolean isInGroup = m_LoginManager.isUserInGroup(groupToAdd.getGid());
+                boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupToAdd.getId());
 
                 boolean isGroupInMyLocation = Utils.isGroupInMyLocation(groupToAdd);
 
                 if (isInGroup && !isGroupInMyLocation) {
                     //The user is in the group but not in its location....
                     //Now we remove him from the group.
-                    LoginManager.getInstance().exitFromGroup(groupToAdd.getGid());
+                    LoginManager.getInstance().exitFromGroup(groupToAdd.getId());
                     isInGroup = false;
                 }
 
@@ -222,17 +222,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
                 Group changedGroup = dataSnapshot.getValue(Group.class);
-                boolean isInGroup = m_LoginManager.isUserInGroup(changedGroup.getGid());
+                boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().isUserInGroup(changedGroup.getId());
                 boolean isGroupInMyLocation = Utils.isGroupInMyLocation(changedGroup);
 
-                changeMarkerColor(isInGroup, changedGroup.getGid(), isGroupInMyLocation);
+                changeMarkerColor(isInGroup, changedGroup.getId(), isGroupInMyLocation);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 
                 Group groupToRemove = dataSnapshot.getValue(Group.class);
-                removeMarkerByGroupID(groupToRemove.getGid());
+                removeMarkerByGroupID(groupToRemove.getId());
             }
 
             @Override
@@ -268,14 +268,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         groupMarker =  mMap.addMarker(new MarkerOptions().position(groupLocation).title(groupToAdd.getName()).snippet(groupToAdd.getDescription()));
         groupMarker.setTag(groupToAdd);
-        markers.put(groupToAdd.getGid(),groupMarker);
+        markers.put(groupToAdd.getId(),groupMarker);
 
-        changeMarkerColor(isInGroup,groupToAdd.getGid(),isGroupInMyLocation);
+        changeMarkerColor(isInGroup,groupToAdd.getId(),isGroupInMyLocation);
     }
 
     private void removeMarkerByGroupID(String groupId)
     {
-        if (currentGroup != null && currentGroup.getGid().equals(groupId)) {
+        if (currentGroup != null && currentGroup.getId().equals(groupId)) {
             if (m_radiusCircle != null) {
                 m_radiusCircle.remove();
                 hideJoinAndExitGroupButtons();
@@ -329,7 +329,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                LoginManager.getInstance().exitFromGroup(currentGroup.getGid());
+                                LoginManager.getInstance().exitFromGroup(currentGroup.getId());
                                 showJoinGroupButton();
                                 break;
 
@@ -385,10 +385,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void SendUserToJoinToGroupActivity()
     {
         Intent joinGroupIntent = new Intent(MapsActivity.this, JoinToGroupActivity.class);
-        joinGroupIntent.putExtra("group_id", currentGroup.getGid());
-        joinGroupIntent.putExtra("group_name",currentGroup.getName());
-        joinGroupIntent.putExtra("group_image",currentGroup.getPhotoUrl());
-        joinGroupIntent.putExtra("group_password", currentGroup.getPassword());
+        joinGroupIntent.putExtra("group", currentGroup);
         startActivity(joinGroupIntent);
     }
 
@@ -404,20 +401,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     group = (Group) pair.getValue().getTag();
 
                     isGroupInMyLocation = Utils.isGroupInMyLocation(group);
-                    isGroupInMyGroups = m_LoginManager.isUserInGroup(group.getGid());
+                    isGroupInMyGroups = m_LoginManager.getLoggedInUser().getValue().isUserInGroup(group.getId());
 
                     if (isGroupInMyGroups && !isGroupInMyLocation) {
                         //The user is in the group but not in its location....
                         //Now we remove him from the group.
-                        LoginManager.getInstance().exitFromGroup(group.getGid());
+                        LoginManager.getInstance().exitFromGroup(group.getId());
                         isGroupInMyGroups = false;
                     }
 
                     if (currentGroup != null) {
-                        decideIfJoinOrExitButton(markers.get(group.getGid()));
+                        decideIfJoinOrExitButton(markers.get(group.getId()));
                     }
 
-                    changeMarkerColor(isGroupInMyGroups, group.getGid(), isGroupInMyLocation);
+                    changeMarkerColor(isGroupInMyGroups, group.getId(), isGroupInMyLocation);
                 }
             }
         };
@@ -447,7 +444,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_GroupsRef.addChildEventListener(m_newGroupsRefChildValueListener );
 
 
-        m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
+        m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getId()).child("groupsId");
 
         initUserGroupsIdListener();
         FirebaseListenerService.addChildEventListenerToRemoveList(m_UsersGroupsRef,m_UsersGroupsRefChildValueListener);
@@ -465,7 +462,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 String groupId = dataSnapshot.getKey();
-                changeMarkerColor(m_LoginManager.isUserInGroup(groupId), groupId, Utils.isGroupInMyLocation((Group) markers.get(groupId).getTag()));
+                changeMarkerColor(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId), groupId, Utils.isGroupInMyLocation((Group) markers.get(groupId).getTag()));
             }
 
             @Override
@@ -481,7 +478,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             m_GroupsRef.child(groupId).removeValue();
 
                         } else {
-                            m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).removeValue();
+                            m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getId()).removeValue();
 
                         }
 

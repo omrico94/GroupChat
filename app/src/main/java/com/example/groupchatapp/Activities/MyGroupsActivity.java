@@ -11,6 +11,7 @@ import com.example.groupchatapp.Adapters.MyGroupsAdapter;
 import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.Models.IDisplayable;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
 import com.google.firebase.database.ChildEventListener;
@@ -22,14 +23,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-
 public class MyGroupsActivity extends AppCompatActivity {
 
 
     private RecyclerView m_GroupList;
     private DatabaseReference m_GroupsRef, m_UsersGroupsRef;
     private MyGroupsAdapter m_GroupsAdapter;
-    private final ArrayList<Group> groupsToDisplay = new ArrayList<>();
+    private final ArrayList<IDisplayable> groupsToDisplay = new ArrayList<>();
     private Toolbar mToolbar;
     private ChildEventListener m_MyGroupsChildEventListener;
 
@@ -50,7 +50,7 @@ public class MyGroupsActivity extends AppCompatActivity {
 
         m_GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(countryCode);
 
-        m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getUid()).child("groupsId");
+        m_UsersGroupsRef = FirebaseDatabase.getInstance().getReference().child("Users").child(LoginManager.getInstance().getLoggedInUser().getValue().getId()).child("groupsId");
 
         m_GroupList.setAdapter(m_GroupsAdapter);
 
