@@ -96,7 +96,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton,m_joinGroupButton,m_exitGroupButton;
+    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton;
     private DatabaseReference m_GroupsRef,m_UsersGroupsRef;
     private LoginManager m_LoginManager;
     private OnLoggedIn m_OnLoggedInListener;
@@ -115,7 +115,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TextView infoTitle;
     private TextView infoSnippet;
     private TextView m_participantsNumber;
-    private Button infoButton1, infoButton2,infoButton3;
+    private Button m_joinGroupButton,m_exitGroupButton,m_chatButton;
     private OnInfoWindowElemTouchListener infoButtonListener;
     private ImageView m_groupImage;
 
@@ -154,21 +154,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_settingsButton = findViewById(R.id.settings_button);
         m_myGroupsButton = findViewById(R.id.my_groups_button);
         m_addGroupsButton = findViewById(R.id.add_group_button);
-        m_joinGroupButton = findViewById(R.id.join_group);
-        m_exitGroupButton = findViewById(R.id.exit_group);
         m_groupImage=findViewById(R.id.group_Image_IW);
 
         // We want to reuse the info window for all the markers,
         // so let's create only one class member instance
-        this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
+        infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
 
-        this.infoTitle = (TextView)infoWindow.findViewById(R.id.group_name_IW);
-        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.group_description_IW);
-        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.group_description_IW);
-        this.infoButton1 = (Button)infoWindow.findViewById(R.id.join_group_button_IW);
-        this.infoButton2 = (Button)infoWindow.findViewById(R.id.exit_group_button_IW);
-        this.infoButton3 = (Button)infoWindow.findViewById(R.id.chat_IW);
-        this.m_participantsNumber = infoWindow.findViewById(R.id.participants_number_IW);
+        infoTitle = infoWindow.findViewById(R.id.group_name_IW);
+        infoSnippet = infoWindow.findViewById(R.id.group_description_IW);
+        infoSnippet = infoWindow.findViewById(R.id.group_description_IW);
+        m_joinGroupButton = infoWindow.findViewById(R.id.join_group_button_IW);
+        m_exitGroupButton = infoWindow.findViewById(R.id.exit_group_button_IW);
+        m_chatButton = infoWindow.findViewById(R.id.chat_IW);
+        m_participantsNumber = infoWindow.findViewById(R.id.participants_number_IW);
     }
 
     @Override
@@ -302,10 +300,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
     }
 
-    public static int getPixelsFromDp(Context context, float dp) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int)(dp * scale + 0.5f);
-    }
 
     public void  initGroupsChildEventListener() {
 
@@ -325,7 +319,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     isInGroup = false;
                 }
 
-                createMarkerforGroup(groupToAdd, isInGroup, isGroupInMyLocation);
+                createMarkerForGroup(groupToAdd, isInGroup, isGroupInMyLocation);
             }
 
             @Override
@@ -371,7 +365,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         markers.get(groupID).setIcon(BitmapDescriptorFactory.defaultMarker(markerColor));
     }
 
-    private void createMarkerforGroup(Group groupToAdd, boolean isInGroup, boolean isGroupInMyLocation) {
+    private void createMarkerForGroup(Group groupToAdd, boolean isInGroup, boolean isGroupInMyLocation) {
 
         Marker groupMarker;
         LatLng groupLocation = new LatLng(Double.valueOf(groupToAdd.getLatitude()), Double.valueOf(groupToAdd.getLongitude()));
@@ -422,18 +416,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        m_joinGroupButton.setOnClickListener(new View.OnClickListener() {
+
+        // Setting custom OnTouchListener which deals with the pressed state
+        // so it shows up
+        infoButtonListener = new OnInfoWindowElemTouchListener(m_joinGroupButton){//, getResources().getDrawable(R.drawable.joingroup), getResources().getDrawable(R.drawable.joingroup)){
             @Override
-            public void onClick(View v) {
-                //showExitGroupButton();
+            protected void onClickConfirmed(View v, Marker marker) {
                 SendUserToJoinToGroupActivity();
             }
-        });
+        };
+        m_joinGroupButton.setOnTouchListener(infoButtonListener);
 
-        m_exitGroupButton.setOnClickListener(new View.OnClickListener() {
+        infoButtonListener = new OnInfoWindowElemTouchListener(m_exitGroupButton){//, getResources().getDrawable(R.drawable.exitgroup),getResources().getDrawable(R.drawable.exitgroup)){
             @Override
-            public void onClick(View v) {
-
+            protected void onClickConfirmed(View v, Marker marker) {
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -459,48 +455,44 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 dialogAlert.show();
 
             }
-        });
 
-        // Setting custom OnTouchListener which deals with the pressed state
-        // so it shows up
-        this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton1){//, getResources().getDrawable(R.drawable.joingroup), getResources().getDrawable(R.drawable.joingroup)){
-            @Override
-            protected void onClickConfirmed(View v, Marker marker) {
-                // Here we can perform some action triggered after clicking the button
-                Toast.makeText(MapsActivity.this, "click on button 1", Toast.LENGTH_SHORT).show();
-            }
         };
-        this.infoButton1.setOnTouchListener(infoButtonListener);
+        m_exitGroupButton.setOnTouchListener(infoButtonListener);
 
-        infoButtonListener = new OnInfoWindowElemTouchListener(infoButton2){//, getResources().getDrawable(R.drawable.exitgroup),getResources().getDrawable(R.drawable.exitgroup)){
+        infoButtonListener = new OnInfoWindowElemTouchListener(m_chatButton){//, getResources().getDrawable(R.drawable.button_round),getResources().getDrawable(R.drawable.button_round)){
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                Toast.makeText(getApplicationContext(), "click on button 2", Toast.LENGTH_LONG).show();
+               sendUserToChatActivity();
             }
         };
-        infoButton2.setOnTouchListener(infoButtonListener);
-        infoButtonListener = new OnInfoWindowElemTouchListener(infoButton3){//, getResources().getDrawable(R.drawable.button_round),getResources().getDrawable(R.drawable.button_round)){
-            @Override
-            protected void onClickConfirmed(View v, Marker marker) {
-                Toast.makeText(getApplicationContext(), "click on button 3", Toast.LENGTH_LONG).show();
-            }
-        };
-        infoButton3.setOnTouchListener(infoButtonListener);
+        m_chatButton.setOnTouchListener(infoButtonListener);
 
     }
 
     private void showExitGroupButton() {
         m_joinGroupButton.setVisibility(View.GONE);
         m_exitGroupButton.setVisibility(View.VISIBLE);
+        m_chatButton.setVisibility(View.VISIBLE);
     }
     private void showJoinGroupButton() {
         m_joinGroupButton.setVisibility(View.VISIBLE);
         m_exitGroupButton.setVisibility(View.GONE);
+        m_chatButton.setVisibility(View.GONE);
     }
     private void hideJoinAndExitGroupButtons(){
         m_joinGroupButton.setVisibility(View.GONE);
         m_exitGroupButton.setVisibility(View.GONE);
+        m_chatButton.setVisibility(View.INVISIBLE);
     }
+
+    private void sendUserToChatActivity() {
+        Intent chatIntent = new Intent(this, ChatActivity.class);
+        chatIntent.putExtra("group_id", currentGroup.getGid());
+        chatIntent.putExtra("group_name", currentGroup.getName());
+        chatIntent.putExtra("group_image", currentGroup.getPhotoUrl());
+        this.startActivity(chatIntent);
+    }
+
 
     private void SendUserToSettingsActivity() {
         Intent settingsIntent = new Intent(MapsActivity.this, SettingsActivity.class);
@@ -656,4 +648,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+
+    public static int getPixelsFromDp(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int)(dp * scale + 0.5f);
+    }
+
 }
