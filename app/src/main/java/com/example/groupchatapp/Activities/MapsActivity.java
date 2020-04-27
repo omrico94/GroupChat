@@ -181,7 +181,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 39 - default marker height
         // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
         m_mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
-        
+
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
