@@ -15,10 +15,10 @@
         android:paddingBottom="5dip">
 
             <ImageView
-                android:id="@+id/clientPic"
+                android:id="@+id/group_Image_IW"
                 android:layout_width="60dip"
                 android:layout_height="60dip"
-                android:src="@drawable/map"
+
                 android:layout_marginLeft="8dip"
                 android:layout_gravity="center_vertical"/>
 
@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginLeft="2dip"
+                android:layout_marginLeft="20dip"
                 android:layout_gravity="center_vertical">
 
                 <LinearLayout
@@ -35,17 +35,37 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
+                    <TextView
+                        android:id="@+id/group_name_IW"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textColor="#000000"
+                        android:layout_marginLeft="30dp"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
                     <ImageView
                         android:layout_width="25dip"
                         android:layout_height="25dip"
                         android:layout_marginLeft="5dip"
-                        android:background="@drawable/map"/>
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/group_description"/>
                     <TextView
-                        android:id="@+id/nameTxt"
+                        android:id="@+id/group_description_IW"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Amixx XX Soluxxxxx"
-                        android:textSize="10dip"
+                        android:textSize="14dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="10dp"
                         android:gravity="center_vertical"
                         android:textColor="#000000"/>
 
@@ -61,35 +81,15 @@
                         android:layout_width="25dip"
                         android:layout_height="25dip"
                         android:layout_marginLeft="5dip"
-                        android:background="@drawable/email"/>
+                        android:layout_marginTop="7dp"
+                        android:background="@drawable/my_groups"/>
                     <TextView
-                        android:id="@+id/mobileTxt"
+                        android:id="@+id/participants_number_IW"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+91-98XXXXX200"
-                        android:textSize="10dip"
-                        android:gravity="center_vertical"
-                        android:textColor="#000000"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="25dip"
-                        android:layout_height="25dip"
-                        android:layout_marginLeft="5dip"
-                        android:background="@drawable/email"/>
-                    <TextView
-                        android:id="@+id/addressTxt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="android@gmail.com"
-                        android:textSize="10dip"
+                        android:textSize="14dp"
+                        android:layout_marginTop="7dp"
+                        android:layout_marginLeft="10dp"
                         android:gravity="center_vertical"
                         android:textColor="#000000"/>
 
@@ -104,20 +104,29 @@
         android:layout_below="@+id/toplayout">
 
         <Button
-            android:id="@+id/btnOne"
+            android:id="@+id/join_group_button_IW"
             android:layout_width="120dip"
             android:layout_height="40dip"
-            android:text="one btn"
-            android:background="@drawable/joingroup"/>
+            android:layout_marginLeft="40dip"
+            android:background="@drawable/button_round_join_group"
+            android:text="join group"/>
+
+        <Button
+            android:id="@+id/exit_group_button_IW"
+            android:layout_width="120dip"
+            android:layout_height="40dip"
+            android:layout_marginLeft="10dip"
+            android:background="@drawable/button_round_exit_group"
+            android:text="exit group"/>
 
 
         <Button
-            android:id="@+id/btnTwo"
-            android:layout_width="120dip"
-            android:layout_height="40dip"
-            android:text="two btn"
+            android:id="@+id/chat_IW"
+            android:layout_width="80dip"
+            android:layout_height="30dip"
             android:layout_marginLeft="10dip"
-            android:background="@drawable/exitgroup"/>
+            android:background="@drawable/button_round"
+            android:text="chat"/>
 
     </LinearLayout>
 </RelativeLayout>

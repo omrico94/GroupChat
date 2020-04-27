@@ -34,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.groupchatapp.FirebaseListenerService;
@@ -70,6 +71,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.collection.LLRBNode;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -87,6 +89,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -110,8 +114,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ViewGroup infoWindow;
     private TextView infoTitle;
     private TextView infoSnippet;
-    private Button infoButton1, infoButton2;
+    private TextView m_participantsNumber;
+    private Button infoButton1, infoButton2,infoButton3;
     private OnInfoWindowElemTouchListener infoButtonListener;
+    private ImageView m_groupImage;
 
     private MapWrapperLayout m_mapWrapperLayout;
 
@@ -143,7 +149,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-
     private void initializeFields() {
 
         m_settingsButton = findViewById(R.id.settings_button);
@@ -151,6 +156,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_addGroupsButton = findViewById(R.id.add_group_button);
         m_joinGroupButton = findViewById(R.id.join_group);
         m_exitGroupButton = findViewById(R.id.exit_group);
+        m_groupImage=findViewById(R.id.group_Image_IW);
+
+        // We want to reuse the info window for all the markers,
+        // so let's create only one class member instance
+        this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
+
+        this.infoTitle = (TextView)infoWindow.findViewById(R.id.group_name_IW);
+        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.group_description_IW);
+        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.group_description_IW);
+        this.infoButton1 = (Button)infoWindow.findViewById(R.id.join_group_button_IW);
+        this.infoButton2 = (Button)infoWindow.findViewById(R.id.exit_group_button_IW);
+        this.infoButton3 = (Button)infoWindow.findViewById(R.id.chat_IW);
+        this.m_participantsNumber = infoWindow.findViewById(R.id.participants_number_IW);
     }
 
     @Override
@@ -159,6 +177,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
+        // MapWrapperLayout initialization
+        // 39 - default marker height
+        // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
+        m_mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
+        
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -173,7 +196,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .strokeColor(Color.BLUE));
 
                 decideIfJoinOrExitButton(marker);
-
+                //Picasso.get().load(currentGroup.getPhotoUrl()).placeholder(R.drawable.profile_image).into(m_groupImage);
                 return false;
             }
         });
@@ -185,46 +208,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        // MapWrapperLayout initialization
-        // 39 - default marker height
-        // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
-        m_mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
-
-        // We want to reuse the info window for all the markers,
-        // so let's create only one class member instance
-        this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
-
-        this.infoTitle = (TextView)infoWindow.findViewById(R.id.nameTxt);
-        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.addressTxt);
-        this.infoButton1 = (Button)infoWindow.findViewById(R.id.btnOne);
-        this.infoButton2 = (Button)infoWindow.findViewById(R.id.btnTwo);
-
-        // Setting custom OnTouchListener which deals with the pressed state
-        // so it shows up
-        this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton1, getResources().getDrawable(R.drawable.joingroup), getResources().getDrawable(R.drawable.joingroup)){
-            @Override
-            protected void onClickConfirmed(View v, Marker marker) {
-                // Here we can perform some action triggered after clicking the button
-                Toast.makeText(MapsActivity.this, "click on button 1", Toast.LENGTH_SHORT).show();
-            }
-        };
-        this.infoButton1.setOnTouchListener(infoButtonListener);
-
-        infoButtonListener = new OnInfoWindowElemTouchListener(infoButton2, getResources().getDrawable(R.drawable.exitgroup),getResources().getDrawable(R.drawable.exitgroup)){
-            @Override
-            protected void onClickConfirmed(View v, Marker marker) {
-                Toast.makeText(getApplicationContext(), "click on button 2", Toast.LENGTH_LONG).show();
-            }
-        };
-        infoButton2.setOnTouchListener(infoButtonListener);
-
-        /*infoWindow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "click on infowindow", Toast.LENGTH_LONG).show();
-            }
-        });*/
-
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
             public View getInfoWindow(Marker marker) {
@@ -234,9 +217,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public View getInfoContents(Marker marker) {
                 // Setting up the infoWindow with current's marker info
-                infoSnippet.setText(marker.getTitle());
-                infoTitle.setText(marker.getSnippet());
+                infoSnippet.setText(marker.getSnippet());
+                infoTitle.setText(marker.getTitle());
                 infoButtonListener.setMarker(marker);
+                m_participantsNumber.setText(String.valueOf(currentGroup.getUsersId().size()));
+               //Picasso.get().load(currentGroup.getPhotoUrl()).centerCrop().placeholder(R.drawable.map).into(m_groupImage);
 
 
                 // We must call this to set the current marker and infoWindow references
@@ -475,6 +460,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+
+        // Setting custom OnTouchListener which deals with the pressed state
+        // so it shows up
+        this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton1){//, getResources().getDrawable(R.drawable.joingroup), getResources().getDrawable(R.drawable.joingroup)){
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                // Here we can perform some action triggered after clicking the button
+                Toast.makeText(MapsActivity.this, "click on button 1", Toast.LENGTH_SHORT).show();
+            }
+        };
+        this.infoButton1.setOnTouchListener(infoButtonListener);
+
+        infoButtonListener = new OnInfoWindowElemTouchListener(infoButton2){//, getResources().getDrawable(R.drawable.exitgroup),getResources().getDrawable(R.drawable.exitgroup)){
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                Toast.makeText(getApplicationContext(), "click on button 2", Toast.LENGTH_LONG).show();
+            }
+        };
+        infoButton2.setOnTouchListener(infoButtonListener);
+        infoButtonListener = new OnInfoWindowElemTouchListener(infoButton3){//, getResources().getDrawable(R.drawable.button_round),getResources().getDrawable(R.drawable.button_round)){
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                Toast.makeText(getApplicationContext(), "click on button 3", Toast.LENGTH_LONG).show();
+            }
+        };
+        infoButton3.setOnTouchListener(infoButtonListener);
+
     }
 
     private void showExitGroupButton() {
