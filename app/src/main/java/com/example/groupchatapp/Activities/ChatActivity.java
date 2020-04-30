@@ -100,7 +100,7 @@ public class ChatActivity extends AppCompatActivity {
 
         groupId =getIntent().getExtras().get("group_id").toString();
         groupName =getIntent().getExtras().get("group_name").toString();
-        if(getIntent().getExtras().get("group_image")!=null) {//maybe their is a better way to handle this
+        if(getIntent().getExtras().get("group_image")!=null) {//maybe there is a better way to handle this
             groupImageStr = getIntent().getExtras().get("group_image").toString();
         }
 

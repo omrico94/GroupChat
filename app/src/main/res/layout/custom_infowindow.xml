@@ -5,16 +5,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingTop="5dip"
-
         android:background="@drawable/rounded_layout"
         android:paddingBottom="5dip">
 
-            <ImageView
-                android:id="@+id/group_Image_IW"
-                android:layout_width="120dip"
-                android:layout_height="120dip"
-                android:src="@drawable/logosign"
-                android:layout_marginLeft="8dip"
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/image_of_group"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
+                android:layout_marginStart="8dip"
                 android:layout_gravity="center_vertical"/>
 
             <LinearLayout
@@ -34,7 +32,6 @@
                         android:id="@+id/group_name_IW"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="35dp"
                         android:gravity="center_vertical"
                         android:textAppearance="@style/TextAppearance.AppCompat.Large"
                         android:textColor="#575151"
@@ -49,6 +46,7 @@
                     android:orientation="horizontal">
 
                     <ImageView
+                        android:id="@+id/group_description_IW_image"
                         android:layout_width="30dp"
                         android:layout_height="25dip"
                         android:layout_marginTop="5dp"
@@ -74,6 +72,7 @@
                     android:gravity="center_vertical">
 
                     <ImageView
+                        android:id="@+id/participants_number_IW_image"
                         android:layout_width="25dip"
                         android:layout_height="25dip"
                         android:layout_marginTop="5dp"
@@ -93,16 +92,17 @@
 
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginLeft="40dp">
 
         <Button
             android:id="@+id/join_group_button_IW"
             android:layout_width="80dip"
             android:layout_height="25dip"
             android:layout_marginTop="90dp"
-            android:layout_marginStart="55dip"
+            android:layout_marginStart="10dp"
             android:background="@drawable/button_round_join_group"
             android:layout_marginEnd="5dp"
             android:textSize="12sp"
@@ -113,7 +113,7 @@
             android:layout_width="80dp"
             android:layout_height="25dip"
             android:layout_marginTop="90dp"
-            android:layout_marginStart="55dip"
+            android:layout_marginStart="10dp"
             android:background="@drawable/button_round_exit_group"
             android:layout_marginEnd="5dp"
             android:textSize="12sp"
@@ -124,7 +124,7 @@
             android:id="@+id/chat_IW"
             android:layout_width="50dip"
             android:layout_height="25dip"
-            android:layout_marginStart="85dip"
+            android:layout_marginStart="30dp"
             android:layout_marginEnd="5dp"
             android:background="@drawable/button_round"
             android:textSize="12sp"

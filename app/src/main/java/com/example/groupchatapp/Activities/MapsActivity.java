@@ -117,7 +117,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TextView m_participantsNumber;
     private Button m_joinGroupButton,m_exitGroupButton,m_chatButton;
     private OnInfoWindowElemTouchListener infoButtonListener;
-    private ImageView m_groupImage;
+    private CircleImageView m_groupImage;
+    private ImageView m_descriptionImage, m_participantsNumberImage;
 
     private MapWrapperLayout m_mapWrapperLayout;
 
@@ -154,7 +155,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_settingsButton = findViewById(R.id.settings_button);
         m_myGroupsButton = findViewById(R.id.my_groups_button);
         m_addGroupsButton = findViewById(R.id.add_group_button);
-        m_groupImage=findViewById(R.id.group_Image_IW);
+
 
         // We want to reuse the info window for all the markers,
         // so let's create only one class member instance
@@ -162,11 +163,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         infoTitle = infoWindow.findViewById(R.id.group_name_IW);
         infoSnippet = infoWindow.findViewById(R.id.group_description_IW);
-        infoSnippet = infoWindow.findViewById(R.id.group_description_IW);
+        m_participantsNumber = infoWindow.findViewById(R.id.participants_number_IW);
+        m_groupImage = infoWindow.findViewById(R.id.image_of_group);
+        m_participantsNumberImage = infoWindow.findViewById(R.id.participants_number_IW_image);
+        m_descriptionImage = infoWindow.findViewById(R.id.group_description_IW_image);
+
         m_joinGroupButton = infoWindow.findViewById(R.id.join_group_button_IW);
         m_exitGroupButton = infoWindow.findViewById(R.id.exit_group_button_IW);
         m_chatButton = infoWindow.findViewById(R.id.chat_IW);
-        m_participantsNumber = infoWindow.findViewById(R.id.participants_number_IW);
+
     }
 
     @Override
@@ -194,7 +199,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .strokeColor(Color.BLUE));
 
                 decideIfJoinOrExitButton(marker);
-                //Picasso.get().load(currentGroup.getPhotoUrl()).placeholder(R.drawable.profile_image).into(m_groupImage);
                 return false;
             }
         });
@@ -215,12 +219,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public View getInfoContents(Marker marker) {
                 // Setting up the infoWindow with current's marker info
-                infoSnippet.setText(marker.getSnippet());
                 infoTitle.setText(marker.getTitle());
                 infoButtonListener.setMarker(marker);
-                m_participantsNumber.setText(String.valueOf(currentGroup.getUsersId().size()));
-               //Picasso.get().load(currentGroup.getPhotoUrl()).centerCrop().placeholder(R.drawable.map).into(m_groupImage);
 
+                infoSnippet.setText(marker.getSnippet());
+                m_participantsNumber.setText(String.valueOf(currentGroup.getUsersId().size()));
+                Picasso.get().load(currentGroup.getPhotoUrl()).placeholder(R.drawable.logosign).into(m_groupImage);
+
+                m_descriptionImage.setVisibility(View.VISIBLE);
+                infoSnippet.setVisibility(View.VISIBLE);
+                m_participantsNumberImage.setVisibility(View.VISIBLE);
+                m_participantsNumber.setVisibility(View.VISIBLE);
+
+                if(!Utils.isGroupInMyLocation((Group)marker.getTag())) {
+                    m_descriptionImage.setVisibility(View.GONE);
+                    infoSnippet.setVisibility(View.GONE);
+                    m_participantsNumberImage.setVisibility(View.GONE);
+                    m_participantsNumber.setVisibility(View.GONE);
+                    Picasso.get().load(R.drawable.logosign).into(m_groupImage);
+                }
 
                 // We must call this to set the current marker and infoWindow references
                 // to the MapWrapperLayout
@@ -482,7 +499,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void hideJoinAndExitGroupButtons(){
         m_joinGroupButton.setVisibility(View.GONE);
         m_exitGroupButton.setVisibility(View.GONE);
-        m_chatButton.setVisibility(View.INVISIBLE);
+        m_chatButton.setVisibility(View.GONE);
     }
 
     private void sendUserToChatActivity() {
