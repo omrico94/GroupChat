@@ -375,6 +375,14 @@ public class ChatActivity extends AppCompatActivity {
 
    private void sendMessage(String messagePushId , String messageContent , String messageType) {
 
+       Calendar calendar = Calendar.getInstance();
+
+       SimpleDateFormat currentDate = new SimpleDateFormat("dd/MM/yyyy");
+       saveCurrentDate = currentDate.format(calendar.getTime());
+
+       SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss");
+       saveCurrentTime = currentTime.format(calendar.getTime());
+
        final String messageSenderRef = "Groups/" + m_CountryCode + "/" + groupId + "/Messages/";
 
        final Map messageTextBody = new HashMap() {
