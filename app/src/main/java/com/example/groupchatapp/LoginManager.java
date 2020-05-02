@@ -3,7 +3,7 @@ package com.example.groupchatapp;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.groupchatapp.Models.Group;
+import com.example.groupchatapp.Models.MyPair;
 import com.example.groupchatapp.Models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -13,11 +13,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+
 import java.text.SimpleDateFormat;
-import java.util.Collections;
+import java.util.ArrayList;
+
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+
 
 public class LoginManager {
 
@@ -103,22 +105,52 @@ public class LoginManager {
     }
 
 
-    public void addNewGroupIdToCurrentUser(String groupId)
-    {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        Date date = new Date();
-        String dateStr=formatter.format(date);
-        m_CurrentUser.getValue().getGroupsId().put(groupId,dateStr);
-        m_UsersRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).setValue(dateStr);
-    }
-
-    public void removeGroupIdFromCurrentUser(String groupId)
+    public void removeGroupIDFromCurrentUser(String groupId)
     {
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
         m_UsersRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).removeValue();
     }
 
     public LocationManager getLocationManager() { return m_LocationManager; }
+
+    public void addNewGroupIdToCurrentUser(String groupId)
+    {
+        ArrayList<MyPair<String, String>> values = m_CurrentUser.getValue().getGroupsId().get(groupId);
+        if(values == null)
+        {
+            values = new ArrayList<>();
+
+        }
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        String enterDate=formatter.format(date);
+
+        values.add(new MyPair(enterDate, ""));
+
+        m_CurrentUser.getValue().getGroupsId().put(groupId,values);
+        m_UsersRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).setValue(values);
+    }
+
+    public void exitFromGroup(String groupId)
+    {
+        ArrayList<MyPair<String, String>> values = m_CurrentUser.getValue().getGroupsId().get(groupId);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        String exitDate=formatter.format(date);
+
+        values.get(values.size() - 1).setSecond(exitDate);
+
+        m_UsersRef.child(m_CurrentUser.getValue().getUid()).child("groupsId").child(groupId).setValue(values);
+    }
+
+    public boolean isUserInGroup(String groupId)
+    {
+        return getLoggedInUser().getValue().getGroupsId().get(groupId) != null &&
+                getLoggedInUser().getValue().getGroupsId().get(groupId).get(
+                getLoggedInUser().getValue().getGroupsId().get(groupId).size() - 1).getSecond().isEmpty();
+    }
 
 
  //  private void initMyGroupsChildEventListener() {

@@ -79,9 +79,11 @@ public class ChatActivity extends AppCompatActivity {
     private LoginManager m_LoginManager;
     private String m_CountryCode;
 
-    private ChildEventListener m_MessageEventListener , m_GroupUsersIdEventListener;
+    private ChildEventListener m_MessageEventListener, m_UserRxitFromGroupEventListener;
 
-    private DatabaseReference m_GroupRef;
+    private DatabaseReference m_ExitRef;
+
+    private int indexOfCurrentDate = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +98,7 @@ public class ChatActivity extends AppCompatActivity {
         userSenderName = m_LoginManager.getLoggedInUser().getValue().getName();
         rootRef= FirebaseDatabase.getInstance().getReference();
 
-        m_GroupRef = FirebaseDatabase.getInstance().getReference();
+        m_ExitRef = FirebaseDatabase.getInstance().getReference();
 
         groupId =getIntent().getExtras().get("group_id").toString();
         groupName =getIntent().getExtras().get("group_name").toString();
@@ -173,9 +175,9 @@ public class ChatActivity extends AppCompatActivity {
         rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages")
                 .addChildEventListener(m_MessageEventListener);
         FirebaseListenerService.addChildEventListenerToRemoveList( rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages"),m_MessageEventListener);
-        m_GroupRef.child("Groups").child(m_CountryCode).child(groupId).child("usersId")
-                .addChildEventListener(m_GroupUsersIdEventListener);
-        FirebaseListenerService.addChildEventListenerToRemoveList(m_GroupRef.child("Groups").child(m_CountryCode).child(groupId).child("usersId"),m_GroupUsersIdEventListener);
+        m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").child(groupId)
+                .addChildEventListener(m_UserRxitFromGroupEventListener);
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").child(groupId),m_UserRxitFromGroupEventListener);
 
     }
 
@@ -217,7 +219,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-        m_GroupUsersIdEventListener= new ChildEventListener() {
+        m_UserRxitFromGroupEventListener= new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -225,20 +227,15 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                sendMessageButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
+                sendFilesButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
+                messageInputText.setEnabled(m_LoginManager.isUserInGroup(groupId));
+                Toast.makeText(ChatActivity.this,"You are out from group range!\n", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                String userId = dataSnapshot.getValue(String.class);
 
-                if (userId.equals(m_LoginManager.getLoggedInUser().getValue().getUid())) {
-                    //The user is out of group's radius.
-                    //Now we finish the chat activity.
-                    finish();
-                } else {
-                    //Someone is out from the group.
-                    //Can use for users in group.
-                }
             }
 
             @Override
@@ -255,19 +252,45 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private boolean messageReceivedAfterUserJoin(Message message) {
-
-        String timeUserJoinToGroup=m_LoginManager.getLoggedInUser().getValue().getGroupsId().get(groupId);
+        //indexOfCurrentDate
+        Date exitDate = null;
+        Date messageDate = null;
         try {
-                Date joinDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(timeUserJoinToGroup);
-                Date messageDate= new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(message.getDate() + " " + message.getTime());
-                return joinDate.compareTo(messageDate)<=0;
-            }
-            catch (ParseException e) {
+            messageDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(message.getDate() + " " + message.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
+        while(indexOfCurrentDate < m_LoginManager.getLoggedInUser().getValue().getGroupsId().get(groupId).size()) {
+            String timeUserJoinToGroup = m_LoginManager.getLoggedInUser().getValue().getGroupsId().get(groupId).get(indexOfCurrentDate).getFirst();
+            String timeUserExitFromGroup = m_LoginManager.getLoggedInUser().getValue().getGroupsId().get(groupId).get(indexOfCurrentDate).getSecond();
+            try {
+                Date joinDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(timeUserJoinToGroup);
+                if (!timeUserExitFromGroup.isEmpty()) {
+                    exitDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(timeUserExitFromGroup);
+                }
+
+                if (joinDate.compareTo(messageDate) > 0) {
+                    return false;
+                }
+
+                else
+                {
+                    if (timeUserExitFromGroup.isEmpty() || exitDate.compareTo(messageDate) > 0) {
+                        return true;
+                    } else {
+                        indexOfCurrentDate++;
+                    }
+                }
+
+            } catch (ParseException e) {
+            }
         }
 
         return false;
     }
+
+
 
     private void initializeControllers() {
 
@@ -287,8 +310,16 @@ public class ChatActivity extends AppCompatActivity {
 
         sendMessageButton = findViewById(R.id.send_message_button);
         sendFilesButton = findViewById(R.id.send_files_button);
+        sendMessageButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
+        sendFilesButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
+
+//        sendMessageButton.setClickable(m_LoginManager.isUserInGroup(groupId));
+//        sendFilesButton.setClickable(m_LoginManager.isUserInGroup(groupId));
+
 
         messageInputText = findViewById(R.id.input_message);
+        messageInputText.setEnabled(m_LoginManager.isUserInGroup(groupId));
+
         loadingBar=new ProgressDialog(this);
         messageAdapter = new MessageAdapter(messagesList);
         userMessagesList =  findViewById(R.id.private_messages_list_of_users);
@@ -302,7 +333,6 @@ public class ChatActivity extends AppCompatActivity {
 
         SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss");
         saveCurrentTime = currentTime.format(calendar.getTime());
-
     }
 
     @Override

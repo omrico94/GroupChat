@@ -1,38 +1,16 @@
 package com.example.groupchatapp.Activities;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Picture;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.util.ArrayMap;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -46,40 +24,24 @@ import com.example.groupchatapp.OnLocationPermissionChange;
 import com.example.groupchatapp.OnLoggedIn;
 import com.example.groupchatapp.R;
 import com.example.groupchatapp.Utils;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.collection.LLRBNode;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -167,11 +129,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void decideIfJoinOrExitButton(Marker marker) {
-        if(!m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(((Group) marker.getTag()).getGid())
+        if(!m_LoginManager.isUserInGroup(((Group) marker.getTag()).getGid())
                 && Utils.isGroupInMyLocation(currentGroup)) {
             showJoinGroupButton();
         }
-        else if (m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(((Group) marker.getTag()).getGid())) {
+        else if (m_LoginManager.isUserInGroup(((Group) marker.getTag()).getGid())) {
             showExitGroupButton();
         }
         else {
@@ -242,14 +204,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
-                boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(groupToAdd.getGid());
+                boolean isInGroup = m_LoginManager.isUserInGroup(groupToAdd.getGid());
 
                 boolean isGroupInMyLocation = Utils.isGroupInMyLocation(groupToAdd);
 
                 if (isInGroup && !isGroupInMyLocation) {
                     //The user is in the group but not in its location....
                     //Now we remove him from the group.
-                    LoginManager.getInstance().removeGroupIdFromCurrentUser(groupToAdd.getGid());
+                    LoginManager.getInstance().exitFromGroup(groupToAdd.getGid());
                     isInGroup = false;
                 }
 
@@ -260,7 +222,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
                 Group changedGroup = dataSnapshot.getValue(Group.class);
-                boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(changedGroup.getGid());
+                boolean isInGroup = m_LoginManager.isUserInGroup(changedGroup.getGid());
                 boolean isGroupInMyLocation = Utils.isGroupInMyLocation(changedGroup);
 
                 changeMarkerColor(isInGroup, changedGroup.getGid(), isGroupInMyLocation);
@@ -367,7 +329,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                LoginManager.getInstance().removeGroupIdFromCurrentUser(currentGroup.getGid());
+                                LoginManager.getInstance().exitFromGroup(currentGroup.getGid());
                                 showJoinGroupButton();
                                 break;
 
@@ -442,12 +404,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     group = (Group) pair.getValue().getTag();
 
                     isGroupInMyLocation = Utils.isGroupInMyLocation(group);
-                    isGroupInMyGroups = m_LoginManager.getLoggedInUser().getValue().getGroupsId().containsKey(group.getGid());
+                    isGroupInMyGroups = m_LoginManager.isUserInGroup(group.getGid());
 
                     if (isGroupInMyGroups && !isGroupInMyLocation) {
                         //The user is in the group but not in its location....
                         //Now we remove him from the group.
-                        LoginManager.getInstance().removeGroupIdFromCurrentUser(group.getGid());
+                        LoginManager.getInstance().exitFromGroup(group.getGid());
                         isGroupInMyGroups = false;
                     }
 
@@ -502,7 +464,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                String groupId = dataSnapshot.getKey();
+                changeMarkerColor(m_LoginManager.isUserInGroup(groupId), groupId, Utils.isGroupInMyLocation((Group) markers.get(groupId).getTag()));
             }
 
             @Override

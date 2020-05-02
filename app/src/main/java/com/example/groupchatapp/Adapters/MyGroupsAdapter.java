@@ -51,8 +51,8 @@ public class MyGroupsAdapter extends GroupsAdapter {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
                                 //  צריך לבדוק למה חייב את השורה הבאה כדי שהקבוצה תרד מהמסך בצורה מיידית
-                                mGroups.remove(position);
-                                LoginManager.getInstance().removeGroupIdFromCurrentUser(group.getGid());
+                                //mGroups.remove(position);
+                                LoginManager.getInstance().removeGroupIDFromCurrentUser(group.getGid());
 
                                 break;
 
@@ -65,7 +65,7 @@ public class MyGroupsAdapter extends GroupsAdapter {
 
                 AlertDialog dialogAlert = new AlertDialog.Builder(mContext, R.style.MyDialogTheme)
                         .setTitle("Confirm")
-                        .setMessage("Remove " + group.getName() + " from MyGroups?")
+                        .setMessage("Do you want to remove " + group.getName() + " from your groups?")
                         .setPositiveButton("Yes",dialogClickListener)
                         .setNegativeButton("No", dialogClickListener)
                         .create();

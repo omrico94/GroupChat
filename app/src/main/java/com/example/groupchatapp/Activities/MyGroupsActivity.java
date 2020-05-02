@@ -1,7 +1,5 @@
 package com.example.groupchatapp.Activities;
 
-
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,10 +20,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import okhttp3.internal.Util;
 
 public class MyGroupsActivity extends AppCompatActivity {
 
@@ -129,6 +125,8 @@ public class MyGroupsActivity extends AppCompatActivity {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshotGroupId) {
                 String groupId = dataSnapshotGroupId.getKey();
+
+                //Maybe we don't need this check.. only to be sure..
                 int index = Utils.findIndexOfGroup(groupsToDisplay, groupId);
                 if (index != -1) {
                     groupsToDisplay.remove(index);
