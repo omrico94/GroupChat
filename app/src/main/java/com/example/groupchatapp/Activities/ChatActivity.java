@@ -79,7 +79,7 @@ public class ChatActivity extends AppCompatActivity {
     private LoginManager m_LoginManager;
     private String m_CountryCode;
 
-    private ChildEventListener m_MessageEventListener, m_UserRxitFromGroupEventListener;
+    private ChildEventListener m_MessageEventListener, m_UserExitFromGroupEventListener;
 
     private DatabaseReference m_ExitRef;
 
@@ -176,8 +176,14 @@ public class ChatActivity extends AppCompatActivity {
                 .addChildEventListener(m_MessageEventListener);
         FirebaseListenerService.addChildEventListenerToRemoveList( rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages"),m_MessageEventListener);
         m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").child(groupId)
-                .addChildEventListener(m_UserRxitFromGroupEventListener);
-        FirebaseListenerService.addChildEventListenerToRemoveList(m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").child(groupId),m_UserRxitFromGroupEventListener);
+                .addChildEventListener(m_UserExitFromGroupEventListener);
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").child(groupId), m_UserExitFromGroupEventListener);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
 
     }
 
@@ -219,7 +225,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-        m_UserRxitFromGroupEventListener= new ChildEventListener() {
+        m_UserExitFromGroupEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -230,7 +236,7 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessageButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
                 sendFilesButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
                 messageInputText.setEnabled(m_LoginManager.isUserInGroup(groupId));
-                Toast.makeText(ChatActivity.this,"You are out from group range!\n", Toast.LENGTH_LONG).show();
+                Toast.makeText(ChatActivity.this,"You left the group!\n You will not be able to send and receive messages", Toast.LENGTH_LONG).show();
             }
 
             @Override
