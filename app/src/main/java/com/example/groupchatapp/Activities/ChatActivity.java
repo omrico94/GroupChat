@@ -232,7 +232,7 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessageButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
                 sendFilesButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
                 messageInputText.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
-                Toast.makeText(ChatActivity.this,"You left the group!\n You will not be able to send and receive messages", Toast.LENGTH_LONG).show();
+                Toast.makeText(ChatActivity.this,"You left the group!\nYou will not be able to send and receive messages", Toast.LENGTH_LONG).show();
             }
 
             @Override
