@@ -112,7 +112,7 @@ public class GroupInfoActivity extends AppCompatActivity {
 
                 android.app.AlertDialog dialogAlert = new AlertDialog.Builder(GroupInfoActivity.this, R.style.MyDialogTheme)
                         .setTitle("Confirm")
-                        .setMessage("Remove " + m_CurrentGroup.getName() + " from MyGroups?")
+                        .setMessage("Do you want to leave " + m_CurrentGroup.getName() + "?")
                         .setPositiveButton("Yes", dialogClickListener)
                         .setNegativeButton("No", dialogClickListener)
                         .create();

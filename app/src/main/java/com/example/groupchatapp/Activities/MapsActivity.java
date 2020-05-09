@@ -342,7 +342,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 android.app.AlertDialog dialogAlert = new AlertDialog.Builder(MapsActivity.this, R.style.MyDialogTheme)
                         .setTitle("Confirm")
-                        .setMessage("Remove " + currentGroup.getName() + " from MyGroups?")
+                        .setMessage("Do you want to leave " + currentGroup.getName() + "?")
                         .setPositiveButton("Yes",dialogClickListener)
                         .setNegativeButton("No", dialogClickListener)
                         .create();
