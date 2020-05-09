@@ -1,6 +1,7 @@
 package com.example.groupchatapp.Activities;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -57,7 +58,6 @@ public class MyGroupsActivity extends AppCompatActivity {
         initMyGroupsChildEventListener();
         m_UsersGroupsRef.addChildEventListener(m_MyGroupsChildEventListener);
         FirebaseListenerService.addChildEventListenerToRemoveList(m_UsersGroupsRef,m_MyGroupsChildEventListener);
-
 
         //      m_GroupsRef.addChildEventListener(new ChildEventListener() {
         //          @Override
@@ -145,5 +145,18 @@ public class MyGroupsActivity extends AppCompatActivity {
             }
         };
     }
+
+ // @Override
+ // public void onBackPressed() {
+ //     startActivity(getParentActivityIntent());
+ // }
+
+//  @Override
+//  public boolean onOptionsItemSelected(MenuItem item) {
+//      if (item.getItemId() == android.R.id.home) {
+//          SendUserToChatActivity();
+//      }
+//      return true;
+//  }
 }
 
