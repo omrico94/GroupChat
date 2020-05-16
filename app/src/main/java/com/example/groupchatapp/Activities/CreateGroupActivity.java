@@ -124,6 +124,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("longitude", String.valueOf(m_LoginManager.getLocationManager().getLongitude()));
                 profileMap.put("usersId", usersIdMap);
                 profileMap.put("radius", setGroupRadius);
+                profileMap.put("numberOfParticipants", 0);
+
                 if (!setGroupPassword.isEmpty()) {
                     profileMap.put("password", setGroupPassword);
                 }
