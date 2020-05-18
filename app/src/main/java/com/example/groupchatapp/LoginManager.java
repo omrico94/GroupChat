@@ -107,6 +107,10 @@ public class LoginManager {
 
     public void removeGroupIdFromCurrentUser(String groupId)
     {
+        if (LoginManager.getInstance().getLoggedInUser().getValue().isUserInGroup(groupId)) {
+            exitFromGroup(groupId);
+        }
+
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
         m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).removeValue();
     }

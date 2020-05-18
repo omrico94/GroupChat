@@ -5,6 +5,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -68,8 +69,6 @@ public class GroupInfoActivity extends AppCompatActivity {
 
         initCurrentGroupUsersIdChildEventListener();
         m_CurrentGroupUsersIdRef.addChildEventListener(m_CurrentGroupUsersIdChildEventListener);
-        FirebaseListenerService.addChildEventListenerToRemoveList(m_CurrentGroupUsersIdRef, m_CurrentGroupUsersIdChildEventListener);
-
     }
 
     private void initUI() {
@@ -113,7 +112,7 @@ public class GroupInfoActivity extends AppCompatActivity {
 
                 android.app.AlertDialog dialogAlert = new AlertDialog.Builder(GroupInfoActivity.this, R.style.MyDialogTheme)
                         .setTitle("Confirm")
-                        .setMessage("Remove " + m_CurrentGroup.getName() + " from MyGroups?")
+                        .setMessage("Do you want to leave " + m_CurrentGroup.getName() + "?")
                         .setPositiveButton("Yes", dialogClickListener)
                         .setNegativeButton("No", dialogClickListener)
                         .create();
@@ -204,9 +203,6 @@ public class GroupInfoActivity extends AppCompatActivity {
     }
 
     private void SendUserToChatActivity() {
-        Intent chatIntent = new Intent(this, ChatActivity.class);
-        chatIntent.putExtra("group", m_CurrentGroup);
-        this.startActivity(chatIntent);
         finish();
     }
 
@@ -216,6 +212,9 @@ public class GroupInfoActivity extends AppCompatActivity {
         finish();
     }
 
-
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        m_CurrentGroupUsersIdRef.removeEventListener(m_CurrentGroupUsersIdChildEventListener);
+    }
 }

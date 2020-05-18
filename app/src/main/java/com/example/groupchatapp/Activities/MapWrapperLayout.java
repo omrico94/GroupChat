@@ -86,4 +86,12 @@ public class MapWrapperLayout extends RelativeLayout {
         // Otherwise pass this event to the super class and return it's result
         return ret || super.dispatchTouchEvent(ev);
     }
+
+    public void refreshInfoWindo(Marker marker)
+    {
+        if(marker.isInfoWindowShown()){
+            marker.hideInfoWindow();
+            marker.showInfoWindow();
+        }
+    }
 }
