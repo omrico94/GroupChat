@@ -19,7 +19,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="75dp"
-        android:src="@drawable/profile_image"
+        android:src="@drawable/groupicon"
         app:civ_border_color="#A5AFA9"
         app:civ_border_width="3dp" />
 

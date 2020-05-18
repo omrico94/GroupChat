@@ -2,18 +2,18 @@ package com.example.groupchatapp.Models;
 
 public class Message
 {
-    private String from, message, type, time, date, name, mid, senderName;
+    private String from, message, type, time, date, name, id, senderName;
 
     public Message()
     {
 
     }
 
-    public Message(String id, String from, String message, String type, String time, String date, String nameת, String senderName) {
+    public Message(String id, String from, String message, String type, String time, String date, String name, String senderName) {
         this.from = from;
         this.message = message;
         this.type = type;
-        this.mid =id;
+        this.id =id;
         this.time = time;
         this.date = date;
         this.name = name;
@@ -21,7 +21,7 @@ public class Message
     }
 
     public String getId() {
-        return mid;
+        return id;
     }
 
     public String getFrom() {

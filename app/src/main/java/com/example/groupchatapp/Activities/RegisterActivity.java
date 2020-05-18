@@ -91,9 +91,8 @@ public class RegisterActivity extends AppCompatActivity
                         final String currentUserID = mAuth.getCurrentUser().getUid();
                         RootRef.child("Users").child(currentUserID).setValue("");
                         RootRef.child("Users").child(currentUserID).child("token").setValue(deviceToken);
-                        //להעיף אחכ
                         RootRef.child("Users").child(currentUserID).child("name").setValue(email);
-                        RootRef.child("Users").child(currentUserID).child("uid").setValue(currentUserID);
+                        RootRef.child("Users").child(currentUserID).child("id").setValue(currentUserID);
 
                         SendUserToMapsActivity();
                         Toast.makeText(RegisterActivity.this,"Account created successfully",Toast.LENGTH_SHORT).show();

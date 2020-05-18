@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.groupchatapp.Adapters.MessageAdapter;
 import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.Models.Message;
 import com.example.groupchatapp.R;
 import com.google.android.gms.tasks.Continuation;
@@ -85,6 +87,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private int indexOfCurrentDate = 0;
 
+    private Group m_CurrentGroup;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,24 +98,24 @@ public class ChatActivity extends AppCompatActivity {
         m_LoginManager = LoginManager.getInstance();
         m_CountryCode = LoginManager.getInstance().getLocationManager().getCountryCode();
 
-        userSenderId = m_LoginManager.getLoggedInUser().getValue().getUid();
+        userSenderId = m_LoginManager.getLoggedInUser().getValue().getId();
         userSenderName = m_LoginManager.getLoggedInUser().getValue().getName();
         rootRef= FirebaseDatabase.getInstance().getReference();
 
         m_ExitRef = FirebaseDatabase.getInstance().getReference();
 
-        groupId =getIntent().getExtras().get("group_id").toString();
-        groupName =getIntent().getExtras().get("group_name").toString();
-        if(getIntent().getExtras().get("group_image")!=null) {//maybe there is a better way to handle this
-            groupImageStr = getIntent().getExtras().get("group_image").toString();
-        }
+        m_CurrentGroup =(Group) getIntent().getExtras().get("group");
+        groupId =m_CurrentGroup.getId();
+        groupName =m_CurrentGroup.getName();
+        groupImageStr = m_CurrentGroup.getPhotoUrl() != null ? m_CurrentGroup.getPhotoUrl() : "default_image";
+
 
         Toast.makeText(ChatActivity.this, groupName,Toast.LENGTH_SHORT).show();
 
         initializeControllers();
 
         groupNameTextView.setText(groupName);
-        Picasso.get().load(groupImageStr).placeholder(R.drawable.profile_image).into(groupCircleImageView);
+        Picasso.get().load(groupImageStr).placeholder(R.drawable.groupicon).into(groupCircleImageView);
 
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,15 +179,9 @@ public class ChatActivity extends AppCompatActivity {
         rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages")
                 .addChildEventListener(m_MessageEventListener);
         FirebaseListenerService.addChildEventListenerToRemoveList( rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages"),m_MessageEventListener);
-        m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").child(groupId)
+        m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getId()).child("groupsId").child(groupId)
                 .addChildEventListener(m_UserExitFromGroupEventListener);
-        FirebaseListenerService.addChildEventListenerToRemoveList(m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getUid()).child("groupsId").child(groupId), m_UserExitFromGroupEventListener);
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+        FirebaseListenerService.addChildEventListenerToRemoveList(m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getId()).child("groupsId").child(groupId), m_UserExitFromGroupEventListener);
 
     }
 
@@ -223,8 +221,6 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 };
 
-
-
         m_UserExitFromGroupEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -233,9 +229,9 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                sendMessageButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
-                sendFilesButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
-                messageInputText.setEnabled(m_LoginManager.isUserInGroup(groupId));
+                sendMessageButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
+                sendFilesButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
+                messageInputText.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
                 Toast.makeText(ChatActivity.this,"You left the group!\n You will not be able to send and receive messages", Toast.LENGTH_LONG).show();
             }
 
@@ -313,18 +309,24 @@ public class ChatActivity extends AppCompatActivity {
 
         groupNameTextView =findViewById(R.id.custom_group_name);
         groupCircleImageView =findViewById(R.id.custom_group_image);
+        groupCircleImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendUserToGroupInfoActivity();
+            }
+        });
 
         sendMessageButton = findViewById(R.id.send_message_button);
         sendFilesButton = findViewById(R.id.send_files_button);
-        sendMessageButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
-        sendFilesButton.setEnabled(m_LoginManager.isUserInGroup(groupId));
+        sendMessageButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
+        sendFilesButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
 
 //        sendMessageButton.setClickable(m_LoginManager.isUserInGroup(groupId));
 //        sendFilesButton.setClickable(m_LoginManager.isUserInGroup(groupId));
 
 
         messageInputText = findViewById(R.id.input_message);
-        messageInputText.setEnabled(m_LoginManager.isUserInGroup(groupId));
+        messageInputText.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
 
         loadingBar=new ProgressDialog(this);
         messageAdapter = new MessageAdapter(messagesList);
@@ -339,6 +341,14 @@ public class ChatActivity extends AppCompatActivity {
 
         SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss");
         saveCurrentTime = currentTime.format(calendar.getTime());
+    }
+
+    private void sendUserToGroupInfoActivity() {
+        if (m_LoginManager.getLoggedInUser().getValue().isUserInGroup(m_CurrentGroup.getId())) {
+            Intent groupInfoActivity = new Intent(ChatActivity.this, GroupInfoActivity.class);
+            groupInfoActivity.putExtra("group", m_CurrentGroup);
+            startActivity(groupInfoActivity);
+        }
     }
 
     @Override
@@ -393,7 +403,7 @@ public class ChatActivity extends AppCompatActivity {
 
        final Map messageTextBody = new HashMap() {
            {
-               put("mid", messagePushId);
+               put("id", messagePushId);
                put("message", messageContent);
                put("type", messageType);
                put("from", userSenderId);
@@ -426,8 +436,6 @@ public class ChatActivity extends AppCompatActivity {
                messageInputText.setText("");
            }
        });
-
-
    }
 
    //כרגע הפונקציה כאן עדיין לא מספיק טובה. צריך לראות איך מאחדים את המקרים כך שגם בשליחת תמונה וגם בשליחת קובץ יהיה המדד לכמה אחוזים נשלחו כבר (או לבטל פשוט בשליחת קובץ)
@@ -497,4 +505,32 @@ public class ChatActivity extends AppCompatActivity {
     {
         return  fileUri!=null;
     }
+
+ // @Override
+ // public void onBackPressed() {
+
+ //     removeChildEventListeners();
+ // }
+
+ // @Override
+ // public boolean onOptionsItemSelected(MenuItem item) {
+ //     if (item.getItemId() == android.R.id.home) {
+ //         removeChildEventListeners();
+ //     }
+
+ //     return super.onOptionsItemSelected(item);
+ // }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        removeChildEventListeners();
+    }
+    private void removeChildEventListeners()
+    {
+        rootRef.removeEventListener(m_MessageEventListener);
+        rootRef.removeEventListener(m_UserExitFromGroupEventListener);
+    }
+
 }

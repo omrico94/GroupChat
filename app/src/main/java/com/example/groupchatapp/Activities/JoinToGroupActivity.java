@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.groupchatapp.LoginManager;
+import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.R;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -28,6 +29,7 @@ public class JoinToGroupActivity extends AppCompatActivity {
     private DatabaseReference RootRef;
     private Toolbar groupsToolBar;
     private EditText groupPasswordEditText;
+    private Group m_CurrentGroup;
 
     private LoginManager m_LoginManager;
 
@@ -38,12 +40,10 @@ public class JoinToGroupActivity extends AppCompatActivity {
 
         m_LoginManager = LoginManager.getInstance();
         RootRef= FirebaseDatabase.getInstance().getReference();
-        groupId =getIntent().getExtras().get("group_id").toString();
-        groupName =getIntent().getExtras().get("group_name").toString();
-        if(getIntent().getExtras().get("group_image")!= null) {//maybe their is a better way to handle this
-            groupImageStr = getIntent().getExtras().get("group_image").toString();
-        }
-
+        m_CurrentGroup=(Group) getIntent().getExtras().get("group");
+        groupId =m_CurrentGroup.getId();
+        groupName =m_CurrentGroup.getName();
+        groupImageStr = m_CurrentGroup.getPhotoUrl() != null ? m_CurrentGroup.getPhotoUrl() : "default_image";
 
         initializeFields();
 
@@ -65,7 +65,7 @@ public class JoinToGroupActivity extends AppCompatActivity {
 
         if(groupPasswordEditText.getVisibility()==View.INVISIBLE || groupPasswordEditText.getText().toString().equals(groupPassword))
         {
-            String uid=m_LoginManager.getLoggedInUser().getValue().getUid();
+            String uid=m_LoginManager.getLoggedInUser().getValue().getId();
             String countryCode = m_LoginManager.getLocationManager().getCountryCode();
             m_LoginManager.addNewGroupIdToCurrentUser(groupId);
             RootRef.child("Groups").child(countryCode).child(groupId).child("usersId").child(uid).setValue(uid);
@@ -84,7 +84,7 @@ public class JoinToGroupActivity extends AppCompatActivity {
       groupNameEditText.setText(groupName);
 
       if (groupImageStr != null) {
-          Picasso.get().load(groupImageStr).placeholder(R.drawable.profile_image).into(groupProfileImage);
+          Picasso.get().load(groupImageStr).placeholder(R.drawable.groupicon).into(groupProfileImage);
       }
   }
 
@@ -92,12 +92,12 @@ public class JoinToGroupActivity extends AppCompatActivity {
 
         joinGroup =findViewById(R.id.join_group_button);
         groupNameEditText = findViewById(R.id.group_name);
-        groupProfileImage = findViewById(R.id.set_profile_image);
+        groupProfileImage = findViewById(R.id.set_group_image);
         groupsToolBar = findViewById(R.id.join_to_group_toolbar);
         groupPasswordEditText = findViewById(R.id.password_to_join);
-        if(!isPublicGroup())
+        if(m_CurrentGroup.isPrivateGroup())
         {
-            groupPassword =getIntent().getExtras().get("group_password").toString();
+            groupPassword =m_CurrentGroup.getPassword();
             groupPasswordEditText.setVisibility(View.VISIBLE);
         }
 
@@ -111,17 +111,8 @@ public class JoinToGroupActivity extends AppCompatActivity {
     private void SendUserToChatActivity()
     {
         Intent chatIntent = new Intent(this, ChatActivity.class);
-        chatIntent.putExtra("group_id", groupId);
-        chatIntent.putExtra("group_name", groupName);
-        chatIntent.putExtra("group_image", groupImageStr);
+        chatIntent.putExtra("group", m_CurrentGroup);
         this.startActivity(chatIntent);
         finish();
     }
-
-    private boolean isPublicGroup()
-    {
-        return getIntent().getExtras().get("group_password")==null;
-    }
-
-
 }

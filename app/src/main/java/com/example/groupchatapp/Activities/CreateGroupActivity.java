@@ -107,7 +107,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
             else {
 
-                final String currentUserId = m_LoginManager.getLoggedInUser().getValue().getUid();
+                final String currentUserId = m_LoginManager.getLoggedInUser().getValue().getId();
                 final Map usersIdMap = new HashMap() {
                     {
                         put(currentUserId, currentUserId);
@@ -120,7 +120,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                 }
 
                 HashMap<String, Object> profileMap = new HashMap<>();
-                profileMap.put("gid", groupId);
+                profileMap.put("id", groupId);
                 profileMap.put("name", setGroupName);
                 profileMap.put("description", setGroupDescription);
                 profileMap.put("latitude", String.valueOf(m_LoginManager.getLocationManager().getLatitude()));
@@ -137,7 +137,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            SendUserToMyGroupsActivity();
+                           // SendUserToMyGroupsActivity();
                             Toast.makeText(CreateGroupActivity.this, "Group created successfully", Toast.LENGTH_SHORT).show();
                         } else {
                             String message = task.getException().toString();
@@ -174,56 +174,18 @@ public class CreateGroupActivity extends AppCompatActivity {
                             final String downloadUrl = task.getResult().toString();
                             RootRef.child("Groups").child(countryCode).child(groupId).child("photoUrl")
                             .setValue(downloadUrl);
+
                 }
                 else
                 {
                     String message = task.getException().toString();
                     Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
                 }
+
+                        SendUserToMyGroupsActivity();
             }
         });
     }
-
-
-
-    //private void RetrieveUserInfo() פונקציה שתתאים לנו שנרצה לאפשר עריכה של פרטים לקבוצה קיימת
-    //{
-    //    RootRef.child("new Group").child(currentUserID).addValueEventListener(new ValueEventListener()
-    //    {
-    //
-    //
-    //     @Override
-    //     public void onDataChange(DataSnapshot dataSnapshot)
-    //     {
-    //         if((dataSnapshot.exists()) && (dataSnapshot.hasChild("name")))
-    //         {
-    //             String retrieveGroupName = dataSnapshot.child("name").getValue().toString();
-    //             String retrieveGroupCode = dataSnapshot.child("code").getValue().toString();
-    //             groupName.setText(retrieveGroupName);
-    //             groupDescription.setText(retrieveGroupCode);
-////
-    //             if(dataSnapshot.hasChild("image"))
-    //             {
-    //                 String retrieveProfileImage = dataSnapshot.child("image").getValue().toString();
-    //                 Picasso.get().load(retrieveProfileImage).into(groupImage);
-    //             }
-////
-    //         }
-////
-    //         else
-    //         {
-    //             groupName.setVisibility(View.VISIBLE);
-    //             Toast.makeText(CreateGroupActivity.this,"Please set and update your profile information",Toast.LENGTH_SHORT).show();
-    //         }
-    //     }
-//
-    //        @Override
-    //        public void onCancelled(DatabaseError databaseError)
-    //        {
-//
-    //        }
-    //    });
-    //}
 
     private void initializeFields() {
 
@@ -244,17 +206,6 @@ public class CreateGroupActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setTitle("Create New Group");
     }
-
-
-        private void SendUserToMapsActivity()
-        {
-            //Intent mapsIntent = new Intent(CreateGroupActivity.this,MapsActivity.class);
-           // mapsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            //startActivity(mapsIntent);
-            finish();
-        }
-
-
 
     private void SendUserToMyGroupsActivity() {
         Intent myGroupsIntent = new Intent(CreateGroupActivity.this, MyGroupsActivity.class);

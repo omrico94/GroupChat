@@ -9,20 +9,20 @@ import com.example.groupchatapp.Models.Group;
 
 import java.util.ArrayList;
 
-public class AllGroupsAdapter extends GroupsAdapter {
-
-
-    public AllGroupsAdapter(ArrayList<Group> mGroups, Context mContext) {
-       super(mGroups,mContext);
-    }
-
-    @Override
-    void onClickItem(View view, Group currentGroup, String groupPhoto) {
-        Intent joinGroupIntent = new Intent(mContext, JoinToGroupActivity.class);
-        joinGroupIntent.putExtra("group_id", currentGroup.getGid());
-        joinGroupIntent.putExtra("group_name", currentGroup.getName());
-        joinGroupIntent.putExtra("group_image", groupPhoto);
-        joinGroupIntent.putExtra("group_password", currentGroup.getPassword());
-        mContext.startActivity(joinGroupIntent);
-    }
-}
+//public class AllGroupsAdapter extends IdisplayableAdapter {
+//
+//
+//    public AllGroupsAdapter(ArrayList<Group> mGroups, Context mContext) {
+//       super(mGroups,mContext);
+//    }
+//
+//
+//    void onClickItem(View view, Group currentGroup, String IDisplayablePhoto) {
+//        Intent joinGroupIntent = new Intent(mContext, JoinToGroupActivity.class);
+//        joinGroupIntent.putExtra("group_id", currentGroup.getGid());
+//        joinGroupIntent.putExtra("group_name", currentGroup.getName());
+//        joinGroupIntent.putExtra("group_image", IDisplayablePhoto);
+//        joinGroupIntent.putExtra("group_password", currentGroup.getPassword());
+//        mContext.startActivity(joinGroupIntent);
+//    }
+//}

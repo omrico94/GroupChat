@@ -15,21 +15,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-
+        <activity android:name=".Activities.GroupInfoActivity"
+            android:parentActivityName=".Activities.ChatActivity" >
+        </activity>
         <activity
             android:name=".Activities.MapsActivity"
             android:label="@string/title_activity_maps"
-            android:launchMode="singleTop">
-
-        </activity>
+            android:launchMode="singleTop"></activity>
         <activity
             android:name=".Activities.MyGroupsActivity"
-            android:parentActivityName=".Activities.MapsActivity"
-            android:launchMode="singleTop">
-        </activity>
+            android:launchMode="singleTop"
+            android:parentActivityName=".Activities.MapsActivity"></activity>
         <activity
             android:name=".Activities.JoinToGroupActivity"
             android:parentActivityName=".Activities.MapsActivity" />
@@ -48,7 +48,6 @@
             android:name=".Activities.SettingsActivity"
             android:parentActivityName=".Activities.MapsActivity" />
         <activity android:name=".Activities.RegisterActivity" />
-
         <activity android:name=".Activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

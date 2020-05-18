@@ -70,7 +70,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull final MessageViewHolder messageViewHolder, final int position)
     {
-        String currentUserId = LoginManager.getInstance().getLoggedInUser().getValue().getUid();
+        String currentUserId = LoginManager.getInstance().getLoggedInUser().getValue().getId();
         Message message = groupMessagesList.get(position);
         String fromUserId = message.getFrom();
         String fromMessageType = message.getType();
