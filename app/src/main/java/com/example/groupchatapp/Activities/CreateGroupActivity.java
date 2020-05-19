@@ -123,6 +123,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("latitude", String.valueOf(m_LoginManager.getLocationManager().getLatitude()));
                 profileMap.put("longitude", String.valueOf(m_LoginManager.getLocationManager().getLongitude()));
                 profileMap.put("usersId", usersIdMap);
+                profileMap.put("historyUsersId", "");
                 profileMap.put("radius", setGroupRadius);
                 profileMap.put("numberOfParticipants", 0);
 
