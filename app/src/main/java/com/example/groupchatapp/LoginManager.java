@@ -110,6 +110,7 @@ public class LoginManager {
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
         m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).removeValue();
         m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("historyUsersId").child(m_CurrentUser.getValue().getId()).removeValue();
+        m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("usersId").child(m_CurrentUser.getValue().getId()).removeValue();
 
     }
 
