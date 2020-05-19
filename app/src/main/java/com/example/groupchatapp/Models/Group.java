@@ -14,12 +14,10 @@ public class Group implements Serializable ,IDisplayable {
 
     private HashMap<String,String> usersId = new HashMap<>();
 
-    int numberOfParticipants;
-
     public Group() {
     }
 
-    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password, String radius, int numberOfParticipants) {
+    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password, String radius) {
         this.name = name;
         this.photoUrl = photoUrl;
         this.id = groupId;
@@ -29,7 +27,6 @@ public class Group implements Serializable ,IDisplayable {
         this.usersId = usersId;
         this.password = password;
         this.radius = radius;
-        this.numberOfParticipants = numberOfParticipants;
     }
 
     public String getRadius() { return radius; }
@@ -71,9 +68,6 @@ public class Group implements Serializable ,IDisplayable {
     @Override
     public String getId() {return id;}
 
-    public int getNumberOfParticipants(){ return numberOfParticipants; }
-
-    public void setNumberOfParticipants(int numberOfParticipants) { this.numberOfParticipants = numberOfParticipants; }
 }
 
 

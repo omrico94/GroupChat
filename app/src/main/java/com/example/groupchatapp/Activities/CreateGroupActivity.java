@@ -125,7 +125,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("usersId", usersIdMap);
                 profileMap.put("historyUsersId", "");
                 profileMap.put("radius", setGroupRadius);
-                profileMap.put("numberOfParticipants", 0);
 
                 if (!setGroupPassword.isEmpty()) {
                     profileMap.put("password", setGroupPassword);

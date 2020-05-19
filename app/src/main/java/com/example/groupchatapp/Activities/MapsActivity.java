@@ -225,7 +225,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().isUserInGroup(changedGroup.getId());
                 boolean isGroupInMyLocation = Utils.isGroupInMyLocation(changedGroup);
 
-                ((Group) (markers.get(changedGroup.getId()).getTag())).setNumberOfParticipants(changedGroup.getNumberOfParticipants());
                 changeMarkerColor(isInGroup, changedGroup.getId(), isGroupInMyLocation);
             }
 
@@ -456,35 +455,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_UsersGroupsRefChildValueListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshotGroupId, String s) {
-                m_GroupsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        String groupId = dataSnapshotGroupId.getKey();
 
-                        Group group = dataSnapshot.child(groupId).getValue(Group.class);
-
-                        m_GroupsRef.child(groupId).child("numberOfParticipants").setValue(
-                                (group.getNumberOfParticipants() + 1));
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshotGroupId, String s) {
                 String groupId = dataSnapshotGroupId.getKey();
                 changeMarkerColor(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId), groupId, Utils.isGroupInMyLocation((Group) markers.get(groupId).getTag()));
-
-                if (m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId)) {
-                    m_GroupsRef.child(groupId).child("numberOfParticipants").setValue(
-                            ((Group)markers.get(groupId).getTag()).getNumberOfParticipants() + 1);
-                } else {
-                    m_GroupsRef.child(groupId).child("numberOfParticipants").setValue(
-                            ((Group)markers.get(groupId).getTag()).getNumberOfParticipants() - 1);
-                }
             }
 
             @Override
