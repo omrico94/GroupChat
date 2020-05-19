@@ -473,13 +473,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         String groupId = dataSnapshotGroupId.getKey();
 
-                        if (dataSnapshot.child(groupId).child("usersId").getChildrenCount() == 1) // only current user was in group
-                        {
+                        if (dataSnapshot.child(groupId).child("historyUsersId").getChildrenCount() == 0 && dataSnapshot.child(groupId).child("usersId").getChildrenCount() ==0 ) {
                             m_GroupsRef.child(groupId).removeValue();
-
-                        } else {
-                            m_GroupsRef.child(groupId).child("usersId").child(LoginManager.getInstance().getLoggedInUser().getValue().getId()).removeValue();
-
                         }
 
                     }
