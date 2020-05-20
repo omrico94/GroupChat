@@ -107,7 +107,6 @@ public class CreateGroupActivity extends AppCompatActivity {
 
             else {
 
-                final String currentUserId = m_LoginManager.getLoggedInUser().getValue().getId();
                 final String groupId = RootRef.child("Groups").child(countryCode).push().getKey();
 
                 HashMap<String, Object> profileMap = new HashMap<>();
@@ -122,12 +121,12 @@ public class CreateGroupActivity extends AppCompatActivity {
                     profileMap.put("password", setGroupPassword);
                 }
 
-                m_LoginManager.addNewGroupIdToCurrentUser(groupId);
-
                 RootRef.child("Groups").child(countryCode).child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
+                            m_LoginManager.addNewGroupIdToCurrentUser(groupId);
+
                             //יכולה להיות בעיה אם לא הצלחנו לעלות את התמונה לstorage
                             if (imageUri != null) {
                                 uploadImageToStorage(groupId);
