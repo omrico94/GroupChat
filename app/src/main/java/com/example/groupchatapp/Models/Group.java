@@ -12,14 +12,14 @@ public class Group implements Serializable ,IDisplayable {
 
     private String longitude, latitude,password, radius;
 
-    private HashMap<String,String> usersId = new HashMap<>();
+    private int participantsNmumber;
 
-    int numberOfParticipants;
+    private HashMap<String,String> usersId = new HashMap<>();
 
     public Group() {
     }
 
-    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password, String radius, int numberOfParticipants) {
+    public Group(String name,String description, String photoUrl, String groupId, String longitude, String latitude, HashMap<String,String> usersId,String password, String radius) {
         this.name = name;
         this.photoUrl = photoUrl;
         this.id = groupId;
@@ -29,7 +29,7 @@ public class Group implements Serializable ,IDisplayable {
         this.usersId = usersId;
         this.password = password;
         this.radius = radius;
-        this.numberOfParticipants = numberOfParticipants;
+        this.participantsNmumber = 0;
     }
 
     public String getRadius() { return radius; }
@@ -67,13 +67,12 @@ public class Group implements Serializable ,IDisplayable {
     public boolean isPrivateGroup() {
         return password!=null;
     }
+    public int  getParticipantsNmumber(){return  participantsNmumber;}
+    public void setParticipantsNumber(int participantsNmumber){this.participantsNmumber = participantsNmumber;}
 
     @Override
     public String getId() {return id;}
 
-    public int getNumberOfParticipants(){ return numberOfParticipants; }
-
-    public void setNumberOfParticipants(int numberOfParticipants) { this.numberOfParticipants = numberOfParticipants; }
 }
 
 

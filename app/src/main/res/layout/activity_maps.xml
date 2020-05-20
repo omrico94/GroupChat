@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.groupchatapp.Activities.MapWrapperLayout
+    <com.example.groupchatapp.Adapters.MapWrapperAdapter
         android:id="@+id/map_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -45,6 +45,6 @@
         android:src="@drawable/add_group" />
 
         
-    </com.example.groupchatapp.Activities.MapWrapperLayout>
+    </com.example.groupchatapp.Adapters.MapWrapperAdapter>
 
 </RelativeLayout>

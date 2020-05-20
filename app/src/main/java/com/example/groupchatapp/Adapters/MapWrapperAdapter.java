@@ -1,4 +1,4 @@
-package com.example.groupchatapp.Activities;
+package com.example.groupchatapp.Adapters;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
-public class MapWrapperLayout extends RelativeLayout {
+public class MapWrapperAdapter extends RelativeLayout {
     /**
      * Reference to a GoogleMap object
      */
@@ -35,15 +35,15 @@ public class MapWrapperLayout extends RelativeLayout {
      */
     private View infoWindow;
 
-    public MapWrapperLayout(Context context) {
+    public MapWrapperAdapter(Context context) {
         super(context);
     }
 
-    public MapWrapperLayout(Context context, AttributeSet attrs) {
+    public MapWrapperAdapter(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MapWrapperLayout(Context context, AttributeSet attrs, int defStyle) {
+    public MapWrapperAdapter(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 

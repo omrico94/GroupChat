@@ -1,4 +1,4 @@
-package com.example.groupchatapp.Activities;
+package com.example.groupchatapp;
 
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
