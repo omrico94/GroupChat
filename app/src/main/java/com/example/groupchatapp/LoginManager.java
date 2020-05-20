@@ -141,6 +141,7 @@ public class LoginManager {
 
         m_CurrentUser.getValue().getGroupsId().put(groupId,values);
         m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).setValue(values);
+        m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("usersId").child(m_CurrentUser.getValue().getId()).setValue(m_CurrentUser.getValue().getId());
     }
 
     public void exitFromGroup(String groupId)
