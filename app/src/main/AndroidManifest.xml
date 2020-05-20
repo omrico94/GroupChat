@@ -31,9 +31,6 @@
             android:launchMode="singleTop"
             android:parentActivityName=".Activities.MapsActivity"></activity>
         <activity
-            android:name=".Activities.JoinToGroupActivity"
-            android:parentActivityName=".Activities.MapsActivity" />
-        <activity
             android:name=".Activities.CreateGroupActivity"
             android:parentActivityName=".Activities.MapsActivity" />
         <activity
