@@ -1,5 +1,6 @@
 package com.example.groupchatapp.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,15 +35,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class GroupInfoActivity extends AppCompatActivity {
 
     private RecyclerView m_UsersList;
-    private DatabaseReference m_UsersRef;
+    private DatabaseReference m_UsersRef , m_CurrentGroupUsersIdRef;
     private UsersAdapter m_UsersAdapter;
     private final ArrayList<IDisplayable> m_UsersToDisplay = new ArrayList<>();
     private Toolbar mToolbar;
-    private String m_GroupId, m_GroupName, m_GroupPhotoUrl, m_GroupDescription;
+    private String m_GroupName, m_GroupPhotoUrl, m_GroupDescription;
     private TextView m_UsersCounterTextView, m_GroupDescriptionTextView;
     private CircleImageView m_GroupCircleImageView;
     private Button m_ExitFromGroupButton;
-    private int m_UsersCounter = 0;
+    private long m_UsersCounter = 0;
     private Group m_CurrentGroup;
 
     @Override
@@ -50,12 +51,16 @@ public class GroupInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
         m_CurrentGroup = (Group) getIntent().getExtras().get("group");
-        m_GroupId = m_CurrentGroup.getId();
         m_GroupName = m_CurrentGroup.getName();
         m_GroupDescription = m_CurrentGroup.getDescription();
 
         initUI();
         m_UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        m_CurrentGroupUsersIdRef = FirebaseDatabase.getInstance().getReference().child("Groups")
+                .child(LoginManager.getInstance().getLocationManager().getCountryCode())
+                .child(m_CurrentGroup.getId())
+                .child("usersId");
+
         m_UsersList.setAdapter(m_UsersAdapter);
         displayUsers();
     }
@@ -112,17 +117,19 @@ public class GroupInfoActivity extends AppCompatActivity {
     }
 
     private void displayUsers() {
+m_CurrentGroupUsersIdRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    @Override
+    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-        for (String userId : m_CurrentGroup.getUsersId().keySet()
+        for (DataSnapshot ds : dataSnapshot.getChildren()
         ) {
             m_UsersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                    User user = dataSnapshot.child(userId).getValue(User.class);
-                        m_UsersToDisplay.add(user);
+                    User user = dataSnapshot.child(ds.getKey()).getValue(User.class);
+                    m_UsersToDisplay.add(user);
                     m_UsersAdapter.notifyItemInserted(m_UsersToDisplay.size() - 1);
-
                 }
 
                 @Override
@@ -131,8 +138,16 @@ public class GroupInfoActivity extends AppCompatActivity {
                 }
             });
         }
-        m_UsersCounter = m_CurrentGroup.getUsersId().size();
+
+        m_UsersCounter = dataSnapshot.getChildrenCount();
         m_UsersCounterTextView.setText(String.valueOf(m_UsersCounter));
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+    }
+});
 
     }
 
