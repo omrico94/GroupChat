@@ -107,7 +107,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         initOnLocationPermissionChange();
         initializeFields();
         setOnClickButtons();
-        
+
 
     }
 
@@ -216,7 +216,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
             m_infoSnippet.setText(currentGroupMarker.getSnippet());
-            m_participantsNumber.setText(String.valueOf(((Group) currentGroupMarker.getTag()).getParticipantsNmumber()));
+            m_participantsNumber.setText(String.valueOf(((Group) currentGroupMarker.getTag()).getUsersId().size()));
+
             if(!m_LoginManager.getLoggedInUser().getValue().isUserInGroup(((Group) currentGroupMarker.getTag()).getId()))
             {
                 showJoinGroupButton();
@@ -302,7 +303,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Group groupToAdd = dataSnapshot.getValue(Group.class);
-                groupToAdd.setParticipantsNumber((int) dataSnapshot.child(groupToAdd.getId()).child("usersId").getChildrenCount());
+
                 boolean isInGroup = m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupToAdd.getId());
 
                 boolean isGroupInMyLocation = Utils.isGroupInMyLocation(groupToAdd);
@@ -324,7 +325,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 Group changedGroup = dataSnapshot.getValue(Group.class);
 
-                changedGroup.setParticipantsNumber((int) dataSnapshot.child(changedGroup.getId()).child("usersId").getChildrenCount());
                 Marker changedGroupMarker = markers.get(changedGroup.getId());
                 changedGroupMarker.setTag(changedGroup);
                 m_mapWrapperAdapter.refreshInfoWindo(changedGroupMarker);
