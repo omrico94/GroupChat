@@ -9,9 +9,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.ArrayMap;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -107,7 +109,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         initOnLocationPermissionChange();
         initializeFields();
         setOnClickButtons();
-
 
     }
 
@@ -424,15 +425,61 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Setting custom OnTouchListener which deals with the pressed state
         // so it shows up
-        m_infoButtonListener = new OnInfoWindowElemTouchListener(m_joinGroupButton){
+        m_infoButtonListener = new OnInfoWindowElemTouchListener(m_joinGroupButton) {
             @Override
+
             protected void onClickConfirmed(View v, Marker marker) {
-                SendUserToJoinToGroupActivity();
+
+
+                if (currentGroup.isPrivateGroup()) {
+
+                    final EditText input = new EditText(MapsActivity.this);
+                    input.setBackgroundResource(R.drawable.rounded_layout_gray);
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD); // the inputs look like dot and not the text.
+                    final AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this, R.style.MyDialogTheme)
+                            .setView(input)
+                            .setTitle("Password required")
+                            .setMessage("Please enter the password of " + currentGroup.getName() + " :")
+                            .setPositiveButton("Join", null)
+                            .setNegativeButton("Cancel", null)
+                            .create();
+
+                    alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+                        @Override
+                        public void onShow(DialogInterface dialog) {
+
+                            Button b = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            b.setOnClickListener(new View.OnClickListener() {
+
+                                @Override
+                                public void onClick(View view) {
+                                    if (input.getText().toString().equals(currentGroup.getPassword())) {
+                                        LoginManager.getInstance().addNewGroupIdToCurrentUser(currentGroup.getId());
+                                        sendUserToChatActivity();
+                                        alertDialog.hide();
+
+                                    } else {
+                                        alertDialog.setMessage("Wrong password, please try again...");
+                                        input.setBackgroundResource(R.drawable.rounded_layout_red);
+                                        b.setText("retry");
+                                    }
+
+                                }
+                            });
+                        }
+                    });
+                    alertDialog.show();
+                } else {
+                    LoginManager.getInstance().addNewGroupIdToCurrentUser(currentGroup.getId());
+                    sendUserToChatActivity();
+
+                }
             }
+
         };
 
         m_joinGroupButton.setOnTouchListener(m_infoButtonListener);
-
 
 
         m_infoButtonListener = new OnInfoWindowElemTouchListener(m_exitGroupButton){
@@ -456,8 +503,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 AlertDialog dialogAlert = new AlertDialog.Builder(MapsActivity.this, R.style.MyDialogTheme)
                         .setTitle("Confirm")
-                        .setMessage("Do you want to remove " + currentGroup.getName() + " from your groups?")
-                        .setPositiveButton("Yes",dialogClickListener)
+
+                        .setMessage("Do you want to leave " + currentGroup.getName() + "?")
+                        .setPositiveButton("Yes", dialogClickListener)
+
                         .setNegativeButton("No", dialogClickListener)
                         .create();
                 dialogAlert.show();
@@ -479,6 +528,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    private void sendUserToChatActivity()
+    {
+        Intent chatIntent = new Intent(MapsActivity.this, ChatActivity.class);
+        chatIntent.putExtra("group",currentGroup);
+        MapsActivity.this.startActivity(chatIntent);
+    }
     private void showExitGroupButton() {
         m_joinGroupButton.setVisibility(View.GONE);
         m_exitGroupButton.setVisibility(View.VISIBLE);
@@ -493,13 +548,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_joinGroupButton.setVisibility(View.GONE);
         m_exitGroupButton.setVisibility(View.GONE);
         m_chatButton.setVisibility(View.GONE);
-    }
-
-    private void sendUserToChatActivity() {
-
-        Intent chatIntent = new Intent(this, ChatActivity.class);
-        chatIntent.putExtra("group", currentGroup);
-        this.startActivity(chatIntent);
     }
 
 
@@ -518,13 +566,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         createGroupIntent.putExtra("longitude", m_LoginManager.getLocationManager().getLatitude());
         createGroupIntent.putExtra("latitude", m_LoginManager.getLocationManager().getLongitude());
         startActivity(createGroupIntent);
-    }
-
-    private void SendUserToJoinToGroupActivity()
-    {
-        Intent joinGroupIntent = new Intent(MapsActivity.this, JoinToGroupActivity.class);
-        joinGroupIntent.putExtra("group", currentGroup);
-        startActivity(joinGroupIntent);
     }
 
     private void initLocationLimitChange() {

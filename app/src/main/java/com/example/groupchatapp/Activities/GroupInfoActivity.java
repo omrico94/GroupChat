@@ -120,12 +120,9 @@ public class GroupInfoActivity extends AppCompatActivity {
                 public void onDataChange(final DataSnapshot dataSnapshot) {
 
                     User user = dataSnapshot.child(userId).getValue(User.class);
-                    if (user.isUserInGroup(m_GroupId)) {
                         m_UsersToDisplay.add(user);
-                        m_UsersAdapter.notifyItemInserted(m_UsersToDisplay.size() - 1);
-                        m_UsersCounter++;
-                        m_UsersCounterTextView.setText(String.valueOf(m_UsersCounter));
-                    }
+                    m_UsersAdapter.notifyItemInserted(m_UsersToDisplay.size() - 1);
+
                 }
 
                 @Override
@@ -134,6 +131,9 @@ public class GroupInfoActivity extends AppCompatActivity {
                 }
             });
         }
+        m_UsersCounter = m_CurrentGroup.getUsersId().size();
+        m_UsersCounterTextView.setText(String.valueOf(m_UsersCounter));
+
     }
 
     @Override
