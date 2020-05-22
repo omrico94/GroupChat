@@ -85,6 +85,7 @@ public class ChatActivity extends AppCompatActivity {
     private int indexOfCurrentDate = 0;
 
     private Group m_CurrentGroup;
+    private TextView m_CantSendMessageTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,7 +227,7 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessageButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
                 sendFilesButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
                 messageInputText.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
-                Toast.makeText(ChatActivity.this,"You left the group!\nYou will not be able to send and receive messages", Toast.LENGTH_LONG).show();
+                m_CantSendMessageTextView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -315,6 +316,12 @@ public class ChatActivity extends AppCompatActivity {
         sendMessageButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
         sendFilesButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
 
+        m_CantSendMessageTextView = findViewById(R.id.CantSendMessageTextView);
+        if(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(m_CurrentGroup.getId())) {
+            m_CantSendMessageTextView.setVisibility(View.INVISIBLE);
+        } else {
+            m_CantSendMessageTextView.setVisibility(View.VISIBLE);
+        }
 //        sendMessageButton.setClickable(m_LoginManager.isUserInGroup(groupId));
 //        sendFilesButton.setClickable(m_LoginManager.isUserInGroup(groupId));
 
