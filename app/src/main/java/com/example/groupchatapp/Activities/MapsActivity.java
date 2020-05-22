@@ -168,7 +168,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                RestartMap();
+                restartMap();
             }
         });
 
@@ -239,7 +239,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private void RestartMap() {
+    private void restartMap() {
         hideJoinAndExitGroupButtons();
         if(m_radiusCircle!=null) {
             m_radiusCircle.remove();
@@ -284,12 +284,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(!m_LoginManager.getLocationManager().isLocationOn())
                 {
                     mMap.setMyLocationEnabled(false);
-
                 }else{
                     mMap.setMyLocationEnabled(true);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
-
                 }
+
+                m_OnLocationLimitChange.onLimitChange();
+
             }
         };
 
@@ -409,8 +410,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (LoginManager.getInstance().getLocationManager().isLocationOn()) {
+                if (m_LoginManager.getLocationManager().getCountryCode() != null) {
                     SendUserToMyGroupsActivity();
+                } else {
+                    Toast.makeText(MapsActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
