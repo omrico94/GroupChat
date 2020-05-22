@@ -111,6 +111,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         initializeFields();
         setOnClickButtons();
 
+
     }
 
     private void initializeFields() {
@@ -185,7 +186,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                RestartMap();
+                restartMap();
             }
         });
 
@@ -216,34 +217,34 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             m_groupImage.setImageResource(R.drawable.logosign);
             hideJoinAndExitGroupButtons();
         }
-        else
-        {
-            Picasso.get().load(groupToDisplay.getPhotoUrl()).placeholder(R.drawable.logosign).into(m_groupImage,new com.squareup.picasso.Callback(){
+        else {
+            if (groupToDisplay.getPhotoUrl() == null) {
+                m_groupImage.setImageResource(R.drawable.logosign);
+            } else {
+                Picasso.get().load(groupToDisplay.getPhotoUrl()).into(m_groupImage, new com.squareup.picasso.Callback() {
 
-                @Override
-                public void onSuccess() {
-                   m_mapWrapperAdapter.refreshInfoWindo(currentGroupMarker);
-                }
+                    @Override
+                    public void onSuccess() {
+                        m_mapWrapperAdapter.refreshInfoWindo(currentGroupMarker);
+                    }
 
-                @Override
-                public void onError(Exception e) {
+                    @Override
+                    public void onError(Exception e) {
 
-                }
-            });
+                    }
+                });
 
-
-            m_infoSnippet.setText(currentGroupMarker.getSnippet());
-            m_participantsNumber.setText(String.valueOf(((Group) currentGroupMarker.getTag()).getUsersId().size()));
-
-            if(!m_LoginManager.getLoggedInUser().getValue().isUserInGroup(((Group) currentGroupMarker.getTag()).getId()))
-            {
-                showJoinGroupButton();
             }
-            else
-            {
-                showExitGroupButton();
-            }
+                m_infoSnippet.setText(currentGroupMarker.getSnippet());
+                m_participantsNumber.setText(String.valueOf(((Group) currentGroupMarker.getTag()).getUsersId().size()));
+
+                if (!m_LoginManager.getLoggedInUser().getValue().isUserInGroup(((Group) currentGroupMarker.getTag()).getId())) {
+                    showJoinGroupButton();
+                } else {
+                    showExitGroupButton();
+                }
         }
+
 
          m_descriptionImage.setVisibility(whatToShow);
          m_infoSnippet.setVisibility(whatToShow);
@@ -255,7 +256,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private void RestartMap() {
+    private void restartMap() {
         hideJoinAndExitGroupButtons();
         if(m_radiusCircle!=null) {
             m_radiusCircle.remove();
@@ -278,6 +279,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onSuccess() {
                 initGroupsChildEventListener();
                 m_LoginManager.getLocationManager().CheckPermissionLocation(MapsActivity.this , m_OnLocationInit);
+
             }
 
             @Override
@@ -296,20 +298,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void initOnLocationPermissionChange() {
         m_OnLocationpermissionChange = new OnLocationPermissionChange() {
             @Override
-            public void onChange() {
-                if(m_LoginManager.getLocationManager().isLocationOn())
-                {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
-                }
-
-                if (currentGroup != null) {
-                    m_mapWrapperAdapter.refreshInfoWindo(markers.get(currentGroup.getId()));
-                }
+            public void onChange()
+            {
+                m_OnLocationLimitChange.onLimitChange();
             }
         };
 
         m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
     }
+
 
 
     public void  initGroupsChildEventListener() {
@@ -424,8 +421,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_myGroupsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (LoginManager.getInstance().getLocationManager().isLocationOn()) {
+                if (m_LoginManager.getLocationManager().getCountryCode() != null) {
                     SendUserToMyGroupsActivity();
+                } else {
+                    Toast.makeText(MapsActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -623,6 +622,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onSuccess() {
                 OnLocationProvide();
+                if(m_LoginManager.getLocationManager().isLocationOn()) {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(),15.0f));
+                }
             }
 
             @Override

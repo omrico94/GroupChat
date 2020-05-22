@@ -57,7 +57,7 @@ public class LocationManager {
     }
 
     public boolean isLocationOn() {
-        return m_Latitude != 0 && m_Longitude != 0;
+        return m_Latitude != 0 || m_Longitude != 0;
     }
 
     public String getCountryCode() { return m_CountryCode; }
@@ -90,7 +90,7 @@ public class LocationManager {
             @Override
             public void onProviderEnabled(String provider) {
                 getCurrentLocation();
-                m_OnLocationLimitChange.onLimitChange();
+                m_OnLocationPermissionChange.onChange();
                 Toast.makeText(m_Context, "Searching for your location...", Toast.LENGTH_LONG).show();
 
             }

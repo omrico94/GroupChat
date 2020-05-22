@@ -34,15 +34,10 @@ public class MyGroupsAdapter extends IdisplayableAdapter {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (LoginManager.getInstance().getLocationManager().isLocationOn()) {
-                    Group group = (Group)m_Displayables.get(position);
-                    Intent chatIntent = new Intent(mContext, ChatActivity.class);
-                    chatIntent.putExtra("group",group);
-                    mContext.startActivity(chatIntent);
-                } else {
-                    Toast.makeText(mContext, "Turn on location!", Toast.LENGTH_SHORT).show();
-                }
-
+                Group group = (Group)m_Displayables.get(position);
+                Intent chatIntent = new Intent(mContext, ChatActivity.class);
+                chatIntent.putExtra("group",group);
+                mContext.startActivity(chatIntent);
             }
         });
 
