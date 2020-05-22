@@ -106,6 +106,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
             m_LoginManager.Login(m_OnLoggedInListener);
         }
+
         initOnLocationPermissionChange();
         initializeFields();
         setOnClickButtons();
@@ -142,6 +143,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.setMyLocationEnabled(true);
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                if(!m_LoginManager.getLocationManager().isLocationOn())
+                {
+                    m_LoginManager.getLocationManager().EnableLocationIfNeeded();
+
+                }else{
+
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+
+                }
+                return false;
+            }
+        });
 
         // MapWrapperLayout initialization
         // 39 - default marker height
@@ -188,7 +205,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return m_infoWindow;
             }
         });
-
     }
 
     private void decideWhatToShowInInfoWindow(Marker currentGroupMarker) {
@@ -281,14 +297,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_OnLocationpermissionChange = new OnLocationPermissionChange() {
             @Override
             public void onChange() {
-                if(!m_LoginManager.getLocationManager().isLocationOn())
+                if(m_LoginManager.getLocationManager().isLocationOn())
                 {
-                    mMap.setMyLocationEnabled(false);
-
-                }else{
-                    mMap.setMyLocationEnabled(true);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+                }
 
+                if (currentGroup != null) {
+                    m_mapWrapperAdapter.refreshInfoWindo(markers.get(currentGroup.getId()));
                 }
             }
         };
@@ -481,39 +496,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         m_joinGroupButton.setOnTouchListener(m_infoButtonListener);
 
-
         m_infoButtonListener = new OnInfoWindowElemTouchListener(m_exitGroupButton){
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        IDisplayable group = currentGroup ;
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                LoginManager.getInstance().removeGroupIdFromCurrentUser(group.getId());
-                                break;
 
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
-                                break;
+                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    LoginManager.getInstance().exitFromGroup(currentGroup.getId());
+                                    break;
+
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    //No button clicked
+                                    break;
+                            }
                         }
-                    }
-                };
+                    };
 
-                AlertDialog dialogAlert = new AlertDialog.Builder(MapsActivity.this, R.style.MyDialogTheme)
-                        .setTitle("Confirm")
-
-                        .setMessage("Do you want to leave " + currentGroup.getName() + "?")
-                        .setPositiveButton("Yes", dialogClickListener)
-
-                        .setNegativeButton("No", dialogClickListener)
-                        .create();
+                    android.app.AlertDialog dialogAlert = new AlertDialog.Builder(MapsActivity.this, R.style.MyDialogTheme)
+                            .setTitle("Confirm")
+                            .setMessage("Do you want to leave " + currentGroup.getName() + "?")
+                            .setPositiveButton("Yes", dialogClickListener)
+                            .setNegativeButton("No", dialogClickListener)
+                            .create();
                 dialogAlert.show();
 
-            }
+                }
+            };
 
-        };
+
 
         m_exitGroupButton.setOnTouchListener(m_infoButtonListener);
 
