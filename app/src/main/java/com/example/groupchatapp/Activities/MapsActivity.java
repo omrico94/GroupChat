@@ -61,7 +61,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton;
+    private ImageButton m_settingsButton, m_myGroupsButton, m_addGroupsButton, m_locationButton;
     private DatabaseReference m_GroupsRef,m_UsersGroupsRef;
     private LoginManager m_LoginManager;
     private OnLoggedIn m_OnLoggedInListener;
@@ -72,6 +72,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Group currentGroup;
     private  Circle m_radiusCircle;
+
     private ChildEventListener m_newGroupsRefChildValueListener, m_UsersGroupsRefChildValueListener;
 
     //info window
@@ -119,8 +120,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_settingsButton = findViewById(R.id.settings_button);
         m_myGroupsButton = findViewById(R.id.my_groups_button);
         m_addGroupsButton = findViewById(R.id.add_group_button);
-
-
+        m_locationButton = findViewById(R.id.location_button);
         // We want to reuse the info window for all the markers,
         // so let's create only one class member instance
         m_infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
@@ -145,26 +145,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                if(!m_LoginManager.getLocationManager().isLocationOn())
-                {
-                    m_LoginManager.getLocationManager().EnableLocationIfNeeded();
-
-                }else{
-
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
-
-                }
-                return false;
-            }
-        });
-
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
         // MapWrapperLayout initialization
         // 39 - default marker height
         // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
         m_mapWrapperAdapter.init(mMap, getPixelsFromDp(this, 39 + 20));
+
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -300,6 +286,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChange()
             {
+                if(!m_LoginManager.getLocationManager().isLocationOn())
+                {
+                    mMap.setMyLocationEnabled(false);
+
+                }else {
+                    mMap.setMyLocationEnabled(true);
+                }
+
                 m_OnLocationLimitChange.onLimitChange();
             }
         };
@@ -425,6 +419,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     SendUserToMyGroupsActivity();
                 } else {
                     Toast.makeText(MapsActivity.this, "Turn on location!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        m_locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!m_LoginManager.getLocationManager().isLocationOn())
+                {
+                    m_LoginManager.getLocationManager().EnableLocationIfNeeded();
+
+                }else{
+
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+
                 }
             }
         });
