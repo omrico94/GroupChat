@@ -29,8 +29,12 @@ public class MyGroupsAdapter extends IdisplayableAdapter {
     public void onBindViewHolder(@NonNull final IDisplayableViewHolder holder, int position) {
 
         super.onBindViewHolder(holder, position);
-        final String retImage = m_Displayables.get(position).getPhotoUrl()!=null? m_Displayables.get(position).getPhotoUrl():"default_image";
-        Picasso.get().load(retImage).placeholder(R.drawable.groupicon).into(holder.IDisplayablePhoto);
+        final String retImage = m_Displayables.get(position).getPhotoUrl();
+        if ( retImage == null) {
+            holder.IDisplayablePhoto.setImageResource(R.drawable.groupicon);
+        } else {
+            Picasso.get().load(retImage).into(holder.IDisplayablePhoto);
+        }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

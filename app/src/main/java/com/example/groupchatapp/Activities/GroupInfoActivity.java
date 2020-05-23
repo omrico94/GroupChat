@@ -72,11 +72,16 @@ public class GroupInfoActivity extends AppCompatActivity {
         m_GroupDescriptionTextView = findViewById(R.id.group_desc);
         m_UsersCounterTextView = findViewById(R.id.friends_counter_textView);
         m_GroupCircleImageView = findViewById(R.id.group_image_imageView);
-        m_GroupPhotoUrl = m_CurrentGroup.getPhotoUrl() != null ? m_CurrentGroup.getPhotoUrl() : "default_image";
+        m_GroupPhotoUrl = m_CurrentGroup.getPhotoUrl();
 
         m_GroupDescriptionTextView.setText(m_GroupDescription);
-        Picasso.get().load(m_GroupPhotoUrl).placeholder(R.drawable.groupicon).into(m_GroupCircleImageView);
-
+        if(m_GroupPhotoUrl==null)
+        {
+            m_GroupCircleImageView.setImageResource(R.drawable.groupicon);
+        }
+        else {
+            Picasso.get().load(m_GroupPhotoUrl).into(m_GroupCircleImageView);
+        }
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
