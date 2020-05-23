@@ -105,7 +105,7 @@ public class ChatActivity extends AppCompatActivity {
         m_CurrentGroup =(Group) getIntent().getExtras().get("group");
         groupId =m_CurrentGroup.getId();
         groupName =m_CurrentGroup.getName();
-        groupImageStr = m_CurrentGroup.getPhotoUrl() != null ? m_CurrentGroup.getPhotoUrl() : "default_image";
+        groupImageStr = m_CurrentGroup.getPhotoUrl();
 
 
         Toast.makeText(ChatActivity.this, groupName,Toast.LENGTH_SHORT).show();
@@ -113,8 +113,13 @@ public class ChatActivity extends AppCompatActivity {
         initializeControllers();
 
         groupNameTextView.setText(groupName);
-        Picasso.get().load(groupImageStr).placeholder(R.drawable.groupicon).into(groupCircleImageView);
-
+        if(groupImageStr==null)
+        {
+            groupCircleImageView.setImageResource(R.drawable.groupicon);
+        }
+        else {
+            Picasso.get().load(groupImageStr).into(groupCircleImageView);
+        }
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

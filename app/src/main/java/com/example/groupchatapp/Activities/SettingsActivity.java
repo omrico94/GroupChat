@@ -152,12 +152,17 @@ public class SettingsActivity extends AppCompatActivity {
     {
 
                 String retrieveStatus = m_LoginManager.getLoggedInUser().getValue().getStatus()!=null ? m_LoginManager.getLoggedInUser().getValue().getStatus() : "";
-                String retrieveProfileImage = m_LoginManager.getLoggedInUser().getValue().getPhotoUrl()!=null ?  m_LoginManager.getLoggedInUser().getValue().getPhotoUrl() : "default_image";
+                String retrieveProfileImage = m_LoginManager.getLoggedInUser().getValue().getPhotoUrl();
 
                 userName.setText(m_LoginManager.getLoggedInUser().getValue().getName());
                 userStatus.setText(retrieveStatus);
-                Picasso.get().load(retrieveProfileImage).placeholder(R.drawable.profile_image).into(userProfileImage);
-
+                if(retrieveProfileImage==null)
+                {
+                    userProfileImage.setImageResource(R.drawable.profile_image);
+                }
+                else {
+                    Picasso.get().load(retrieveProfileImage).into(userProfileImage);
+                }
     }
 
     private void initializeFields() {
