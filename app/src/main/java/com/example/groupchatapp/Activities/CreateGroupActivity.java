@@ -98,7 +98,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
             ///When it will be Seekbar we don't need this because there will be default radops.
             else if (Double.valueOf(setGroupRadius) < 40 || Double.valueOf(setGroupRadius) > 200){
-                Toast.makeText(this, "The radius has to be between 40 to 20 meters.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "The radius has to be between 40 to 200 meters.", Toast.LENGTH_SHORT).show();
             }
             //  if(TextUtils.isEmpty(setGroupCode))
             //  {
@@ -107,17 +107,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
             else {
 
-                final String currentUserId = m_LoginManager.getLoggedInUser().getValue().getId();
-                final Map usersIdMap = new HashMap() {
-                    {
-                        put(currentUserId, currentUserId);
-                    }
-                };
-
                 final String groupId = RootRef.child("Groups").child(countryCode).push().getKey();
-                if (imageUri != null) {
-                    uploadImageToStorage(groupId);
-                }
 
                 HashMap<String, Object> profileMap = new HashMap<>();
                 profileMap.put("id", groupId);
@@ -125,20 +115,27 @@ public class CreateGroupActivity extends AppCompatActivity {
                 profileMap.put("description", setGroupDescription);
                 profileMap.put("latitude", String.valueOf(m_LoginManager.getLocationManager().getLatitude()));
                 profileMap.put("longitude", String.valueOf(m_LoginManager.getLocationManager().getLongitude()));
-                profileMap.put("usersId", usersIdMap);
                 profileMap.put("radius", setGroupRadius);
+
                 if (!setGroupPassword.isEmpty()) {
                     profileMap.put("password", setGroupPassword);
                 }
-
-                m_LoginManager.addNewGroupIdToCurrentUser(groupId);
 
                 RootRef.child("Groups").child(countryCode).child(groupId).updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            SendUserToMyGroupsActivity();
-                            Toast.makeText(CreateGroupActivity.this, "Group created successfully", Toast.LENGTH_SHORT).show();
+
+                            m_LoginManager.addNewGroupIdToCurrentUser(groupId);
+
+                            //יכולה להיות בעיה אם לא הצלחנו לעלות את התמונה לstorage
+                            if (imageUri != null) {
+                                uploadImageToStorage(groupId);
+                            }
+                            else {
+                                SendUserToMyGroupsActivity();
+                            }
+
                         } else {
                             String message = task.getException().toString();
                             Toast.makeText(CreateGroupActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
@@ -158,6 +155,10 @@ public class CreateGroupActivity extends AppCompatActivity {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                 if (!task.isSuccessful()) {
+
+                    //במידה ונכשלנו לעלות את התמונה - אנחנו צריכים למחוק את הקבוצה שיצרנו מהדאטה בייס
+                    RootRef.child("Groups").child( m_LoginManager.getLocationManager().getCountryCode())
+                            .child(groupId).removeValue();
                     throw task.getException();
                 }
                 return filePath.getDownloadUrl();
@@ -167,20 +168,21 @@ public class CreateGroupActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {
 
-                        if (task.isSuccessful())
-                        {
+                        if (task.isSuccessful()) {
                             String countryCode = m_LoginManager.getLocationManager().getCountryCode();
-                            Toast.makeText(CreateGroupActivity.this,"Profile image uploaded successfully",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CreateGroupActivity.this, "Group image uploaded successfully", Toast.LENGTH_SHORT).show();
                             final String downloadUrl = task.getResult().toString();
                             RootRef.child("Groups").child(countryCode).child(groupId).child("photoUrl")
-                            .setValue(downloadUrl);
-                }
-                else
-                {
-                    String message = task.getException().toString();
-                    Toast.makeText(CreateGroupActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
-                }
-            }
+
+                                    .setValue(downloadUrl);
+                            SendUserToMyGroupsActivity();
+                        } else {
+                            RootRef.child("Groups").child( m_LoginManager.getLocationManager().getCountryCode())
+                                    .child(groupId).removeValue();
+                            String message = task.getException().toString();
+                            Toast.makeText(CreateGroupActivity.this, "Error " + message, Toast.LENGTH_SHORT).show();
+                        }
+                    }
         });
     }
 
@@ -205,6 +207,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
     private void SendUserToMyGroupsActivity() {
+        Toast.makeText(CreateGroupActivity.this, "Group created successfully", Toast.LENGTH_SHORT).show();
         Intent myGroupsIntent = new Intent(CreateGroupActivity.this, MyGroupsActivity.class);
         startActivity(myGroupsIntent);
         finish();

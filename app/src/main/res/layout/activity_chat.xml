@@ -59,6 +59,25 @@
             android:backgroundTint="@android:color/white"
             />
 
+        <TextView
+            android:id="@+id/CantSendMessageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginBottom="0dp"
+            android:background="#C6C8D6"
+            android:gravity="center"
+            android:hapticFeedbackEnabled="false"
+            android:text="You can't send messages to this group because you're no longer a participant."
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="15sp"
+            android:visibility="invisible" />
+
 
     </RelativeLayout>
 

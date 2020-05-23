@@ -107,8 +107,15 @@ public class LoginManager {
 
     public void removeGroupIdFromCurrentUser(String groupId)
     {
+        if (LoginManager.getInstance().getLoggedInUser().getValue().isUserInGroup(groupId)) {
+            exitFromGroup(groupId);
+        }
+
         m_CurrentUser.getValue().getGroupsId().remove(groupId);
         m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).removeValue();
+        m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("historyUsersId").child(m_CurrentUser.getValue().getId()).removeValue();
+        m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("usersId").child(m_CurrentUser.getValue().getId()).removeValue();
+
     }
 
     public LocationManager getLocationManager() { return m_LocationManager; }
@@ -116,10 +123,14 @@ public class LoginManager {
     public void addNewGroupIdToCurrentUser(String groupId)
     {
         ArrayList<MyPair<String, String>> values = m_CurrentUser.getValue().getGroupsId().get(groupId);
-        if(values == null)
+        if(values == null)//first time in group
         {
             values = new ArrayList<>();
 
+        }
+        else // user was a member in this group in the past
+        {
+            m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("historyUsersId").child(m_CurrentUser.getValue().getId()).removeValue();
         }
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -130,6 +141,7 @@ public class LoginManager {
 
         m_CurrentUser.getValue().getGroupsId().put(groupId,values);
         m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).setValue(values);
+        m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("usersId").child(m_CurrentUser.getValue().getId()).setValue(m_CurrentUser.getValue().getId());
     }
 
     public void exitFromGroup(String groupId)
@@ -143,6 +155,8 @@ public class LoginManager {
         values.get(values.size() - 1).setSecond(exitDate);
 
         m_UsersRef.child(m_CurrentUser.getValue().getId()).child("groupsId").child(groupId).setValue(values);
+        m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("usersId").child(m_CurrentUser.getValue().getId()).removeValue();
+        m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("historyUsersId").child(m_CurrentUser.getValue().getId()).setValue(m_CurrentUser.getValue().getId());
     }
 
     //  private void initMyGroupsChildEventListener() {

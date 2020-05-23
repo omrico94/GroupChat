@@ -1,6 +1,7 @@
 package com.example.groupchatapp.Activities;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -58,39 +59,6 @@ public class MyGroupsActivity extends AppCompatActivity {
         m_UsersGroupsRef.addChildEventListener(m_MyGroupsChildEventListener);
         FirebaseListenerService.addChildEventListenerToRemoveList(m_UsersGroupsRef,m_MyGroupsChildEventListener);
 
-
-        //      m_GroupsRef.addChildEventListener(new ChildEventListener() {
-        //          @Override
-        //          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//
-        //          }
-//
-        //          @Override
-        //          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        //              Group group = dataSnapshot.getValue(Group.class);
-        //              int index = Utils.findIndexOfGroup(groupsToDisplay,group);
-        //              if (index != -1) {
-        //                  groupsToDisplay.set(index, group);
-        //                  m_GroupsAdapter.notifyDataSetChanged();
-        //              }
-        //          }
-//
-        //          @Override
-        //          public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-        //          }
-//
-        //          @Override
-        //          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-        //          }
-//
-        //          @Override
-        //          public void onCancelled(DatabaseError databaseError) {
-//
-        //          }
-        //      });
-        //  }
     }
 
     private void initMyGroupsChildEventListener() {

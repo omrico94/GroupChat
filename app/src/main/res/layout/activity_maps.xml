@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.example.groupchatapp.Adapters.MapWrapperAdapter
+        android:id="@+id/map_relative_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <fragment
         android:id="@+id/map"
-        class="com.google.android.gms.maps.SupportMapFragment"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        xmlns:tools="http://schemas.android.com/tools"
         tools:context=".Activities.MapsActivity" />
 
-
-    <ImageButton
+        <ImageButton
         android:id="@+id/settings_button"
         android:layout_width="53dp"
         android:layout_height="53dp"
@@ -41,22 +44,16 @@
         android:background="#00FFFFFF"
         android:src="@drawable/add_group" />
 
-    <ImageButton
-        android:id="@+id/exit_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:src="@drawable/exitgroup" />
+        <ImageButton
+            android:id="@+id/location_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="40dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/location" />
 
-    <ImageButton
-        android:id="@+id/join_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:src="@drawable/joingroup" />
+        
+    </com.example.groupchatapp.Adapters.MapWrapperAdapter>
 
 </RelativeLayout>

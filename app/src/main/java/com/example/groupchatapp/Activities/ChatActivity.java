@@ -65,7 +65,7 @@ public class ChatActivity extends AppCompatActivity {
     private Toolbar chatToolBar;
     private ImageButton sendMessageButton,sendFilesButton;
     private EditText messageInputText;
-    private DatabaseReference rootRef;
+    private DatabaseReference rootRef ,m_ExitRef;
 
     private final List<Message> messagesList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
@@ -82,12 +82,10 @@ public class ChatActivity extends AppCompatActivity {
     private String m_CountryCode;
 
     private ChildEventListener m_MessageEventListener, m_UserExitFromGroupEventListener;
-
-    private DatabaseReference m_ExitRef;
-
     private int indexOfCurrentDate = 0;
 
     private Group m_CurrentGroup;
+    private TextView m_CantSendMessageTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +105,7 @@ public class ChatActivity extends AppCompatActivity {
         m_CurrentGroup =(Group) getIntent().getExtras().get("group");
         groupId =m_CurrentGroup.getId();
         groupName =m_CurrentGroup.getName();
-        groupImageStr = m_CurrentGroup.getPhotoUrl() != null ? m_CurrentGroup.getPhotoUrl() : "default_image";
+        groupImageStr = m_CurrentGroup.getPhotoUrl();
 
 
         Toast.makeText(ChatActivity.this, groupName,Toast.LENGTH_SHORT).show();
@@ -115,8 +113,13 @@ public class ChatActivity extends AppCompatActivity {
         initializeControllers();
 
         groupNameTextView.setText(groupName);
-        Picasso.get().load(groupImageStr).placeholder(R.drawable.groupicon).into(groupCircleImageView);
-
+        if(groupImageStr==null)
+        {
+            groupCircleImageView.setImageResource(R.drawable.groupicon);
+        }
+        else {
+            Picasso.get().load(groupImageStr).into(groupCircleImageView);
+        }
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,11 +181,8 @@ public class ChatActivity extends AppCompatActivity {
         initChildEventListeners();
         rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages")
                 .addChildEventListener(m_MessageEventListener);
-        FirebaseListenerService.addChildEventListenerToRemoveList( rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages"),m_MessageEventListener);
         m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getId()).child("groupsId").child(groupId)
                 .addChildEventListener(m_UserExitFromGroupEventListener);
-        FirebaseListenerService.addChildEventListenerToRemoveList(m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getId()).child("groupsId").child(groupId), m_UserExitFromGroupEventListener);
-
     }
 
     private void initChildEventListeners() {
@@ -232,7 +232,7 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessageButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
                 sendFilesButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
                 messageInputText.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
-                Toast.makeText(ChatActivity.this,"You left the group!\nYou will not be able to send and receive messages", Toast.LENGTH_LONG).show();
+                m_CantSendMessageTextView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -321,6 +321,12 @@ public class ChatActivity extends AppCompatActivity {
         sendMessageButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
         sendFilesButton.setEnabled(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(groupId));
 
+        m_CantSendMessageTextView = findViewById(R.id.CantSendMessageTextView);
+        if(m_LoginManager.getLoggedInUser().getValue().isUserInGroup(m_CurrentGroup.getId())) {
+            m_CantSendMessageTextView.setVisibility(View.INVISIBLE);
+        } else {
+            m_CantSendMessageTextView.setVisibility(View.VISIBLE);
+        }
 //        sendMessageButton.setClickable(m_LoginManager.isUserInGroup(groupId));
 //        sendFilesButton.setClickable(m_LoginManager.isUserInGroup(groupId));
 
@@ -347,7 +353,7 @@ public class ChatActivity extends AppCompatActivity {
         if (m_LoginManager.getLoggedInUser().getValue().isUserInGroup(m_CurrentGroup.getId())) {
             Intent groupInfoActivity = new Intent(ChatActivity.this, GroupInfoActivity.class);
             groupInfoActivity.putExtra("group", m_CurrentGroup);
-            startActivity(groupInfoActivity);
+            startActivityForResult(groupInfoActivity,100);
         }
     }
 
@@ -360,6 +366,8 @@ public class ChatActivity extends AppCompatActivity {
             fileUri=data.getData();
             uploadMessageToStorage();
         }
+  //      else if(requestCode == 100)
+   //     {removeChildEventListeners();}
         else
         {
                 Toast.makeText(this, "Error, Nothing selected",Toast.LENGTH_SHORT).show();
@@ -506,31 +514,17 @@ public class ChatActivity extends AppCompatActivity {
         return  fileUri!=null;
     }
 
- // @Override
- // public void onBackPressed() {
-
- //     removeChildEventListeners();
- // }
-
- // @Override
- // public boolean onOptionsItemSelected(MenuItem item) {
- //     if (item.getItemId() == android.R.id.home) {
- //         removeChildEventListeners();
- //     }
-
- //     return super.onOptionsItemSelected(item);
- // }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        removeChildEventListeners();
-    }
+   @Override
+   protected void onDestroy() {
+       super.onDestroy();
+       removeChildEventListeners();
+   }
     private void removeChildEventListeners()
     {
-        rootRef.removeEventListener(m_MessageEventListener);
-        rootRef.removeEventListener(m_UserExitFromGroupEventListener);
+        rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages").removeEventListener(m_MessageEventListener);
+        m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getId()).child("groupsId").child(groupId).removeEventListener(m_UserExitFromGroupEventListener);
     }
+
+
 
 }

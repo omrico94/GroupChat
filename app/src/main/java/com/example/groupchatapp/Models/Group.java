@@ -12,6 +12,8 @@ public class Group implements Serializable ,IDisplayable {
 
     private String longitude, latitude,password, radius;
 
+    private int participantsNmumber;
+
     private HashMap<String,String> usersId = new HashMap<>();
 
     public Group() {
@@ -27,6 +29,7 @@ public class Group implements Serializable ,IDisplayable {
         this.usersId = usersId;
         this.password = password;
         this.radius = radius;
+        this.participantsNmumber = 0;
     }
 
     public String getRadius() { return radius; }
@@ -64,9 +67,12 @@ public class Group implements Serializable ,IDisplayable {
     public boolean isPrivateGroup() {
         return password!=null;
     }
+    public int  getParticipantsNmumber(){return  participantsNmumber;}
+    public void setParticipantsNumber(int participantsNmumber){this.participantsNmumber = participantsNmumber;}
 
     @Override
     public String getId() {return id;}
+
 }
 
 

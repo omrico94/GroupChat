@@ -83,7 +83,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                         {
                             String receiverImage = dataSnapshot.child("photoUrl").getValue().toString();
 
-                            Picasso.get().load(receiverImage).placeholder(R.drawable.profile_image).into(messageViewHolder.receiverProfileImage);
+                            Picasso.get().load(receiverImage).into(messageViewHolder.receiverProfileImage);
+                        }
+                        else
+                        {
+                            messageViewHolder.receiverProfileImage.setImageResource(R.drawable.profile_image);
                         }
             }
 
