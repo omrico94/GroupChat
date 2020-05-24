@@ -108,6 +108,7 @@
         android:gravity="center|center_horizontal|center_vertical"
         android:hint="Radius"
         android:inputType="textPersonName"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold" />
 
 

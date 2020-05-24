@@ -36,6 +36,6 @@ public class Utils {
                 LoginManager.getInstance().getLocationManager().getLongitude(),
                 Double.valueOf(group.getLatitude()), Double.valueOf(group.getLongitude()), result);
 
-        return result[0] < Float.valueOf(group.getRadius());
+        return result[0] <= Float.valueOf(group.getRadius());
     }
 }

@@ -74,14 +74,20 @@ public class RegisterActivity extends AppCompatActivity
             Toast.makeText(this,"Please enter password", Toast.LENGTH_SHORT).show();
 
         }
-        if(TextUtils.isEmpty(verifyPassword))
-        {
-            Toast.makeText(this,"Please verify your password", Toast.LENGTH_SHORT).show();
-
-        }
         if(!TextUtils.equals(password,verifyPassword))
         {
-            Toast.makeText(this,"Passwords doesn't much", Toast.LENGTH_SHORT).show();
+            String message;
+
+            if(TextUtils.isEmpty(verifyPassword))
+            {
+                message = "Please verify your password";
+            }
+            else
+            {
+                message = "Passwords doesn't match";
+            }
+
+            Toast.makeText(this,message, Toast.LENGTH_SHORT).show();
             UserPassword.setBackgroundResource(R.drawable.rounded_register_red);
             VerifyPassword.setBackgroundResource(R.drawable.rounded_register_red);
         }

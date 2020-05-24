@@ -46,15 +46,13 @@
 
         <ImageButton
             android:id="@+id/location_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="62dp"
+            android:layout_height="62dp"
             android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="40dp"
             android:background="#00FFFFFF"
             android:src="@drawable/location" />
 
-        
+
     </com.example.groupchatapp.Adapters.MapWrapperAdapter>
 
 </RelativeLayout>
