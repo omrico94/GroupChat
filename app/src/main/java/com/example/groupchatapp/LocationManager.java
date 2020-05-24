@@ -90,7 +90,6 @@ public class LocationManager {
             @Override
             public void onProviderEnabled(String provider) {
                 getCurrentLocation();
-                m_OnLocationPermissionChange.onChange();
                 Toast.makeText(m_Context, "Searching for your location...", Toast.LENGTH_LONG).show();
 
             }

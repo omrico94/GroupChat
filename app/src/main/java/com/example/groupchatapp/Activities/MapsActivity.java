@@ -200,12 +200,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Group groupToDisplay = ((Group) currentGroupMarker.getTag());
         if (!Utils.isGroupInMyLocation(groupToDisplay)) {
             whatToShow = View.GONE;
-            m_groupImage.setImageResource(R.drawable.logosign);
+            m_groupImage.setImageResource(R.drawable.groupicon);
             hideJoinAndExitGroupButtons();
         }
         else {
             if (groupToDisplay.getPhotoUrl() == null) {
-                m_groupImage.setImageResource(R.drawable.logosign);
+                m_groupImage.setImageResource(R.drawable.groupicon);
             } else {
                 Picasso.get().load(groupToDisplay.getPhotoUrl()).into(m_groupImage, new com.squareup.picasso.Callback() {
 
@@ -432,7 +432,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 }else{
 
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), 15.0f));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), mMap.getCameraPosition().zoom));
 
                 }
             }

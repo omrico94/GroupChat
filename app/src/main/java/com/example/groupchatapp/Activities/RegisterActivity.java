@@ -25,7 +25,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 public class RegisterActivity extends AppCompatActivity
 {
     private Button CreateAccountButton;
-    private EditText UserEmail,UserPassword;
+    private EditText UserEmail,UserPassword,VerifyPassword;
     private TextView AlreadyHaveAnAccountLink;
     private FirebaseAuth mAuth;
     private ProgressDialog loadingBar;
@@ -62,6 +62,7 @@ public class RegisterActivity extends AppCompatActivity
     {
         String email=UserEmail.getText().toString();
         String password=UserPassword.getText().toString();
+        String verifyPassword = VerifyPassword.getText().toString();
 
         if(TextUtils.isEmpty(email))
         {
@@ -73,39 +74,42 @@ public class RegisterActivity extends AppCompatActivity
             Toast.makeText(this,"Please enter password", Toast.LENGTH_SHORT).show();
 
         }
+        if(TextUtils.isEmpty(verifyPassword))
+        {
+            Toast.makeText(this,"Please verify your password", Toast.LENGTH_SHORT).show();
+
+        }
+        if(!TextUtils.equals(password,verifyPassword))
+        {
+            Toast.makeText(this,"Passwords doesn't much", Toast.LENGTH_SHORT).show();
+            UserPassword.setBackgroundResource(R.drawable.rounded_register_red);
+            VerifyPassword.setBackgroundResource(R.drawable.rounded_register_red);
+        }
         else
         {
             loadingBar.setTitle("Creating new account");
             loadingBar.setMessage("Please wait, while we are creating account for you");
             loadingBar.setCanceledOnTouchOutside(true);
             loadingBar.show();
-
-            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
-                public void onComplete(@NonNull Task<AuthResult> task)
-                {
-
-                    if(task.isSuccessful())
-                    {
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
                         final String deviceToken = FirebaseInstanceId.getInstance().getToken();
                         final String currentUserID = mAuth.getCurrentUser().getUid();
                         RootRef.child("Users").child(currentUserID).setValue("");
                         RootRef.child("Users").child(currentUserID).child("token").setValue(deviceToken);
                         RootRef.child("Users").child(currentUserID).child("name").setValue(email);
                         RootRef.child("Users").child(currentUserID).child("id").setValue(currentUserID);
-
                         SendUserToMapsActivity();
-                        Toast.makeText(RegisterActivity.this,"Account created successfully",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, "Account created successfully", Toast.LENGTH_SHORT).show();
                         loadingBar.dismiss();
-                    }
-                    else
-                    {
-                        String message=task.getException().toString();
-                        Toast.makeText(RegisterActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
+                    } else {
+                        String message = task.getException().toString();
+                        Toast.makeText(RegisterActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
                         loadingBar.dismiss();
                     }
                 }
-
             });
         }
 
@@ -116,6 +120,7 @@ public class RegisterActivity extends AppCompatActivity
         CreateAccountButton = findViewById(R.id.register_button);
         UserEmail = findViewById(R.id.register_email);
         UserPassword = findViewById(R.id.register_password);
+        VerifyPassword = findViewById(R.id.verify_password);
         AlreadyHaveAnAccountLink = findViewById(R.id.already_have_account_link);
         loadingBar=new ProgressDialog(this);
     }
