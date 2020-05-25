@@ -431,9 +431,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     m_LoginManager.getLocationManager().EnableLocationIfNeeded();
 
                 }else{
-
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), mMap.getCameraPosition().zoom));
-
+                    float zoom = mMap.getCameraPosition().zoom >= 15.0f ? mMap.getCameraPosition().zoom : 15.0f;
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), zoom));
                 }
             }
         });
