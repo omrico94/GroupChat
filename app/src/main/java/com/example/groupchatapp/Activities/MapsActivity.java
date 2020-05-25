@@ -2,6 +2,8 @@ package com.example.groupchatapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -99,19 +101,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         m_LoginManager = LoginManager.getInstance();
 
-        if (!m_LoginManager.IsLoggedIn()) {
 
-            initLoggedInListener();
-            initLocationInitListener();
-            initLocationLimitChange();
-            m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
-            m_LoginManager.Login(m_OnLoggedInListener);
-        }
+        initLoggedInListener();
+        m_LoginManager.Login(m_OnLoggedInListener);
 
+        initLocationInitListener();
+        initLocationLimitChange();
         initOnLocationPermissionChange();
+
+        m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
+
         initializeFields();
         setOnClickButtons();
-
 
     }
 
@@ -136,7 +137,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_exitGroupButton = m_infoWindow.findViewById(R.id.exit_group_button_IW);
         m_chatButton = m_infoWindow.findViewById(R.id.chat_IW);
 
-
     }
 
     @Override
@@ -145,6 +145,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
         // MapWrapperLayout initialization
         // 39 - default marker height
         // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
@@ -199,7 +200,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Group groupToDisplay = ((Group) currentGroupMarker.getTag());
         if (!Utils.isGroupInMyLocation(groupToDisplay)) {
             whatToShow = View.GONE;
-            m_groupImage.setImageResource(R.drawable.groupicon);
+            m_groupImage.setImageResource(R.drawable.appicon);
             hideJoinAndExitGroupButtons();
         }
         else {

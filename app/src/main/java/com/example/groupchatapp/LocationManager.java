@@ -18,6 +18,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -55,6 +57,7 @@ public class LocationManager {
         m_Latitude = 0;
         m_Longitude = 0;
     }
+
 
     public boolean isLocationOn() {
         return m_Latitude != 0 || m_Longitude != 0;
@@ -111,19 +114,19 @@ public class LocationManager {
         } catch (SecurityException e) { }
     }
 
-    private void getFromLocationGeocoder() {
-        if (m_CountryCode == null) {
-            try {
-                List<Address> lstAdd = m_Geocoder.getFromLocation(m_Latitude, m_Longitude, 1);
-                if (lstAdd.size() > 0) {
-                    String countryCode = lstAdd.get(0).getCountryCode();
-                    m_CountryCode = countryCode;
-                    m_OnLocationInit.onSuccess();
-                }
-            } catch (Exception ex) {
-                m_OnLocationInit.onFailure();
+    private void getFromLocationGeocoder()
+    {
+        try {
+            List<Address> lstAdd = m_Geocoder.getFromLocation(m_Latitude, m_Longitude, 1);
+            if (lstAdd.size() > 0) {
+                String countryCode = lstAdd.get(0).getCountryCode();
+                m_CountryCode = countryCode;
+                m_OnLocationInit.onSuccess();
             }
+        } catch (Exception ex) {
+            m_OnLocationInit.onFailure();
         }
+
     }
 
     public void CheckPermissionLocation(Context context , OnLocationInit listener) {
@@ -161,6 +164,7 @@ public class LocationManager {
                                     locationResult.getLocations().get(latestLocationIndex).getLatitude();
                             m_Longitude =
                                     locationResult.getLocations().get(latestLocationIndex).getLongitude();
+
                             getFromLocationGeocoder();
                             if(m_OnLocationPermissionChange != null) {
                                 m_OnLocationPermissionChange.onChange();

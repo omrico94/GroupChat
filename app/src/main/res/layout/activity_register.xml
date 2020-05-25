@@ -18,11 +18,10 @@
 
             <ImageView
                 android:id="@+id/register_image"
-                android:layout_width="371dp"
-                android:layout_height="210dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginStart="21dp"
                 android:layout_marginTop="55dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/logo" />
