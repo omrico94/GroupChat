@@ -46,7 +46,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     private Toolbar createGroupToolBar;
     private LoginManager m_LoginManager;
     private  Uri imageUri;
-
+    private ProgressDialogActivity ProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
     private void UpdateSettings() {
-
+        ProgressDialog.startDialog();
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         if (m_LoginManager.getLocationManager().isLocationOn()) {
             String setGroupName = groupName.getText().toString();
@@ -134,11 +134,13 @@ public class CreateGroupActivity extends AppCompatActivity {
                             }
                             else {
                                 SendUserToMyGroupsActivity();
+                                ProgressDialog.dismissDialog();
                             }
 
                         } else {
                             String message = task.getException().toString();
                             Toast.makeText(CreateGroupActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
+                            ProgressDialog.dismissDialog();
                         }
                     }
                 });
@@ -182,6 +184,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                             String message = task.getException().toString();
                             Toast.makeText(CreateGroupActivity.this, "Error " + message, Toast.LENGTH_SHORT).show();
                         }
+
+                        ProgressDialog.dismissDialog();
                     }
         });
     }
@@ -204,6 +208,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setTitle("Create New Group");
+        ProgressDialog = new ProgressDialogActivity(CreateGroupActivity.this);
     }
 
     private void SendUserToMyGroupsActivity() {

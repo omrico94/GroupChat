@@ -30,6 +30,7 @@ public class RegisterActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private ProgressDialog loadingBar;
     private DatabaseReference RootRef;
+    private ProgressDialogActivity ProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -93,10 +94,11 @@ public class RegisterActivity extends AppCompatActivity
         }
         else
         {
-            loadingBar.setTitle("Creating new account");
-            loadingBar.setMessage("Please wait, while we are creating account for you");
-            loadingBar.setCanceledOnTouchOutside(true);
-            loadingBar.show();
+            //loadingBar.setTitle("Creating new account");
+            //loadingBar.setMessage("Please wait, while we are creating account for you");
+            //loadingBar.setCanceledOnTouchOutside(true);
+            //loadingBar.show();
+            ProgressDialog.startDialog();
             mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -109,11 +111,11 @@ public class RegisterActivity extends AppCompatActivity
                         RootRef.child("Users").child(currentUserID).child("id").setValue(currentUserID);
                         SendUserToMapsActivity();
                         Toast.makeText(RegisterActivity.this, "Account created successfully", Toast.LENGTH_SHORT).show();
-                        loadingBar.dismiss();
+                        ProgressDialog.dismissDialog();
                     } else {
                         String message = task.getException().toString();
                         Toast.makeText(RegisterActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
-                        loadingBar.dismiss();
+                        ProgressDialog.dismissDialog();
                     }
                 }
             });
@@ -128,7 +130,7 @@ public class RegisterActivity extends AppCompatActivity
         UserPassword = findViewById(R.id.register_password);
         VerifyPassword = findViewById(R.id.verify_password);
         AlreadyHaveAnAccountLink = findViewById(R.id.already_have_account_link);
-        loadingBar=new ProgressDialog(this);
+        ProgressDialog = new ProgressDialogActivity(RegisterActivity.this);
     }
 
     private void SendUserToLoginActivity()

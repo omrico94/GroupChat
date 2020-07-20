@@ -72,6 +72,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private OnLocationPermissionChange m_OnLocationpermissionChange;
     private ArrayMap<String,Marker> markers = new ArrayMap<String, Marker>();
 
+
     private Group currentGroup;
     private  Circle m_radiusCircle;
 
@@ -102,16 +103,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_LoginManager = LoginManager.getInstance();
 
 
-        initLoggedInListener();
-        m_LoginManager.Login(m_OnLoggedInListener);
 
-        initLocationInitListener();
-        initLocationLimitChange();
+            initLoggedInListener();
+            initLocationInitListener();
+            initLocationLimitChange();
+            m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
+            m_LoginManager.Login(m_OnLoggedInListener);
+
+
         initOnLocationPermissionChange();
-
-        m_LoginManager.getLocationManager().setOnLocationLimitChange(m_OnLocationLimitChange, 50);
-
         initializeFields();
+
         setOnClickButtons();
 
     }
@@ -137,6 +139,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         m_exitGroupButton = m_infoWindow.findViewById(R.id.exit_group_button_IW);
         m_chatButton = m_infoWindow.findViewById(R.id.chat_IW);
 
+
     }
 
     @Override
@@ -150,7 +153,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 39 - default marker height
         // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
         m_mapWrapperAdapter.init(mMap, getPixelsFromDp(this, 39 + 20));
-
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -219,7 +221,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     }
                 });
-
             }
                 m_infoSnippet.setText(currentGroupMarker.getSnippet());
                 m_participantsNumber.setText(String.valueOf(((Group) currentGroupMarker.getTag()).getUsersId().size()));
@@ -230,7 +231,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     showExitGroupButton();
                 }
         }
-
 
          m_descriptionImage.setVisibility(whatToShow);
          m_infoSnippet.setVisibility(whatToShow);
@@ -265,6 +265,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onSuccess() {
                 initGroupsChildEventListener();
                 m_LoginManager.getLocationManager().CheckPermissionLocation(MapsActivity.this , m_OnLocationInit);
+
 
             }
 
@@ -486,7 +487,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         input.setBackgroundResource(R.drawable.rounded_layout_red);
                                         b.setText("retry");
                                     }
-
                                 }
                             });
                         }
@@ -498,7 +498,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 }
             }
-
         };
 
         m_joinGroupButton.setOnTouchListener(m_infoButtonListener);

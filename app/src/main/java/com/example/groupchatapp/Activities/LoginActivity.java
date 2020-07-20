@@ -2,11 +2,14 @@ package com.example.groupchatapp.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.R;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -32,6 +36,8 @@ public class LoginActivity extends AppCompatActivity {
     private DatabaseReference userRef;
     private LoginManager m_LoginManager;
     private FirebaseAuth mAuth;
+    private ProgressBar progressBar;
+    private ProgressDialogActivity ProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -42,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         m_LoginManager = LoginManager.getInstance();
         mAuth=FirebaseAuth.getInstance();
 
-       userRef= FirebaseDatabase.getInstance().getReference().child("Users");
+        userRef= FirebaseDatabase.getInstance().getReference().child("Users");
         initializeFields();
 
 
@@ -88,10 +94,14 @@ public class LoginActivity extends AppCompatActivity {
         }
         else
         {
-            loadingBar.setTitle("Sign in");
-            loadingBar.setMessage("Please wait");
-            loadingBar.setCanceledOnTouchOutside(true);
-            loadingBar.show();
+            //progressBar.setVisibility(View.VISIBLE);
+           // loadingBar.setTitle("Sign in");
+            //loadingBar.setMessage("Please wait");
+            //loadingBar.setCanceledOnTouchOutside(true);
+           // loadingBar.show();
+            ProgressDialog.startDialog();
+
+
 
             //יודע שזה מוזר עם הmauth.. צריך לראות אם אםשר לשנות
             mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -110,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
                                         {
                                             SendUserToMapsActivity();
                                             Toast.makeText(LoginActivity.this,"Logged in successful",Toast.LENGTH_SHORT).show();
-                                            loadingBar.dismiss();
+                                            ProgressDialog.dismissDialog();
                                         }
                                     }
                                 });
@@ -119,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
                     {
                         String message=task.getException().toString();
                         Toast.makeText(LoginActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
-                        loadingBar.dismiss();
+                        ProgressDialog.dismissDialog();
                     }
                 }
             });
@@ -133,7 +143,9 @@ public class LoginActivity extends AppCompatActivity {
         UserPassword = findViewById(R.id.login_password);
         NeedNewAccountLink = findViewById(R.id.need_new_account_link);
         ForgetPasswordLink = findViewById(R.id.forget_password_link);
-        loadingBar=new ProgressDialog(this);
+
+        ProgressDialog = new ProgressDialogActivity(LoginActivity.this);
+
     }
 
     private void SendUserToRegisterActivity()

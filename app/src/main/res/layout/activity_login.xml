@@ -111,9 +111,6 @@
                 android:textStyle="bold"
                 android:textColor="@color/colorPrimaryDark"/>
 
-
-
-
         </RelativeLayout>
 
     </ScrollView>
