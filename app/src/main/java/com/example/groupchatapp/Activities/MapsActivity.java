@@ -593,7 +593,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onLimitChange() {
                 Group group;
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(),mMap.getCameraPosition().zoom));
                 boolean isGroupInMyLocation, isGroupInMyGroups;
+
                 for (Map.Entry<String,Marker> pair : markers.entrySet()){
 
                     group = (Group) pair.getValue().getTag();
