@@ -82,7 +82,7 @@ public class LocationManager {
 
                 m_OnLocationLimitChange.onLimitChange();
 
-                Toast.makeText(m_Context, "Location Changed!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(m_Context, "Location Changed!", Toast.LENGTH_SHORT).show();
             }
 
             @Override

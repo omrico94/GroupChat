@@ -108,7 +108,7 @@ public class ChatActivity extends AppCompatActivity {
         groupImageStr = m_CurrentGroup.getPhotoUrl();
 
 
-        Toast.makeText(ChatActivity.this, groupName,Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ChatActivity.this, groupName,Toast.LENGTH_SHORT).show();
 
         initializeControllers();
 
@@ -436,11 +436,11 @@ public class ChatActivity extends AppCompatActivity {
            @Override
            public void onComplete(@NonNull Task<Void> task) {
 
-               if (task.isSuccessful()) {
-                   Toast.makeText(ChatActivity.this, "Message sent successfully", Toast.LENGTH_SHORT).show();
-               } else {
-                   Toast.makeText(ChatActivity.this, "Error: message sent failed ", Toast.LENGTH_SHORT).show();
-               }
+//               if (task.isSuccessful()) {
+//                   Toast.makeText(ChatActivity.this, "Message sent successfully", Toast.LENGTH_SHORT).show();
+//               } else {
+//                   Toast.makeText(ChatActivity.this, "Error: message sent failed ", Toast.LENGTH_SHORT).show();
+//               }
                messageInputText.setText("");
            }
        });

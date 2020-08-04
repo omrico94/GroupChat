@@ -140,8 +140,8 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    String message =task.getException().toString();
-                    Toast.makeText(SettingsActivity.this,"Error:" +message,Toast.LENGTH_SHORT).show();
+                    //String message =task.getException().toString();
+                    //Toast.makeText(SettingsActivity.this,"Error:" +message,Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -203,7 +203,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                         if (task.isSuccessful())
                         {
-                            Toast.makeText(SettingsActivity.this,"Profile image uploaded successfully",Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(SettingsActivity.this,"Profile image uploaded successfully",Toast.LENGTH_SHORT).show();
                             final String downloadUrl = task.getResult().toString();
                     RootRef.child("Users").child(currentUserID).child("photoUrl")
                             .setValue(downloadUrl);
@@ -212,7 +212,7 @@ public class SettingsActivity extends AppCompatActivity {
                 else
                 {
                     String message = task.getException().toString();
-                    Toast.makeText(SettingsActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(SettingsActivity.this,"Error "+message,Toast.LENGTH_SHORT).show();
                 }
             }
         });

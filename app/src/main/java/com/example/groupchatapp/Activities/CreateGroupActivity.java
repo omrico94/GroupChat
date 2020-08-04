@@ -139,7 +139,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
                         } else {
                             String message = task.getException().toString();
-                            Toast.makeText(CreateGroupActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(CreateGroupActivity.this, "Error:" + message, Toast.LENGTH_SHORT).show();
                             ProgressDialog.dismissDialog();
                         }
                     }
@@ -172,7 +172,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
                         if (task.isSuccessful()) {
                             String countryCode = m_LoginManager.getLocationManager().getCountryCode();
-                            Toast.makeText(CreateGroupActivity.this, "Group image uploaded successfully", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(CreateGroupActivity.this, "Group image uploaded successfully", Toast.LENGTH_SHORT).show();
                             final String downloadUrl = task.getResult().toString();
                             RootRef.child("Groups").child(countryCode).child(groupId).child("photoUrl")
 
@@ -182,7 +182,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                             RootRef.child("Groups").child( m_LoginManager.getLocationManager().getCountryCode())
                                     .child(groupId).removeValue();
                             String message = task.getException().toString();
-                            Toast.makeText(CreateGroupActivity.this, "Error " + message, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(CreateGroupActivity.this, "Error " + message, Toast.LENGTH_SHORT).show();
                         }
 
                         ProgressDialog.dismissDialog();

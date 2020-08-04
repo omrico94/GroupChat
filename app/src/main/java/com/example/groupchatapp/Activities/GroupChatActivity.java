@@ -55,7 +55,7 @@ public class GroupChatActivity extends AppCompatActivity
         setContentView(R.layout.activity_group_chat);
 
         currentGroupName = getIntent().getExtras().get("groupName").toString();
-        Toast.makeText(GroupChatActivity.this,currentGroupName,Toast.LENGTH_SHORT).show();
+        //Toast.makeText(GroupChatActivity.this,currentGroupName,Toast.LENGTH_SHORT).show();
 
 
         mAuth = FirebaseAuth.getInstance();
