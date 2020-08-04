@@ -36,82 +36,91 @@
                 app:srcCompat="@drawable/bluebackground" />
 
 
-            <EditText
-                android:id="@+id/register_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/register_image"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:background="@drawable/textedit_round"
-                android:padding="4dp"
-                android:drawableStart="@drawable/email"
-                android:layout_marginTop="90dp"
-                android:layout_marginLeft="17dp"
-                android:layout_marginRight="17dp"/>
-
-            <EditText
-                android:id="@+id/register_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/register_email"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:background="@drawable/textedit_round"
-                android:padding="4dp"
-                android:drawableStart="@drawable/password"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="17dp"
-                android:layout_marginRight="17dp"/>
-
-            <EditText
-                android:id="@+id/verify_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/register_password"
-                android:hint="verify password"
-                android:inputType="textPassword"
-                android:background="@drawable/textedit_round"
-                android:padding="4dp"
-                android:drawableStart="@drawable/verify_password"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="17dp"
-                android:layout_marginRight="17dp"/>
-
             <Button
                 android:id="@+id/register_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/verify_password"
-                android:padding="4dp"
-                android:layout_marginTop="30dp"
                 android:layout_marginLeft="19dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginRight="19dp"
+                android:background="@drawable/button_round"
+                android:padding="4dp"
                 android:text="Create New Account"
                 android:textAllCaps="false"
-                android:textSize="24sp"
                 android:textColor="@android:color/background_light"
-                android:background="@drawable/button_round"/>
+                android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/already_have_account_link"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:layout_below="@+id/register_button"
-                android:text="Already have an account?"
-                android:layout_marginTop="2dp"
+                android:layout_centerHorizontal="true"
                 android:layout_marginLeft="15dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginRight="23dp"
+                android:text="Already have an account?"
                 android:textAlignment="center"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="17sp"
-                android:textStyle="bold"
-                android:textColor="@color/colorPrimaryDark"/>
+                android:textStyle="bold" />
 
+            <EditText
+                android:id="@+id/verify_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/register_password"
+                android:layout_marginLeft="17dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="17dp"
+                android:background="@drawable/textedit_round"
+                android:drawableStart="@drawable/verify_password"
+                android:hint="verify password"
+                android:inputType="textPassword"
+                android:padding="4dp" />
 
+            <EditText
+                android:id="@+id/register_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/register_image"
+                android:layout_marginLeft="17dp"
+                android:layout_marginTop="87dp"
+                android:layout_marginRight="17dp"
+                android:background="@drawable/textedit_round"
+                android:drawableStart="@drawable/edit_profile"
+                android:hint="Name"
+                android:inputType="textEmailAddress"
+                android:padding="4dp" />
+
+            <EditText
+                android:id="@+id/register_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/register_image"
+                android:layout_marginLeft="17dp"
+                android:layout_marginTop="154dp"
+                android:layout_marginRight="17dp"
+                android:background="@drawable/textedit_round"
+                android:drawableStart="@drawable/email"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:padding="4dp" />
+
+            <EditText
+                android:id="@+id/register_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/register_email"
+                android:layout_marginLeft="17dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="17dp"
+                android:background="@drawable/textedit_round"
+                android:drawableStart="@drawable/password"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:padding="4dp" />
 
 
         </RelativeLayout>

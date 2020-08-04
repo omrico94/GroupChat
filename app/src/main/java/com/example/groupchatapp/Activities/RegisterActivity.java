@@ -25,7 +25,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 public class RegisterActivity extends AppCompatActivity
 {
     private Button CreateAccountButton;
-    private EditText UserEmail,UserPassword,VerifyPassword;
+    private EditText UserEmail,UserPassword,VerifyPassword, UserName;
     private TextView AlreadyHaveAnAccountLink;
     private FirebaseAuth mAuth;
     private ProgressDialog loadingBar;
@@ -64,18 +64,23 @@ public class RegisterActivity extends AppCompatActivity
         String email=UserEmail.getText().toString();
         String password=UserPassword.getText().toString();
         String verifyPassword = VerifyPassword.getText().toString();
+        String userName = UserName.getText().toString();
 
-        if(TextUtils.isEmpty(email))
+        if(TextUtils.isEmpty((userName)))
         {
-            Toast.makeText(this,"Please enter email", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Please enter your name", Toast.LENGTH_SHORT).show();
+        }
+        else if(TextUtils.isEmpty(email))
+        {
+            Toast.makeText(this,"Please enter your email", Toast.LENGTH_SHORT).show();
 
         }
-        if(TextUtils.isEmpty(password))
+        else if(TextUtils.isEmpty(password))
         {
             Toast.makeText(this,"Please enter password", Toast.LENGTH_SHORT).show();
 
         }
-        if(!TextUtils.equals(password,verifyPassword))
+        else if(!TextUtils.equals(password,verifyPassword))
         {
             String message;
 
@@ -107,7 +112,7 @@ public class RegisterActivity extends AppCompatActivity
                         final String currentUserID = mAuth.getCurrentUser().getUid();
                         RootRef.child("Users").child(currentUserID).setValue("");
                         RootRef.child("Users").child(currentUserID).child("token").setValue(deviceToken);
-                        RootRef.child("Users").child(currentUserID).child("name").setValue(email);
+                        RootRef.child("Users").child(currentUserID).child("name").setValue(userName);
                         RootRef.child("Users").child(currentUserID).child("id").setValue(currentUserID);
                         SendUserToMapsActivity();
                         Toast.makeText(RegisterActivity.this, "Account created successfully", Toast.LENGTH_SHORT).show();
@@ -129,6 +134,7 @@ public class RegisterActivity extends AppCompatActivity
         UserEmail = findViewById(R.id.register_email);
         UserPassword = findViewById(R.id.register_password);
         VerifyPassword = findViewById(R.id.verify_password);
+        UserName = findViewById(R.id.register_name);
         AlreadyHaveAnAccountLink = findViewById(R.id.already_have_account_link);
         ProgressDialog = new ProgressDialogActivity(RegisterActivity.this);
     }
