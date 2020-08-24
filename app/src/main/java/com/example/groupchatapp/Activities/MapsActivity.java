@@ -160,16 +160,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public boolean onMarkerClick(Marker marker) {
                 currentGroup = (Group) marker.getTag();
-                if(m_radiusCircle!=null) {
+                if(m_radiusCircle != null) {
                     m_radiusCircle.remove();
                 }
 
-                    m_radiusCircle = mMap.addCircle(new CircleOptions()
+                m_radiusCircle = mMap.addCircle(new CircleOptions()
                         .center(marker.getPosition())
                         .radius(Double.parseDouble(currentGroup.getRadius()))
                         .strokeColor(Color.BLUE));
 
-                return true;
+                return false;
             }
         });
 
