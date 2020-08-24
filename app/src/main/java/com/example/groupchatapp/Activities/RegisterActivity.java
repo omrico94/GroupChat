@@ -99,10 +99,6 @@ public class RegisterActivity extends AppCompatActivity
         }
         else
         {
-            //loadingBar.setTitle("Creating new account");
-            //loadingBar.setMessage("Please wait, while we are creating account for you");
-            //loadingBar.setCanceledOnTouchOutside(true);
-            //loadingBar.show();
             ProgressDialog.startDialog();
             mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override

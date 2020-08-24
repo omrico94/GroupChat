@@ -94,11 +94,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         else
         {
-            //progressBar.setVisibility(View.VISIBLE);
-           // loadingBar.setTitle("Sign in");
-            //loadingBar.setMessage("Please wait");
-            //loadingBar.setCanceledOnTouchOutside(true);
-           // loadingBar.show();
             ProgressDialog.startDialog();
 
 

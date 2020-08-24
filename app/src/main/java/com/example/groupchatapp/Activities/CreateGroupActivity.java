@@ -90,7 +90,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please write your group name first", Toast.LENGTH_SHORT).show();
             }
 
-            ///When it will be Seekbar we don't need this because there will be default radops.
             else if (TextUtils.isEmpty(setGroupRadius)) {
                 Toast.makeText(this, "Please write your group radius first", Toast.LENGTH_SHORT).show();
             }

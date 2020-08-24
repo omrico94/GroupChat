@@ -169,7 +169,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .radius(Double.parseDouble(currentGroup.getRadius()))
                         .strokeColor(Color.BLUE));
 
-                return false;
+                return true;
             }
         });
 
@@ -424,7 +424,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 {
                     m_LoginManager.getLocationManager().EnableLocationIfNeeded();
 
-                }else{
+                } else {
                     float zoom = mMap.getCameraPosition().zoom >= 15.0f ? mMap.getCameraPosition().zoom : 15.0f;
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), zoom));
                 }
