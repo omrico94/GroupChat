@@ -120,8 +120,11 @@ public class LocationManager {
             List<Address> lstAdd = m_Geocoder.getFromLocation(m_Latitude, m_Longitude, 1);
             if (lstAdd.size() > 0) {
                 String countryCode = lstAdd.get(0).getCountryCode();
+                boolean isNeedOnSuccess = m_CountryCode == null;
                 m_CountryCode = countryCode;
-                m_OnLocationInit.onSuccess();
+                if (isNeedOnSuccess) {
+                    m_OnLocationInit.onSuccess();
+                }
             }
         } catch (Exception ex) {
             m_OnLocationInit.onFailure();

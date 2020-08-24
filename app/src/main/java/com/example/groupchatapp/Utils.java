@@ -31,6 +31,10 @@ public class Utils {
     }
 
     public static boolean isGroupInMyLocation(Group group) {
+        if (!LoginManager.getInstance().getLocationManager().isLocationOn()) {
+            return false;
+        }
+
         float[] result = new float[1];
         Location.distanceBetween(LoginManager.getInstance().getLocationManager().getLatitude(),
                 LoginManager.getInstance().getLocationManager().getLongitude(),

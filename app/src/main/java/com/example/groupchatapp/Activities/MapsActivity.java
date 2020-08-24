@@ -11,8 +11,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Debug;
 import android.text.InputType;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -287,22 +289,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChange()
             {
-                if(!m_LoginManager.getLocationManager().isLocationOn())
-                {
-                    mMap.setMyLocationEnabled(false);
-
-                }else {
-                    mMap.setMyLocationEnabled(true);
-                }
-
+                mMap.setMyLocationEnabled(m_LoginManager.getLocationManager().isLocationOn());
                 m_OnLocationLimitChange.onLimitChange();
             }
         };
 
         m_LoginManager.getLocationManager().setOnLocationPermssionChange(m_OnLocationpermissionChange);
     }
-
-
 
     public void  initGroupsChildEventListener() {
 
@@ -367,7 +360,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void changeMarkerColor(boolean isInGroup,String groupID, boolean isGroupInMyLocation) {
 
-        float markerColor = 210.0f;//קבוצה שאני לא ברדיוס שלה ולא בה - כחול (עמרי על אחריותך שזה יהיה אפור!!!!)
+        float markerColor = 210.0f;//קבוצה שאני לא ברדיוס שלה ולא בה - כחול
 
         if(isInGroup && isGroupInMyLocation) {
             markerColor = 120.0f;//קבוצה שאני בה וגם ברדיוס שלה - ירוק
@@ -593,7 +586,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onLimitChange() {
                 Group group;
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(),mMap.getCameraPosition().zoom));
+                if (m_LoginManager.getLocationManager().isLocationOn()) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(m_LoginManager.getLocationManager().GetLocationInLatLang(), mMap.getCameraPosition().zoom));
+                }
+
                 boolean isGroupInMyLocation, isGroupInMyGroups;
 
                 for (Map.Entry<String,Marker> pair : markers.entrySet()){

@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
                                         if(task.isSuccessful())
                                         {
                                             SendUserToMapsActivity();
-                                            Toast.makeText(LoginActivity.this,"Logged in successful",Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(LoginActivity.this,"Logged in successful",Toast.LENGTH_SHORT).show();
                                             ProgressDialog.dismissDialog();
                                         }
                                     }
@@ -127,8 +127,8 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        String message=task.getException().toString();
-                        Toast.makeText(LoginActivity.this,"Error:" + message,Toast.LENGTH_SHORT).show();
+                        //String message=task.getException().toString();
+                        Toast.makeText(LoginActivity.this,"Error: Incorrect username or password",Toast.LENGTH_SHORT).show();
                         ProgressDialog.dismissDialog();
                     }
                 }

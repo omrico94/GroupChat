@@ -75,7 +75,6 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
     private void UpdateSettings() {
-        ProgressDialog.startDialog();
         String countryCode = m_LoginManager.getLocationManager().getCountryCode();
         if (m_LoginManager.getLocationManager().isLocationOn()) {
             String setGroupName = groupName.getText().toString();
@@ -106,6 +105,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             //  }
 
             else {
+                ProgressDialog.startDialog();
 
                 final String groupId = RootRef.child("Groups").child(countryCode).push().getKey();
 
