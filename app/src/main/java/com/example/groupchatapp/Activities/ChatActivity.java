@@ -254,7 +254,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private boolean messageReceivedAfterUserJoin(Message message) {
-        //indexOfCurrentDate
         Date exitDate = null;
         Date messageDate = null;
         try {

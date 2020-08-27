@@ -98,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-            //יודע שזה מוזר עם הmauth.. צריך לראות אם אםשר לשנות
             mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {

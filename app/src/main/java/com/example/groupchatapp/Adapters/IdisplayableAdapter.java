@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
- public abstract class IdisplayableAdapter extends RecyclerView.Adapter<IdisplayableAdapter.IDisplayableViewHolder> {
+ public class IdisplayableAdapter extends RecyclerView.Adapter<IdisplayableAdapter.IDisplayableViewHolder> {
 
     protected ArrayList<IDisplayable> m_Displayables;
     protected Context mContext;

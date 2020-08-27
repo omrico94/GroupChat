@@ -17,7 +17,6 @@ public class User implements IDisplayable {
         public User() {
         }
 
-        //new user c'tor
         public User(String uid, String displayName, String token, String photoUrl, String status, HashMap<String, ArrayList<MyPair<String,String>>>  groupsId) {
             this.id = id;
             this.name = displayName;

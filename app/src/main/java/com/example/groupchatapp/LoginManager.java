@@ -72,7 +72,6 @@ public class LoginManager {
     public void Logout()
     {
         mAuth.signOut();
-//        m_MyGroupsMap.clear();
         m_CurrentUser.setValue(null);
         isLoggedIn=false;
         m_LocationManager.Logout();
@@ -158,34 +157,4 @@ public class LoginManager {
         m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("usersId").child(m_CurrentUser.getValue().getId()).removeValue();
         m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).child("historyUsersId").child(m_CurrentUser.getValue().getId()).setValue(m_CurrentUser.getValue().getId());
     }
-
-    //  private void initMyGroupsChildEventListener() {
-
-    //      for (String groupId : m_CurrentUser.getValue().getGroupsId().keySet()) {
-    //          m_GroupsRef.child(m_LocationManager.getCountryCode()).child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
-    //              @Override
-    //              public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-    //                  m_MyGroupsMap.put(groupId, dataSnapshot.getValue(Group.class));
-    //              }
-
-    //              @Override
-    //              public void onCancelled(@NonNull DatabaseError databaseError) {
-
-    //              }
-    //          });
-    //      }
-
-    //  }
-
-    //  public Map<String, Group> GetCurrentUserGroupsMap()
-    //  {
-    //      if(m_LocationManager.getCountryCode()==null)
-    //      {
-    //          throw new NullPointerException("Cannot fetch group user because location is disable");
-    //      }
-
-    //      initMyGroupsChildEventListener();
-    //      return Collections.unmodifiableMap(m_MyGroupsMap);
-    //  }
 }
