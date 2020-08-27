@@ -45,7 +45,6 @@
             android:name=".Activities.ChatActivity"
             android:parentActivityName=".Activities.MyGroupsActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".Activities.ProfileActivity" />
         <activity
             android:name=".Activities.SettingsActivity"
             android:parentActivityName=".Activities.MapsActivity"
