@@ -49,7 +49,9 @@ public class LocationManager {
     public void Logout() {
 
         this.m_CountryCode = null;
-        m_LocationManager.removeUpdates(m_LocationListener);
+        if(m_LocationListener!=null) {
+            m_LocationManager.removeUpdates(m_LocationListener);
+        }
     }
 
     public LocationManager() {
