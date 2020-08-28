@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -25,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupchatapp.Adapters.MessageAdapter;
-import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
 import com.example.groupchatapp.Models.Message;
@@ -524,7 +522,4 @@ public class ChatActivity extends AppCompatActivity {
         rootRef.child("Groups").child(m_CountryCode).child(groupId).child("Messages").removeEventListener(m_MessageEventListener);
         m_ExitRef.child("Users").child(m_LoginManager.getLoggedInUser().getValue().getId()).child("groupsId").child(groupId).removeEventListener(m_UserExitFromGroupEventListener);
     }
-
-
-
 }

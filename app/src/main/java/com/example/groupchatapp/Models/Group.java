@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 
-//רק בשביל להעביר מידע למפות ימחק בהמשך serializable
-//   אולי בהמשך נשנה את שם המחלקה לקבוצה
 public class Group implements Serializable ,IDisplayable {
 
     private String name, photoUrl, id, description;

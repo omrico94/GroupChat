@@ -3,16 +3,9 @@ package com.example.groupchatapp.Activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.SyncRequest;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AlertDialogLayout;
 
 import com.example.groupchatapp.R;
 

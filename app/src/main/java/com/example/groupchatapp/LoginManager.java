@@ -1,6 +1,5 @@
 package com.example.groupchatapp;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.groupchatapp.Models.MyPair;
@@ -30,7 +29,6 @@ public class LoginManager {
     //   private HashMap<String,Group> m_MyGroupsMap;
     private LocationManager m_LocationManager;
 
-    //יש מצב שאפשר לעשות אותו פשוט user
     private MutableLiveData<User> m_CurrentUser;
 
     public MutableLiveData<User> getLoggedInUser(){
