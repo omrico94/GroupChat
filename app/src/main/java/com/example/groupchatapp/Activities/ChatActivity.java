@@ -444,7 +444,6 @@ public class ChatActivity extends AppCompatActivity {
        });
    }
 
-   //כרגע הפונקציה כאן עדיין לא מספיק טובה. צריך לראות איך מאחדים את המקרים כך שגם בשליחת תמונה וגם בשליחת קובץ יהיה המדד לכמה אחוזים נשלחו כבר (או לבטל פשוט בשליחת קובץ)
     private void uploadMessageToStorage() {
         loadingBar.setTitle("Sending File");
         loadingBar.setMessage("Please wait,we are sending the file");

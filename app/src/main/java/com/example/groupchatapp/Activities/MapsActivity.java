@@ -355,12 +355,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void changeMarkerColor(boolean isInGroup,String groupID, boolean isGroupInMyLocation) {
 
-        float markerColor = 210.0f;//קבוצה שאני לא ברדיוס שלה ולא בה - כחול
+        float markerColor = 210.0f;//Not in this group's radius - Blue
 
         if(isInGroup && isGroupInMyLocation) {
-            markerColor = 120.0f;//קבוצה שאני בה וגם ברדיוס שלה - ירוק
+            markerColor = 120.0f;//in this group's radius and not member of this group - Green
         } else if (!isInGroup && isGroupInMyLocation) {
-            markerColor = 0.0f;//קבוצה שאני לא בה אבל בתוך הרדיוס שלה - אדום
+            markerColor = 0.0f;//In this group's radius and not a member - Red
         }
 
         markers.get(groupID).setIcon(BitmapDescriptorFactory.defaultMarker(markerColor));
