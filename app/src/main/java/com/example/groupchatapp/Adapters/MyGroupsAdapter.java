@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -16,7 +15,6 @@ import com.example.groupchatapp.Models.IDisplayable;
 import com.example.groupchatapp.R;
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class MyGroupsAdapter extends IdisplayableAdapter {

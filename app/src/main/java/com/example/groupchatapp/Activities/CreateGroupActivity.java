@@ -30,7 +30,6 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -127,7 +126,6 @@ public class CreateGroupActivity extends AppCompatActivity {
 
                             m_LoginManager.addNewGroupIdToCurrentUser(groupId);
 
-                            //יכולה להיות בעיה אם לא הצלחנו לעלות את התמונה לstorage
                             if (imageUri != null) {
                                 uploadImageToStorage(groupId);
                             }
@@ -157,7 +155,6 @@ public class CreateGroupActivity extends AppCompatActivity {
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                 if (!task.isSuccessful()) {
 
-                    //במידה ונכשלנו לעלות את התמונה - אנחנו צריכים למחוק את הקבוצה שיצרנו מהדאטה בייס
                     RootRef.child("Groups").child( m_LoginManager.getLocationManager().getCountryCode())
                             .child(groupId).removeValue();
                     throw task.getException();

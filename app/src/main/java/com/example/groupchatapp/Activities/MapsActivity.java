@@ -2,8 +2,6 @@ package com.example.groupchatapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.OnLifecycleEvent;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -11,10 +9,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Debug;
 import android.text.InputType;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +22,6 @@ import com.example.groupchatapp.Adapters.MapWrapperAdapter;
 import com.example.groupchatapp.FirebaseListenerService;
 import com.example.groupchatapp.LoginManager;
 import com.example.groupchatapp.Models.Group;
-import com.example.groupchatapp.Models.IDisplayable;
 import com.example.groupchatapp.OnInfoWindowElemTouchListener;
 import com.example.groupchatapp.OnLocationInit;
 import com.example.groupchatapp.OnLocationLimitChange;
@@ -360,12 +355,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void changeMarkerColor(boolean isInGroup,String groupID, boolean isGroupInMyLocation) {
 
-        float markerColor = 210.0f;//קבוצה שאני לא ברדיוס שלה ולא בה - כחול
+        float markerColor = 210.0f;//Not in this group's radius - Blue
 
         if(isInGroup && isGroupInMyLocation) {
-            markerColor = 120.0f;//קבוצה שאני בה וגם ברדיוס שלה - ירוק
+            markerColor = 120.0f;//in this group's radius and not member of this group - Green
         } else if (!isInGroup && isGroupInMyLocation) {
-            markerColor = 0.0f;//קבוצה שאני לא בה אבל בתוך הרדיוס שלה - אדום
+            markerColor = 0.0f;//In this group's radius and not a member - Red
         }
 
         markers.get(groupID).setIcon(BitmapDescriptorFactory.defaultMarker(markerColor));

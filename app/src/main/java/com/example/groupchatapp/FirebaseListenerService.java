@@ -1,16 +1,10 @@
 package com.example.groupchatapp;
 
-import android.os.Build;
-import android.provider.ContactsContract;
-
-import androidx.annotation.RequiresApi;
-
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class FirebaseListenerService {
 

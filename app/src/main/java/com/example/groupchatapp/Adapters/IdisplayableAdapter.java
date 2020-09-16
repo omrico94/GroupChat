@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupchatapp.Models.IDisplayable;
 import com.example.groupchatapp.R;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 

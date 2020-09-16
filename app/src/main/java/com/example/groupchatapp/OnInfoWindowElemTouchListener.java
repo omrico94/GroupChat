@@ -1,6 +1,5 @@
 package com.example.groupchatapp;
 
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;

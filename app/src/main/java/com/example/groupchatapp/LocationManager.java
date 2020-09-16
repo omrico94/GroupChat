@@ -18,8 +18,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.OnLifecycleEvent;
 
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -206,8 +204,6 @@ public class LocationManager {
     {
         return new LatLng(m_Latitude,m_Longitude);
     }
-
-    //לא ידעתי בדיוק איפה להכניס את הקריאה לכאן במיין אקטיביטי. צריך לעשות את זה איפשהו באתחול
 
     public void setOnLocationLimitChange(OnLocationLimitChange listener , int limitOfMeters)
     {
