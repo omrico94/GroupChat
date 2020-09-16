@@ -19,39 +19,39 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-        <activity android:name=".Activities.GroupInfoActivity"
-            android:parentActivityName=".Activities.ChatActivity"
+        <activity android:name=".activities.GroupInfoActivity"
+            android:parentActivityName=".activities.ChatActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".Activities.MapsActivity"
+            android:name=".activities.MapsActivity"
             android:label="@string/title_activity_maps"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
 
         </activity>
         <activity
-            android:name=".Activities.MyGroupsActivity"
+            android:name=".activities.MyGroupsActivity"
             android:launchMode="singleTop"
-            android:parentActivityName=".Activities.MapsActivity"
+            android:parentActivityName=".activities.MapsActivity"
             android:screenOrientation="portrait">
 
         </activity>
         <activity
-            android:name=".Activities.CreateGroupActivity"
-            android:parentActivityName=".Activities.MapsActivity"
+            android:name=".activities.CreateGroupActivity"
+            android:parentActivityName=".activities.MapsActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".Activities.ChatActivity"
-            android:parentActivityName=".Activities.MyGroupsActivity"
+            android:name=".activities.ChatActivity"
+            android:parentActivityName=".activities.MyGroupsActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".Activities.SettingsActivity"
-            android:parentActivityName=".Activities.MapsActivity"
+            android:name=".activities.SettingsActivity"
+            android:parentActivityName=".activities.MapsActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".Activities.RegisterActivity"
+        <activity android:name=".activities.RegisterActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".Activities.LoginActivity"
+        <activity android:name=".activities.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

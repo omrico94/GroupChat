@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#66A8EEF8"
-    tools:context=".Activities.GroupInfoActivity"
+    tools:context=".activities.GroupInfoActivity"
     tools:ignore="ExtraText"><![CDATA[
 
     android:id="@+id/groupFriendsBarLayout"
